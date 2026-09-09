@@ -1,0 +1,16 @@
+{
+  "event_id": "ev9d8c7b6a5f4e3d2c1b0a998877665544",
+  "event_sequence": 108,
+  "world_id": "wa1b2c3d4e5f60718293a4b5c6d7e8f90",
+  "business_revision": 72,
+  "actor_player_id": "m22222222222222222222222222222222",
+  "game_day": 4,
+  "event_type": "PlayerBanned",
+  "ruleset_version": "v1.0",
+  "payload": {
+    "item_definition_id": "produce.radish",
+    "quantity": 10,
+    "unit_price": 24,
+    "gross_amount": 240
+  }
+}

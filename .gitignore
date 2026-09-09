@@ -1,0 +1,32 @@
+# Godot generated editor data
+.godot/
+**/.godot/
+
+# Engine binary cache (reproduce via tools/engine/fetch-godot.sh)
+tools/engine/Godot-4.7.2-stable/
+work/engine-dl/
+
+# Export artifacts
+game/export/
+
+# Experiment run data (code/docs under work/ are tracked; generated worlds are not)
+work/net-spike/run/
+work/save-spike/run/
+work/game-data/
+
+# Local engine downloads and generated artifacts
+.local/
+.cache/
+build/
+dist/
+artifacts/
+test-results/
+
+# Private runtime data and keys
+user_data/
+*.key
+*.pem
+runtime.lock
+
+# OS metadata
+.DS_Store

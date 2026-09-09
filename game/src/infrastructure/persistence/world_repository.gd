@@ -71,9 +71,9 @@ func _read_lock_info() -> Dictionary:
 func _pid_alive(pid: int) -> bool:
 	if pid <= 0:
 		return false
-	var output: Array = []
-	OS.execute("kill", PackedStringArray(["-0", str(pid)]), output, true)
-	return not output.is_empty() and int(str(output[0])) == 0
+	# Godot 4 跨平台进程存活检测：Unix 内部即 kill(pid,0)，Windows 用 OpenProcess。
+	# 原实现直接调 kill -0，Windows 无该命令，会把活锁误判为陈旧锁。
+	return OS.is_process_running(pid)
 
 
 func _remove_lock_dir() -> bool:

@@ -1,0 +1,676 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 560.94 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 2060 SUPER
+
+{"audio_players_created":0,"display_server":"Windows","engine_version":"4.7.2.stable.official.ed1daf0bf001b61586d9930840f2f1394092c079","event":"boot_summary","game_version":"0.1.0","headless":false,"local_character_created":false,"mode":"solo","network_listening":false,"note":"M1: windowed modes load the client; headless/dedicated stay UI-free and exit after summary.","port":0,"protocol_version":1,"ui_nodes_created":0,"world_dir":""}
+ERROR: Unable to open file: res://.godot/imported/tile_grass.png-89bbaaef6933a782baa32d1eee591f14.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/tile_grass.png-89bbaaef6933a782baa32d1eee591f14.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/tile_grass.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/tile_soil.png-e0ae229688e1c931c9d47f95e24f903d.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/tile_soil.png-e0ae229688e1c931c9d47f95e24f903d.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/tile_soil.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/tile_soil_tilled.png-0e33ee79bb40a43e3882d42b56c62da9.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/tile_soil_tilled.png-0e33ee79bb40a43e3882d42b56c62da9.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/tile_soil_tilled.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/tile_soil_wet.png-8cd9314f038e5442294de8aaba06502c.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/tile_soil_wet.png-8cd9314f038e5442294de8aaba06502c.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/tile_soil_wet.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/tile_path.png-eb5df49318360af9ec0b03dafbb20bfc.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/tile_path.png-eb5df49318360af9ec0b03dafbb20bfc.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/tile_path.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/tile_blocked.png-01294721734559bd4747c1a0996a10cd.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/tile_blocked.png-01294721734559bd4747c1a0996a10cd.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/tile_blocked.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/tile_facility.png-1551ba050f0e7841443c0a19bce570e4.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/tile_facility.png-1551ba050f0e7841443c0a19bce570e4.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/tile_facility.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/tile_spawn.png-d94aa2ac0c91b918900345bddd1fe13d.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/tile_spawn.png-d94aa2ac0c91b918900345bddd1fe13d.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/tile_spawn.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/avatar_1.png-491c5e21e6787b365d3b9ca738358ea7.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/avatar_1.png-491c5e21e6787b365d3b9ca738358ea7.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/avatar_1.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/avatar_2.png-d9377c6e8430983cac32f5c2a259753a.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/avatar_2.png-d9377c6e8430983cac32f5c2a259753a.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/avatar_2.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/avatar_3.png-ed81e096bf3bcac6c4cc83f0963281e3.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/avatar_3.png-ed81e096bf3bcac6c4cc83f0963281e3.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/avatar_3.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/avatar_4.png-5146b18d85d364d4ab0a43339db26702.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/avatar_4.png-5146b18d85d364d4ab0a43339db26702.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/avatar_4.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_radish_sown.png-480ab082809455b73c3252ae16663ba1.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_radish_sown.png-480ab082809455b73c3252ae16663ba1.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_radish_sown.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_radish_mature.png-e30c4f80007725c38a0d436d359b9dd0.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_radish_mature.png-e30c4f80007725c38a0d436d359b9dd0.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_radish_mature.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_potato_sown.png-37cc8dc94546fc1eced28e9cb6f613ed.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_potato_sown.png-37cc8dc94546fc1eced28e9cb6f613ed.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_potato_sown.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_potato_seedling.png-02bb2060ca6d5a1b1fce82e2096d6ee8.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_potato_seedling.png-02bb2060ca6d5a1b1fce82e2096d6ee8.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_potato_seedling.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_potato_mature.png-dbd63e291637819eec26ca30bea2c855.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_potato_mature.png-dbd63e291637819eec26ca30bea2c855.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_potato_mature.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_wheat_sown.png-297b3be595703a0956db405862dff4e9.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_wheat_sown.png-297b3be595703a0956db405862dff4e9.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_wheat_sown.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_wheat_seedling.png-b318f35d30ae3cf93fc57e0a3dd42ed5.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_wheat_seedling.png-b318f35d30ae3cf93fc57e0a3dd42ed5.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_wheat_seedling.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_wheat_mature.png-1a54002aa1ba44f9599138b390ef2822.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_wheat_mature.png-1a54002aa1ba44f9599138b390ef2822.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_wheat_mature.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_carrot_sown.png-b1f86dc6ec45ba621bc9a4cba5e8f41d.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_carrot_sown.png-b1f86dc6ec45ba621bc9a4cba5e8f41d.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_carrot_sown.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_carrot_seedling.png-5d701ca303ee0d15eaf306a08b33fa96.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_carrot_seedling.png-5d701ca303ee0d15eaf306a08b33fa96.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_carrot_seedling.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_carrot_growing.png-b4ec5ee54a6baeaf2b1828ddd05122e7.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_carrot_growing.png-b4ec5ee54a6baeaf2b1828ddd05122e7.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_carrot_growing.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_carrot_mature.png-d575b1fe5db6764def3a27cd456b9452.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_carrot_mature.png-d575b1fe5db6764def3a27cd456b9452.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_carrot_mature.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_strawberry_sown.png-fcd13c85831050fc24d09ac0f0718f16.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_strawberry_sown.png-fcd13c85831050fc24d09ac0f0718f16.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_strawberry_sown.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_strawberry_seedling.png-45bf9087c58e2c69fad0c6adaca8c711.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_strawberry_seedling.png-45bf9087c58e2c69fad0c6adaca8c711.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_strawberry_seedling.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_strawberry_growing.png-7184761fc71ac78a07427c0471e4b253.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_strawberry_growing.png-7184761fc71ac78a07427c0471e4b253.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_strawberry_growing.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Unable to open file: res://.godot/imported/crop_strawberry_mature.png-58a29633977b6e91a0d7a2d3dd2b56de.ctex.
+   at: _load_data (scene/resources/compressed_texture.cpp:45)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://.godot/imported/crop_strawberry_mature.png-58a29633977b6e91a0d7a2d3dd2b56de.ctex.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)
+ERROR: Failed loading resource: res://assets/generated/crop_strawberry_mature.png.
+   at: _load (core/io/resource_loader.cpp:317)
+   GDScript backtrace (most recent call first):
+       [0] _load_textures (res://src/client/farm_view.gd:38)
+       [1] setup (res://src/client/farm_view.gd:21)
+       [2] _after_world_active (res://src/client/client_root.gd:578)
+       [3] action_create_world (res://src/client/client_root.gd:80)
+       [4] <anonymous lambda> (res://src/client/client_root.gd:708)

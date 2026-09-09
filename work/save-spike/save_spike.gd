@@ -85,16 +85,12 @@ static func _read_lock_info(world_dir: String) -> Dictionary:
 	return parsed
 
 
-## macOS：kill -0 判断进程存活（同用户进程）。Windows 方案未验证，见 docs/adr/DATA-00.md。
+## 跨平台进程存活检测（Godot 4）：Unix 内部即 kill(pid,0)；Windows 用 OpenProcess。
+## 原 kill -0 直调在 Windows 无此命令；Windows 路线已在 win64 实机验证，见 docs/adr/DATA-00.md。
 static func _pid_alive(pid: int) -> bool:
 	if pid <= 0:
 		return false
-	var output: Array = []
-	OS.execute("kill", PackedStringArray(["-0", str(pid)]), output, true)
-	var exit_code := 1
-	if not output.is_empty():
-		exit_code = int(str(output[0]))
-	return exit_code == 0
+	return OS.is_process_running(pid)
 
 
 # ================= 代际发布 =================

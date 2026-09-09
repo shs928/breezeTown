@@ -19,11 +19,33 @@ cd "$ROOT"
 resolve_godot() {
   if [ -n "${GODOT:-}" ] && [ -x "$GODOT" ]; then echo "$GODOT"; return 0; fi
   local lock="$ROOT/docs/build/engine-lock.json"
-  local rel
-  rel="$(python3 -c "import json;print(json.load(open('$lock'))['engine']['local_engine_path'])" 2>/dev/null)"
-  if [ -n "$rel" ] && [ -x "$ROOT/$rel/Contents/MacOS/Godot" ]; then
-    echo "$ROOT/$rel/Contents/MacOS/Godot"; return 0
+  local rel key
+  # 平台优先键：macOS 用 *_macos，其余（Windows/Linux）用 *_windows 或默认键。
+  case "$(uname -s)" in
+    Darwin) key="local_engine_path_macos" ;;
+    *)      key="local_engine_path_windows" ;;
+  esac
+  # 优先用 python 解析锁文件；不可用时退回按行 grep（Windows 常无 python3）。
+  if command -v python3 >/dev/null 2>&1; then
+    rel="$(python3 -c "import json;d=json.load(open('$lock'))['engine'];print(d.get('$key') or d.get('local_engine_path',''))" 2>/dev/null)"
   fi
+  if [ -z "${rel:-}" ]; then
+    rel="$(grep -o "\"$key\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" "$lock" 2>/dev/null | sed 's/.*:[[:space:]]*"//; s/"$//')"
+  fi
+  if [ -z "${rel:-}" ]; then
+    rel="$(grep -o '"local_engine_path"[[:space:]]*:[[:space:]]*"[^"]*"' "$lock" 2>/dev/null | sed 's/.*:[[:space:]]*"//; s/"$//')"
+  fi
+  if [ -n "${rel:-}" ] && [ -x "$ROOT/$rel" ]; then
+    echo "$ROOT/$rel"; return 0
+  fi
+  # 兜底：仓库内已解压的引擎（macOS 与 Windows 命名不同）。
+  local cand
+  for cand in \
+    "$ROOT/tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot" \
+    "$ROOT/tools/engine/Godot-4.7.2-stable/Godot_v4.7.2-stable_win64_console.exe" \
+    "$ROOT/tools/engine/Godot-4.7.2-stable/Godot_v4.7.2-stable_win64.exe"; do
+    if [ -x "$cand" ]; then echo "$cand"; return 0; fi
+  done
   return 1
 }
 

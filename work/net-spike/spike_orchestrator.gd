@@ -213,7 +213,9 @@ func _scenario_4_seat_capacity(main_cert: String, main_key: String) -> void:
 
 func _scenario_5_approval_queue(main_cert: String, main_key: String) -> void:
 	var port := _next_port()
-	var srv := _spawn_server(port, main_cert, main_key, "manual", 2.0, 14.0)
+	# TTL 必须覆盖第 9 个客户端的完整启动+连接耗时（Windows 进程启动显著慢于 macOS，
+	# 2s 时队列会先整体过期，第 9 个连接会被误判为可入队）；8 个等待者改在 6s 处超时，仍在 8s 预算内。
+	var srv := _spawn_server(port, main_cert, main_key, "manual", 6.0, 20.0)
 	var tokens: Array[String] = []
 	var pending_clients: Array[Dictionary] = []
 	for i in 8:

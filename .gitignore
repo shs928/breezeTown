@@ -30,3 +30,7 @@ runtime.lock
 
 # OS metadata
 .DS_Store
+
+# 3D 原型的本地运行产物
+work/game-3d-*.log
+work/game-3d-*.png

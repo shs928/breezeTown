@@ -34,3 +34,4 @@ runtime.lock
 # 3D 原型的本地运行产物
 work/game-3d-*.log
 work/game-3d-*.png
+work/art-2_5d/

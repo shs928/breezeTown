@@ -1,0 +1,7 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+BUILDING_MODEL cottage {"maximum":[2.40800023078918,4.43000030517578,3.0],"mesh_instances":586,"minimum":[-2.40499997138977,0.0,-2.17999982833862],"size":[4.81300020217896,4.43000030517578,5.17999982833862],"triangles":46720}
+BUILDING_MODEL shop {"maximum":[2.60800004005432,4.23199987411499,3.02629542350769],"mesh_instances":734,"minimum":[-2.59500002861023,0.0,-2.18999981880188],"size":[5.20300006866455,4.23199987411499,5.21629524230957],"triangles":53982}
+BUILDINGS_OK

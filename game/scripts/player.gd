@@ -4,19 +4,25 @@ extends CharacterBody3D
 const F = preload("res://scripts/art/farmer_model.gd")
 const FarmerAnim = preload("res://scripts/farmer_anim.gd")
 
-const SPEED := 3.3
+const SPEED := 3.6
 const TURN_SPEED := 11.0
+const CAMERA_OFFSET := Vector3(0, 10.4, 8.3)
 
 var camera: Camera3D
 var locked := false  # 商店面板打开或过场时锁住移动
 var acting := false
-var zoom_levels: Array[float] = [1.0, 0.78, 1.12, 1.5]
+var zoom_levels: Array[float] = [1.0, 0.8, 1.3, 1.8]
 var zoom_index := 0
 
 var _farmer: Node3D
 var _anim: AnimationPlayer
-var _bound_a := 10.0
-var _bound_b := 7.55
+var _bound_half := Vector2(46, 36)
+var _bound_pow := 6
+
+
+func set_bounds(half: Vector2, power: int) -> void:
+	_bound_half = half
+	_bound_pow = power
 
 
 func _ready() -> void:
@@ -52,15 +58,15 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector3.ZERO
 		if not acting and _anim.current_animation != "idle":
 			_anim.play("idle")
-	# 圈定在岛屿范围内，脚底贴地。
+	# 圈定在圆角矩形岛屿范围内，脚底贴地。
 	var p := global_position
 	p.y = 0.0
-	var edge := (p.x / _bound_a) * (p.x / _bound_a) + (p.z / _bound_b) * (p.z / _bound_b)
+	var edge: float = pow(absf(p.x) / _bound_half.x, _bound_pow) + pow(absf(p.z) / _bound_half.y, _bound_pow)
 	if edge > 1.0:
-		p /= sqrt(edge)
+		p *= pow(1.0 / edge, 1.0 / float(_bound_pow)) as float
 	global_position = p
 	if is_instance_valid(camera):
-		var desired := global_position + Vector3(0, 8.6, 7.0) * zoom_levels[zoom_index]
+		var desired: Vector3 = global_position + CAMERA_OFFSET * zoom_levels[zoom_index]
 		camera.global_position = camera.global_position.lerp(desired, 1.0 - exp(-6.0 * delta))
 		camera.look_at(global_position + Vector3(0, 0.95, 0))
 

@@ -1,26 +1,36 @@
 extends Node3D
-## 微风小镇 3D 可玩原型主控：建图、昼夜循环、交互、界面与自动化验证。
+## 微风小镇 3D 原型主控：大地图（农田＋牧场）、昼夜循环、交互、界面与自动化验证。
 
 const GameState := preload("res://scripts/game_state.gd")
 const WorldBuilder := preload("res://scripts/world_builder.gd")
 const Plot := preload("res://scripts/plot.gd")
 const Player := preload("res://scripts/player.gd")
 const Hud := preload("res://scripts/hud.gd")
+const Animal := preload("res://scripts/animal.gd")
+const Pickup := preload("res://scripts/pickup.gd")
+const Trough := preload("res://scripts/trough.gd")
 
 const DAY_SECONDS := 150.0  # 现实秒 / 游戏日
-const INTERACT_RANGE := 1.85
 const SHOP_RANGE := 2.4
 const COTTAGE_RANGE := 2.3
+const PLOT_RANGE := 1.95
+const ANIMAL_RANGE := 1.7
+const PICKUP_RANGE := 1.35
+const TROUGH_RANGE := 2.0
 const TOOLS := ["hand", "hoe", "can", "seed"]
+const ANIMAL_ROSTER := ["cow", "cow", "sheep", "sheep", "chicken", "chicken", "chicken"]
 
 var state: RefCounted
 var player: CharacterBody3D
 var hud: CanvasLayer
 var plots: Array = []
+var animals: Array = []
+var pickups: Array = []
+var trough: Node3D
 var landmarks: Dictionary = {}
 var tool_index := 0
 var selected_seed := "radish"
-var targeted_plot: Node3D
+var focus: Dictionary = {}  # {"kind": "plot|animal|pickup|trough|shop|cottage", "node": ...}
 
 var _camera: Camera3D
 var _sun: DirectionalLight3D
@@ -55,16 +65,29 @@ func _ready() -> void:
 		plot.setup(11 + index * 7)
 		add_child(plot)
 		plots.append(plot)
+	trough = Trough.new()
+	trough.name = "Trough"
+	trough.position = landmarks["trough"]
+	trough.setup()
+	add_child(trough)
+	var pasture: Rect2 = built["pasture"]
+	for index in range(ANIMAL_ROSTER.size()):
+		var animal: Node3D = Animal.new()
+		animal.name = "Animal_%d" % index
+		animal.setup(ANIMAL_ROSTER[index], pasture, 700 + index * 131)
+		add_child(animal)
+		animals.append(animal)
 	player = Player.new()
 	player.name = "Player"
 	player.position = landmarks["spawn"]
 	add_child(player)
+	player.set_bounds(built["bounds"]["half"], built["bounds"]["pow"])
 	_camera = Camera3D.new()
 	_camera.fov = 42.0
 	_camera.near = 0.1
-	_camera.far = 320.0
+	_camera.far = 360.0
 	add_child(_camera)
-	_camera.global_position = player.global_position + Vector3(0, 8.6, 7.0)
+	_camera.global_position = player.global_position + Player.CAMERA_OFFSET
 	_camera.look_at(player.global_position + Vector3(0, 0.95, 0))
 	_camera.current = true
 	player.camera = _camera
@@ -134,82 +157,138 @@ func _select_tool(index: int) -> void:
 
 
 func _update_targeting() -> void:
-	var previous := targeted_plot
-	targeted_plot = null
+	var previous: Node3D = focus.get("node") if focus.has("node") else null
+	if focus.get("kind") == "plot" and is_instance_valid(previous):
+		previous.set_targeted(false)
+	focus = {}
 	var hint := ""
 	var player_pos: Vector3 = player.global_position
 	if hud.shop_open:
 		hint = "Esc 离开商店"
+	elif player_pos.distance_to(landmarks["shop_door"]) <= SHOP_RANGE:
+		focus = {"kind": "shop", "node": null}
+		hint = "按 E 打开种子商店"
+	elif player_pos.distance_to(landmarks["cottage_door"]) <= COTTAGE_RANGE:
+		focus = {"kind": "cottage", "node": null}
+		hint = "按 E 回屋休息到明天"
 	else:
-		if player_pos.distance_to(landmarks["shop_door"]) <= SHOP_RANGE:
-			hint = "按 E 打开种子商店"
-		elif player_pos.distance_to(landmarks["cottage_door"]) <= COTTAGE_RANGE:
-			hint = "按 E 回屋休息到明天"
-		else:
-			var best_distance := INTERACT_RANGE
-			for plot in plots:
-				var distance: float = player_pos.distance_to(plot.global_position)
-				if distance < best_distance:
-					best_distance = distance
-					targeted_plot = plot
-			if targeted_plot != null:
-				hint = "按 E %s" % targeted_plot.action_label()
-			else:
-				hint = "WASD 移动 · 1-4 换工具 · 靠近田块或设施按 E"
-	if previous != targeted_plot:
-		if is_instance_valid(previous):
-			previous.set_targeted(false)
-		if targeted_plot != null:
-			targeted_plot.set_targeted(true)
+		var best_distance := 1.0e9
+		for plot in plots:
+			var distance: float = player_pos.distance_to(plot.global_position)
+			if distance < PLOT_RANGE and distance < best_distance:
+				best_distance = distance
+				focus = {"kind": "plot", "node": plot}
+		for pickup in pickups:
+			var distance: float = player_pos.distance_to(pickup.global_position)
+			if distance < PICKUP_RANGE and distance < best_distance:
+				best_distance = distance
+				focus = {"kind": "pickup", "node": pickup}
+		for animal in animals:
+			var distance: float = player_pos.distance_to(animal.global_position)
+			if distance < ANIMAL_RANGE and distance < best_distance:
+				best_distance = distance
+				focus = {"kind": "animal", "node": animal}
+		var trough_distance: float = player_pos.distance_to(trough.global_position)
+		if trough_distance < TROUGH_RANGE and trough_distance < best_distance:
+			best_distance = trough_distance
+			focus = {"kind": "trough", "node": trough}
+		match focus.get("kind"):
+			"plot":
+				var plot: Node3D = focus["node"]
+				plot.set_targeted(true)
+				hint = "按 E %s" % plot.action_label()
+			"pickup":
+				var pickup: Node3D = focus["node"]
+				hint = "按 E 捡起 %s" % pickup.label()
+			"animal":
+				var animal: Node3D = focus["node"]
+				hint = "今天已经摸过 %s了" % animal.label() if animal.petted_today else "按 E 抚摸 %s" % animal.label()
+			"trough":
+				hint = "食槽已装满干草" if trough.filled else "按 E 填满干草（动物明早产出）"
+			_:
+				hint = "WASD 移动 · 1-4 换工具 · 靠近目标按 E"
 	hud.set_hint(hint)
 
 
 func _interact() -> void:
 	if hud.shop_open:
 		return
-	if player_pos().distance_to(landmarks["shop_door"]) <= SHOP_RANGE:
-		player.locked = true
-		hud.open_shop()
-		return
-	if player_pos().distance_to(landmarks["cottage_door"]) <= COTTAGE_RANGE:
-		_sleep()
-		return
-	if targeted_plot == null:
-		return
-	var tool: String = TOOLS[tool_index]
-	if tool == "seed":
-		if state.seeds[selected_seed] <= 0:
-			hud.show_toast("%s 种子不够了，去商店买一些" % GameState.crop_label(selected_seed))
-			return
-		state.seeds[selected_seed] -= 1
-	if tool == "hand" and targeted_plot.is_mature():
-		state.harvest[targeted_plot.crop_kind] += 1
-		hud.show_toast("收获 %s ×1" % GameState.crop_label(targeted_plot.crop_kind))
-	targeted_plot.apply_tool(tool, selected_seed)
-	player.start_act()
-	hud.refresh()
-	hud.select_slot(tool_index, selected_seed, state.seeds[selected_seed])
-
-
-func player_pos() -> Vector3:
-	return player.global_position
+	match focus.get("kind"):
+		"shop":
+			player.locked = true
+			hud.open_shop()
+		"cottage":
+			_sleep()
+		"pickup":
+			var pickup: Node3D = focus["node"]
+			state.products[pickup.kind] += 1
+			hud.show_toast("捡起 %s ×1" % pickup.label())
+			pickups.erase(pickup)
+			pickup.queue_free()
+			hud.refresh()
+		"animal":
+			var animal: Node3D = focus["node"]
+			if animal.pet():
+				hud.show_toast("%s 很开心 ♥" % animal.label())
+			else:
+				hud.show_toast("%s 今天已经很开心了" % animal.label())
+			player.start_act()
+		"trough":
+			trough.set_filled(true)
+			hud.show_toast("干草已装满，动物们明早会有产出")
+			player.start_act()
+		"plot":
+			var plot: Node3D = focus["node"]
+			var tool: String = TOOLS[tool_index]
+			if tool == "seed":
+				if state.seeds[selected_seed] <= 0:
+					hud.show_toast("%s 种子不够了，去商店买一些" % GameState.crop_label(selected_seed))
+					return
+				state.seeds[selected_seed] -= 1
+			if tool == "hand" and plot.is_mature():
+				state.harvest[plot.crop_kind] += 1
+				hud.show_toast("收获 %s ×1" % GameState.crop_label(plot.crop_kind))
+			plot.apply_tool(tool, selected_seed)
+			player.start_act()
+			hud.refresh()
+			hud.select_slot(tool_index, selected_seed, state.seeds[selected_seed])
 
 
 func _sleep() -> void:
-	hud.fade_sleep(func() -> void:
-		_do_sleep()
-		hud.show_toast("第 %d 天的早晨" % state.day))
+	hud.fade_sleep(func(): _do_sleep_and_greet())
 
 
-func _do_sleep() -> void:
-	_apply_rollover()
-	state.sleep_to_next_day()
-	hud.refresh()
+func _do_sleep_and_greet() -> void:
+	_do_sleep()
+	hud.show_toast("第 %d 天的早晨" % state.day)
 
 
 func _apply_rollover() -> void:
 	for plot in plots:
 		plot.on_day_rollover()
+	for animal in animals:
+		animal.on_new_day()
+	if trough.filled:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = state.day * 977 + 13
+		var pasture: Rect2 = WorldBuilder.PASTURE
+		for animal in animals:
+			var pickup := Pickup.new()
+			pickup.setup(animal.product_kind())
+			pickup.position = Vector3(
+				rng.randf_range(pasture.position.x + 1.2, pasture.position.x + pasture.size.x - 1.2),
+				0,
+				rng.randf_range(pasture.position.y + 1.2, pasture.position.y + pasture.size.y - 1.2)
+			)
+			add_child(pickup)
+			pickups.append(pickup)
+		trough.set_filled(false)
+	hud.refresh()
+
+
+func _do_sleep() -> void:
+	_apply_rollover()
+	state.sleep_to_next_day()
 	hud.refresh()
 
 
@@ -223,7 +302,7 @@ func _on_buy(kind: String, count: int) -> void:
 
 func _on_sell() -> void:
 	var earned: int = state.sell_all_harvest()
-	hud.show_toast("卖出全部收获，+ %d 金币" % earned)
+	hud.show_toast("卖出收获与产品，+ %d 金币" % earned)
 	hud.refresh()
 
 
@@ -249,7 +328,7 @@ func _setup_environment() -> void:
 	_sun.shadow_enabled = true
 	_sun.shadow_bias = 0.024
 	_sun.shadow_normal_bias = 0.65
-	_sun.directional_shadow_max_distance = 70.0
+	_sun.directional_shadow_max_distance = 150.0
 	_sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL
 	add_child(_sun)
 	_fill = DirectionalLight3D.new()
@@ -257,23 +336,23 @@ func _setup_environment() -> void:
 	_fill.light_color = Color("#d7ebf1")
 	_fill.light_energy = 0.2
 	add_child(_fill)
-	for entry in [Vector3(-4.4, 1.9, -3.4), Vector3(-4.3, 1.6, -2.3), Vector3(3.3, 1.8, -3.9), Vector3(1.5, 1.5, -2.7)]:
+	for entry in [Vector3(-29.5, 2.1, -13.3), Vector3(-31.8, 1.7, -15.6), Vector3(21.0, 2.0, -15.1), Vector3(23.6, 1.6, -16.2), Vector3(2.0, 1.5, 7.9), Vector3(-2.2, 1.5, -1.9)]:
 		var lamp := OmniLight3D.new()
 		lamp.position = entry
 		lamp.light_color = Color("#ffc372")
 		lamp.light_energy = 0.0
-		lamp.omni_range = 5.2
+		lamp.omni_range = 6.5
 		lamp.omni_attenuation = 1.35
 		lamp.shadow_enabled = false
 		lamp.light_size = 0.22
 		add_child(lamp)
 		_night_lights.append(lamp)
 	var plane := PlaneMesh.new()
-	plane.size = Vector2(300, 300)
+	plane.size = Vector2(700, 700)
 	var ground := MeshInstance3D.new()
 	ground.mesh = plane
 	ground.material_override = preload("res://scripts/art/art_mesh.gd").paint("#cfdbbd")
-	ground.position.y = -1.06
+	ground.position.y = -1.20
 	add_child(ground)
 
 
@@ -334,8 +413,10 @@ func _run_smoke() -> void:
 	print("SMOKE_BEGIN")
 	await _frames(3)
 	_check("boot-coins", state.coins == 20 and state.seeds["radish"] == 6)
+	_check("world-plots", plots.size() == 30 and animals.size() == 7)
 	var plot: Node3D = plots[0]
-	player.global_position = plot.global_position + Vector3(1.5, 0, 0.3)
+	# 站在目标田正北：到 plots[0] 最近，且不被相邻田块抢焦点。
+	player.global_position = plot.global_position + Vector3(0, 0, -1.3)
 	await _frames(2)
 	_update_targeting()
 	_select_tool(1)
@@ -349,7 +430,6 @@ func _run_smoke() -> void:
 	_update_targeting()
 	_interact()
 	_check("water", plot.watered)
-	# 生长规则：当天浇过水的作物日切时才长一阶，所以要逐天浇水。
 	plot.on_day_rollover()
 	_select_tool(2)
 	_update_targeting()
@@ -369,8 +449,35 @@ func _run_smoke() -> void:
 	_check("sell", state.coins == 28)
 	hud.close_shop()
 	_check("shop-close", not hud.shop_open and not player.locked)
+	# 牧场流程：填食槽 → 抚摸动物 → 睡觉 → 产出 → 拾取 → 出售。
+	player.global_position = landmarks["trough"] + Vector3(1.0, 0, 0.4)
+	await _frames(2)
+	_update_targeting()
+	_interact()
+	_check("trough-fill", trough.filled)
+	var cow: Node3D = animals[0]
+	player.global_position = cow.global_position + Vector3(1.2, 0, 0.2)
+	await _frames(2)
+	_update_targeting()
+	_interact()
+	_check("pet", cow.petted_today)
 	_do_sleep()
 	_check("sleep", state.day == 2 and state.clock == 6.0 and not plot.watered)
+	_check("produce", pickups.size() == animals.size())
+	var milk_pickup: Node3D = null
+	for pickup in pickups:
+		if pickup.kind == "milk":
+			milk_pickup = pickup
+			break
+	_check("produce-milk", milk_pickup != null)
+	if milk_pickup != null:
+		player.global_position = milk_pickup.global_position + Vector3(0.9, 0, 0.2)
+		await _frames(2)
+		_update_targeting()
+		_interact()
+	_check("collect", state.products["milk"] == 1)
+	_on_sell()
+	_check("sell-ranch", state.coins == 42)
 	var result := "PASS" if _smoke_failures.is_empty() else "FAIL " + ",".join(_smoke_failures)
 	print("SMOKE_RESULT " + result)
 	get_tree().quit(0 if _smoke_failures.is_empty() else 1)
@@ -379,7 +486,12 @@ func _run_smoke() -> void:
 func _run_shot() -> void:
 	if _demo:
 		_build_demo_state()
-	for frame in range(80):
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--at="):
+			var pair := argument.trim_prefix("--at=").split(",")
+			player.global_position = Vector3(pair[0].to_float(), 0, pair[1].to_float())
+			_update_targeting()
+	for frame in range(110):
 		await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	var picture := get_viewport().get_texture().get_image()
@@ -389,7 +501,7 @@ func _run_shot() -> void:
 
 
 func _build_demo_state() -> void:
-	## 展示各生长阶段：萝卜苗、半熟草莓、成熟小麦与南瓜（带金圈）。
+	## 展示各生长阶段与牧场（含干草食槽与一件产出物）。
 	var recipes := [["radish", 0], ["strawberry", 1], ["wheat", 3], ["pumpkin", 4]]
 	for index in range(recipes.size()):
 		var plot: Node3D = plots[index]
@@ -399,7 +511,13 @@ func _build_demo_state() -> void:
 		plot.debug_set_stage(recipes[index][1])
 		if recipes[index][1] < 2:
 			plot.apply_tool("can")
-	player.global_position = plots[0].global_position + Vector3(2.0, 0, 2.1)
+	trough.set_filled(true)
+	var gift := Pickup.new()
+	gift.setup("milk")
+	gift.position = Vector3(14.5, 0, 9)
+	add_child(gift)
+	pickups.append(gift)
+	player.global_position = Vector3(6, 0, 19)
 	_update_targeting()
 	hud.refresh()
 	hud.select_slot(tool_index, selected_seed, state.seeds[selected_seed])

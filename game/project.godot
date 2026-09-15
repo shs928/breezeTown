@@ -1,4 +1,11 @@
-; 微风小镇 · 3D 原型。美术资产全部由 GDScript 程化建模（复用 art/2_5d 工坊脚本）。
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
 config_version=5
 
 [application]
@@ -17,11 +24,9 @@ window/size/window_height_override=800
 
 [rendering]
 
-renderer/rendering_method="forward_plus"
 renderer/rendering_method.mobile="gl_compatibility"
-anti_aliasing/quality/msaa_3d=2
-anti_aliasing/quality/use_taa=true
 lights_and_shadows/directional_shadow/size=8192
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=4
-lights_and_shadows/positional_shadow/atlas_size=4096
+anti_aliasing/quality/msaa_3d=2
 environment/defaults/default_clear_color=Color(0.76, 0.81, 0.76, 1)
+anti_aliasing/quality/use_taa=true

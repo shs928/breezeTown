@@ -1,83 +1,168 @@
 extends RefCounted
-## 组建可玩的 3D 农场地图：地形、建筑、农田、装饰、碰撞体与地标。
-## 布局改编自 art/2_5d 的农场微缩景观，单位：米。
+## 组建第一张大地图（约 92×72 米）：西南农舍、东南商店、西侧大农田、
+## 东侧牧场（谷仓/鸡舍/食槽/围栏草场）、北部森林与东北池塘。
+## 重复道具用模板 duplicate() 复用网格；碰撞体随放置登记。
 
 const M = preload("res://scripts/art/art_mesh.gd")
 const L = preload("res://scripts/art/landscape_models.gd")
 const B = preload("res://scripts/art/building_models.gd")
+const Ranch = preload("res://scripts/ranch_models.gd")
 
-## 玩家活动范围（岛屿椭圆略内收）。
-const BOUND_A := 10.0
-const BOUND_B := 7.55
+const BOUND_HALF := Vector2(46.0, 36.0)
+const BOUND_POW := 6
+const PASTURE := Rect2(10, 4, 24, 16)
+const FIELD_RECT := Rect2(-27, 1, 20, 17)
+const RANCH_RECT := Rect2(9, -2, 27, 24)
+
+static var _templates := {}
 
 
 static func build() -> Dictionary:
 	var root := Node3D.new()
 	root.name = "World"
-	root.add_child(L.terrain())
-	for patch in [Vector3(-7.9, 1.4, -5.6), Vector3(4.6, 2.8, -3.5), Vector3(-6.0, 2.8, 4.5), Vector3(3.8, 1.8, 6.7), Vector3(8.7, 1.1, -4.6)]:
-		place(root, L.meadow_patch(patch.y, patch.y * 0.7, "#92b174", int(patch.x * 7)), Vector3(patch.x, 0, patch.z))
-	place(root, B.cottage(), Vector3(-5.15, 0.025, -4.20), 0.025)
-	place(root, B.shop(), Vector3(2.70, 0.025, -4.65), -0.045)
-	_path(root, [Vector3(0.05, 0, 7.5), Vector3(-0.20, 0, 5.9), Vector3(0.13, 0, 3.7), Vector3(-0.1, 0, 1.5), Vector3(0.2, 0, -0.75)], 1.52)
-	_path(root, [Vector3(-7.8, 0, -0.62), Vector3(-4.7, 0, -0.52), Vector3(0.2, 0, -0.75), Vector3(3.7, 0, -0.8), Vector3(6.9, 0, -0.35)], 1.15)
-	_path(root, [Vector3(0.17, 0, 2.7), Vector3(2.4, 0, 2.60), Vector3(4.4, 0, 2.70)], 0.94)
-	place(root, L.pond(), Vector3(5.6, 0.0, 4.1), -0.15)
-	place(root, L.footbridge(), Vector3(5.48, 0.04, 2.72), 0.06)
-	place(root, L.well(), Vector3(6.30, 0.0, 1.10), -0.2)
-	for item in [Vector4(-8.6, -5.95, 1.08, 1), Vector4(-0.15, -6.6, 1.12, 2), Vector4(7.9, -5.8, 1.2, 3), Vector4(-9.0, -0.25, 0.88, 4), Vector4(9.0, 0.7, 0.88, 5)]:
-		place(root, L.tree(int(item.w), item.w == 4), Vector3(item.x, 0, item.y), item.w * 0.49, item.z)
-	for x in [-8.4, -6.0, -3.6, -1.2, 1.2, 3.6, 6.0, 8.4]:
-		place(root, L.fence(), Vector3(x, 0.01, -7.1))
-	for z in [-4.8, -2.4, 0.0, 2.4, 4.8, 6.8]:
-		place(root, L.fence(2.4 if z < 6.0 else 1.6), Vector3(-9.8, 0.01, z), PI * 0.5)
-	for z in [-4.8, -2.4, 0.0]:
-		place(root, L.fence(), Vector3(9.7, 0.01, z), PI * 0.5)
-	for x in [-7.1, -4.7, 3.4, 5.8, 8.2]:
-		place(root, L.fence(), Vector3(x, 0, 7.3))
-	place(root, L.barrel(), Vector3(-7.64, 0.02, -2.17))
-	place(root, L.barrel(), Vector3(5.34, 0.02, -3.52))
-	place(root, L.crate(true), Vector3(5.58, 0.02, -2.27), 0.12)
-	place(root, L.crate(false), Vector3(-2.55, 0.02, -1.75), -0.10)
-	place(root, L.watering_can(), Vector3(-1.7, 0.13, 2.1), -0.6)
-	place(root, L.lantern_post(), Vector3(1.18, 0.02, 5.7), -0.1)
-	place(root, L.lantern_post(), Vector3(5.76, 0.02, -0.35), PI)
+	var obstacles: Array = []
+	root.add_child(_terrain())
+	for patch in [
+		Vector3(-18, 3.4, 20), Vector3(-34, 3.0, 8), Vector3(-8, 2.6, 24), Vector3(2, 3.2, 14),
+		Vector3(6, 2.4, -8), Vector3(-20, 3.6, -12), Vector3(38, 2.8, -14), Vector3(-40, 2.6, 22),
+		Vector3(16, 3.0, 26), Vector3(-2, 2.2, -24),
+	]:
+		place(root, _tpl("patch%d" % int(patch.y * 10), func(): return L.meadow_patch(patch.y, patch.y * 0.66, "#92b174", int(patch.x * 7))), Vector3(patch.x, 0, patch.z))
+	# 建筑与地标。
+	place(root, B.cottage(), Vector3(-30, 0.025, -16), 0.025)
+	_box_obstacle(obstacles, Vector3(-30, 0.6, -16), Vector3(4.7, 1.2, 4.3))
+	place(root, B.shop(), Vector3(22, 0.025, -18), -0.045)
+	_box_obstacle(obstacles, Vector3(22, 0.6, -18), Vector3(5.0, 1.2, 4.3))
+	place(root, Ranch.barn(), Vector3(20, 0, 0), 0.0)
+	_box_obstacle(obstacles, Vector3(20, 1.2, 0), Vector3(7.2, 2.4, 5.6))
+	place(root, Ranch.coop(), Vector3(31, 0, 17), 0.1)
+	_box_obstacle(obstacles, Vector3(31, 0.6, 17), Vector3(3.0, 1.2, 2.6))
+	for bale in [Vector3(24.5, 0, 2.6), Vector3(25.9, 0, 3.1)]:
+		place(root, _tpl("haybale", func(): return Ranch.hay_bale()), bale)
+		_sphere_obstacle(obstacles, bale, 0.7)
+	place(root, L.well(), Vector3(4, 0, 18), -0.2)
+	_sphere_obstacle(obstacles, Vector3(4, 0, 18), 0.85)
+	# 小径。
+	_path(root, [Vector3(0, 0, 26.5), Vector3(0.1, 0, 14), Vector3(-0.1, 0, 2), Vector3(0, 0, -6), Vector3(0, 0, -13)], 1.6)
+	_path(root, [Vector3(-1.4, 0, 10), Vector3(-9, 0, 10), Vector3(-17, 0, 10.2)], 1.15)
+	_path(root, [Vector3(1.4, 0, 10), Vector3(8, 0, 10), Vector3(13, 0, 10), Vector3(19, 0, 6.5)], 1.15)
+	_path(root, [Vector3(-3, 0, -13.5), Vector3(-14, 0, -14.5), Vector3(-27.5, 0, -14.8)], 1.05)
+	_path(root, [Vector3(3, 0, -14), Vector3(12, 0, -15.5), Vector3(20.6, 0, -15.8)], 1.05)
+	# 池塘（东北）。
+	place(root, L.pond(), Vector3(30, 0, -8), -0.15)
+	_sphere_obstacle(obstacles, Vector3(30.9, 0, -8.2), 1.3)
+	_sphere_obstacle(obstacles, Vector3(28.9, 0, -9.3), 1.15)
+	# 农田围栏（北侧留闸口）。
+	_fence_line(root, Vector2(-26.5, 1.5), Vector2(-26.5, 17.5), obstacles)
+	_fence_line(root, Vector2(-26, 1.5), Vector2(-19, 1.5), obstacles)
+	_fence_line(root, Vector2(-15, 1.5), Vector2(-9, 1.5), obstacles)
+	_fence_line(root, Vector2(-26, 17.3), Vector2(-13, 17.3), obstacles)
+	# 牧场围栏（西侧留闸门 z 9..12）。
+	_fence_line(root, Vector2(10, 4.2), Vector2(10, 9), obstacles)
+	_fence_line(root, Vector2(10, 12), Vector2(10, 19.8), obstacles)
+	_fence_line(root, Vector2(10.2, 4.2), Vector2(33.8, 4.2), obstacles)
+	_fence_line(root, Vector2(10.2, 19.8), Vector2(33.8, 19.8), obstacles)
+	_fence_line(root, Vector2(33.8, 4.2), Vector2(33.8, 19.8), obstacles)
+	for gate_x in [9.4, 12.6]:
+		var post := M.box(root, Vector3(gate_x, 0.6, 10.5), Vector3(0.2, 1.2, 0.2), "#a5824f", "GatePost", 0.03)
+		post.rotation.y = PI * 0.5
+	# 灯柱、装饰。
+	for lamp in [Vector3(1.8, 0.02, 8), Vector3(-1.8, 0.02, -2), Vector3(-12.5, 0.02, 11.2), Vector3(12.5, 0.02, 8.8)]:
+		place(root, L.lantern_post(), lamp, 0.0)
+		_sphere_obstacle(obstacles, lamp, 0.2)
+	place(root, L.barrel(), Vector3(-27.6, 0.02, -12.2))
+	place(root, L.crate(true), Vector3(19.5, 0.02, -14.5), 0.12)
+	place(root, L.watering_can(), Vector3(-8.5, 0.13, 12.5), -0.6)
+	# 北部森林 + 边缘树林。
 	var rng := RandomNumberGenerator.new()
-	rng.seed = 220914
-	for i in range(200):
-		var x := rng.randf_range(-10.2, 10.1)
-		var z := rng.randf_range(-7.65, 7.65)
-		if absf(x) < 1.1 or absf(z + 0.64) < 0.91:
+	rng.seed = 91518
+	for i in range(26):
+		var x := rng.randf_range(-42, 42)
+		var z := rng.randf_range(-31, -16.5)
+		if absf(x) < 2.6:
 			continue
-		if z < -1.0 and x > -7.8 and x < 5.5:
+		_plant_tree(root, obstacles, x, z, rng)
+	for i in range(14):
+		var edge: Vector2 = [
+			Vector2(rng.randf_range(-44, -36), rng.randf_range(-12, 30)),
+			Vector2(rng.randf_range(36, 43), rng.randf_range(-14, 30)),
+			Vector2(rng.randf_range(-30, 30), rng.randf_range(28, 33)),
+		][i % 3]
+		_plant_tree(root, obstacles, edge.x, edge.y, rng)
+	for apple in [Vector3(5.5, 0, 2.2), Vector3(-6.5, 0, -10.5), Vector3(7, 0, -10.8)]:
+		place(root, _tpl("apple", func(): return L.tree(4, true)), apple, rng.randf_range(0, TAU))
+		_sphere_obstacle(obstacles, apple, 0.5)
+	# 森林巨石。
+	for i in range(8):
+		var stone_pos := Vector3(rng.randf_range(-38, 38), 0.03, rng.randf_range(-30, -18))
+		var rock := _tpl("rock", func(): return L.stone(1, Vector3(0.5, 0.28, 0.4)))
+		place(root, rock, stone_pos, rng.randf_range(0, TAU))
+		_sphere_obstacle(obstacles, stone_pos, 0.45)
+	# 草丛与野花散布（避开功能区与小径）。
+	for i in range(380):
+		var x := rng.randf_range(-44, 44)
+		var z := rng.randf_range(-34, 34)
+		if _in_scatter_exclusion(x, z):
 			continue
-		# 玩家农田区（x -7.7..-2.0，z -0.4..6.2）里不撒杂草。
-		if x > -7.7 and x < -2.0 and z > -0.4 and z < 6.2:
-			continue
-		if Vector2((x - 5.6) / 3.0, (z - 4.1) / 2.4).length() < 1.08:
-			continue
-		if x > 1.0 and x < 6.6 and z > 1.9 and z < 3.5:
-			continue
-		place(root, L.flowers(i, i % 3 == 0) if i % 4 == 0 else L.grass_clump(i), Vector3(x, 0.027, z), rng.randf_range(0, TAU))
-	for i in range(7):
-		place(root, L.flowers(i + 1, i % 2 == 0), Vector3(-7.0 + i * 0.61, 0.03, 6.39), i * 0.66)
+		var decoration: Node3D
+		if i % 5 == 0:
+			decoration = _tpl("flower" + str(i % 2), func(): return L.flowers(i % 2, i % 2 == 0))
+		else:
+			decoration = _tpl("grass", func(): return L.grass_clump(i % 7))
+		place(root, decoration, Vector3(x, 0.027, z), rng.randf_range(0, TAU))
 	return {
 		"root": root,
-		"obstacles": _obstacles(),
+		"obstacles": obstacles,
 		"landmarks": {
-			"shop_door": Vector3(1.15, 0, -2.5),
-			"cottage_door": Vector3(-4.43, 0, -1.9),
-			"spawn": Vector3(0.72, 0, 1.9),
+			"shop_door": Vector3(20.6, 0, -15.6),
+			"cottage_door": Vector3(-29.3, 0, -13.9),
+			"spawn": Vector3(0, 0, 24),
+			"trough": Vector3(13, 0, 7),
 		},
+		"pasture": PASTURE,
+		"bounds": {"half": BOUND_HALF, "pow": BOUND_POW},
 	}
 
 
 static func plot_positions() -> Array[Vector3]:
 	var spots: Array[Vector3] = []
-	for z in [0.9, 2.9, 4.9]:
-		for x in [-6.3, -3.3]:
-			spots.append(Vector3(x, 0.02, z))
+	for row in range(5):
+		for col in range(6):
+			spots.append(Vector3(-23.6 + col * 2.85, 0.02, 3.3 + row * 2.85))
 	return spots
+
+
+static func _plant_tree(root: Node3D, obstacles: Array, x: float, z: float, rng: RandomNumberGenerator) -> void:
+	var key := "oak" + str(rng.randi_range(0, 1))
+	var tree := _tpl(key, func(): return L.tree(1 + int(key.trim_prefix("oak").to_int()) * 8))
+	place(root, tree, Vector3(x, 0, z), rng.randf_range(0, TAU), rng.randf_range(0.9, 1.15))
+	_sphere_obstacle(obstacles, Vector3(x, 0, z), 0.5)
+
+
+static func _in_scatter_exclusion(x: float, z: float) -> bool:
+	if FIELD_RECT.has_point(Vector2(x, z)) or RANCH_RECT.has_point(Vector2(x, z)):
+		return true
+	if Vector2(x + 30, z + 16).length() < 5.5 or Vector2(x - 22, z + 18).length() < 5.5:
+		return true
+	if Vector2(x - 4, z - 18).length() < 2.2 or Vector2(x - 30, z + 8).length() < 4.5:
+		return true
+	if absf(x) < 1.4 and z > -14.5 and z < 26.5:
+		return true
+	if absf(z - 10) < 1.2 and x > -19 and x < 14:
+		return true
+	if absf(z + 14.5) < 1.2 and x > -28 and x < -2:
+		return true
+	if absf(z + 15.5) < 1.2 and x > 2 and x < 22:
+		return true
+	if Vector2(x - 30, z + 8).length() < 4.6:
+		return true
+	return false
+
+
+static func _tpl(key: String, builder: Callable) -> Node3D:
+	if not _templates.has(key):
+		_templates[key] = builder.call()
+	return (_templates[key] as Node3D).duplicate()
 
 
 static func place(parent: Node3D, child: Node3D, at: Vector3, yaw: float = 0.0, uniform_scale: float = 1.0) -> Node3D:
@@ -88,34 +173,66 @@ static func place(parent: Node3D, child: Node3D, at: Vector3, yaw: float = 0.0, 
 	return child
 
 
-static func _obstacles() -> Array:
-	## 每项：{"shape": "box"/"sphere", "position", "size"(box) 或 "radius"(sphere)}。
-	return [
-		{"shape": "box", "position": Vector3(-5.15, 0.6, -4.2), "size": Vector3(4.7, 1.2, 4.3)},
-		{"shape": "box", "position": Vector3(2.7, 0.6, -4.65), "size": Vector3(5.0, 1.2, 4.3)},
-		{"shape": "sphere", "position": Vector3(6.3, 0.0, 1.1), "radius": 0.85},
-		{"shape": "sphere", "position": Vector3(-7.64, 0.0, -2.17), "radius": 0.45},
-		{"shape": "sphere", "position": Vector3(5.34, 0.0, -3.52), "radius": 0.45},
-		{"shape": "sphere", "position": Vector3(5.58, 0.0, -2.27), "radius": 0.5},
-		{"shape": "sphere", "position": Vector3(-2.55, 0.0, -1.75), "radius": 0.5},
-		{"shape": "sphere", "position": Vector3(1.18, 0.0, 5.7), "radius": 0.2},
-		{"shape": "sphere", "position": Vector3(5.76, 0.0, -0.35), "radius": 0.2},
-		# 池塘：两枚圆近似椭圆，给木桥留出通道。
-		{"shape": "sphere", "position": Vector3(6.44, 0.0, 4.23), "radius": 1.25},
-		{"shape": "sphere", "position": Vector3(4.76, 0.0, 3.97), "radius": 1.25},
-		# 五棵树。
-		{"shape": "sphere", "position": Vector3(-8.6, 0.0, -5.95), "radius": 0.5},
-		{"shape": "sphere", "position": Vector3(-0.15, 0.0, -6.6), "radius": 0.52},
-		{"shape": "sphere", "position": Vector3(7.9, 0.0, -5.8), "radius": 0.55},
-		{"shape": "sphere", "position": Vector3(-9.0, 0.0, -0.25), "radius": 0.42},
-		{"shape": "sphere", "position": Vector3(9.0, 0.0, 0.7), "radius": 0.42},
-		# 栅栏（留出缺口）。
-		{"shape": "box", "position": Vector3(0, 0.45, -7.1), "size": Vector3(19.4, 0.9, 0.35)},
-		{"shape": "box", "position": Vector3(-9.8, 0.45, 1.0), "size": Vector3(0.35, 0.9, 14.2)},
-		{"shape": "box", "position": Vector3(9.7, 0.45, -2.4), "size": Vector3(0.35, 0.9, 7.4)},
-		{"shape": "box", "position": Vector3(-5.9, 0.45, 7.3), "size": Vector3(4.9, 0.9, 0.35)},
-		{"shape": "box", "position": Vector3(5.8, 0.45, 7.3), "size": Vector3(7.3, 0.9, 0.35)},
-	]
+static func _box_obstacle(list: Array, position: Vector3, size: Vector3) -> void:
+	list.append({"shape": "box", "position": position, "size": size})
+
+
+static func _sphere_obstacle(list: Array, position: Vector3, radius: float) -> void:
+	list.append({"shape": "sphere", "position": position, "radius": radius})
+
+
+static func _fence_line(root: Node3D, from: Vector2, to: Vector2, obstacles: Array) -> void:
+	var length := from.distance_to(to)
+	var count := maxi(1, roundi(length / 2.4))
+	var along_x := absf(to.x - from.x) > absf(to.y - from.y)
+	for i in range(count):
+		var t := (i + 0.5) / float(count)
+		var at := from.lerp(to, t)
+		var fence := _tpl("fence", func(): return L.fence())
+		place(root, fence, Vector3(at.x, 0.01, at.y), 0.0 if along_x else PI * 0.5)
+	var center := (from + to) * 0.5
+	var size := Vector2(absf(to.x - from.x) + 0.35, absf(to.y - from.y) + 0.35)
+	_box_obstacle(obstacles, Vector3(center.x, 0.45, center.y), Vector3(size.x, 0.9, size.y))
+
+
+static func _terrain() -> Node3D:
+	var root := Node3D.new()
+	root.name = "IslandTerrain"
+	var surfaces: Array[SurfaceTool] = []
+	for layer in range(4):
+		var surface := SurfaceTool.new()
+		surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+		surfaces.append(surface)
+	var outline: Array[Vector3] = []
+	for i in range(120):
+		var theta := float(i) / 120.0 * TAU
+		var wave := 1.0 + 0.008 * sin(theta * 13.0) + 0.006 * cos(theta * 19.0)
+		var super_x := signf(cos(theta)) * pow(absf(cos(theta)), 0.18) * BOUND_HALF.x * wave
+		var super_z := signf(sin(theta)) * pow(absf(sin(theta)), 0.18) * BOUND_HALF.y * wave
+		outline.append(Vector3(super_x, 0, super_z))
+	for i in range(outline.size()):
+		var a := outline[i]
+		var b := outline[(i + 1) % outline.size()]
+		M.polygon(surfaces[0], [Vector3.ZERO, a, b], Vector3.UP)
+		var rings := [Vector2(1.0, 0.0), Vector2(1.002, -0.20), Vector2(0.997, -0.76), Vector2(0.98, -1.16)]
+		for r in range(3):
+			var p := Vector3(a.x * rings[r].x, rings[r].y, a.z * rings[r].x)
+			var q := Vector3(b.x * rings[r].x, rings[r].y, b.z * rings[r].x)
+			var p2 := Vector3(a.x * rings[r + 1].x, rings[r + 1].y, a.z * rings[r + 1].x)
+			var q2 := Vector3(b.x * rings[r + 1].x, rings[r + 1].y, b.z * rings[r + 1].x)
+			M.polygon(surfaces[r + 1], [p, p2, q2, q], Vector3(a.x / BOUND_HALF.x, 0.12, a.z / BOUND_HALF.y).normalized())
+	var pigments := ["#98b879", "#809e59", "#af8c65", "#927351"]
+	var labels := ["MeadowTop", "SodEdge", "EarthLayer", "OchreBase"]
+	for layer in range(4):
+		M.mesh_node(root, surfaces[layer].commit(), Vector3.ZERO, M.paint(pigments[layer]), labels[layer])
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 4711
+	for i in range(64):
+		var angle := rng.randf_range(0, TAU)
+		var ex := signf(cos(angle)) * pow(absf(cos(angle)), 0.18)
+		var ez := signf(sin(angle)) * pow(absf(sin(angle)), 0.18)
+		M.ellipsoid(root, Vector3(ex * (BOUND_HALF.x - 0.25), rng.randf_range(-0.80, -0.40), ez * (BOUND_HALF.y - 0.25)), Vector3(rng.randf_range(0.04, 0.10), 0.036, rng.randf_range(0.05, 0.12)), "#c5aa83", "EarthPebble", 8, 4)
+	return root
 
 
 static func _path(root: Node3D, points: Array[Vector3], width: float) -> void:
@@ -141,5 +258,5 @@ static func _path(root: Node3D, points: Array[Vector3], width: float) -> void:
 				var at := a.lerp(b, t) + side * ((col - 1) * width * 0.27 + rng.randf_range(-0.055, 0.055))
 				at += delta.normalized() * rng.randf_range(-0.075, 0.075)
 				at.y = 0.038
-				var pebble := L.stone(rng.randi_range(0, 3), Vector3(rng.randf_range(0.14, 0.205), 0.040, rng.randf_range(0.14, 0.205)))
+				var pebble := _tpl("pebble", func(): return L.stone(1, Vector3(0.17, 0.042, 0.17)))
 				place(path_root, pebble, at, rng.randf_range(0, TAU))

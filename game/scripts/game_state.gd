@@ -8,13 +8,20 @@ const CROPS := {
 	"wheat": {"label": "小麦", "seed_price": 4, "sell_price": 11, "grow_days": 3},
 	"pumpkin": {"label": "南瓜", "seed_price": 9, "sell_price": 26, "grow_days": 4},
 }
+const PRODUCTS := {
+	"milk": {"label": "牛奶", "sell_price": 14},
+	"wool": {"label": "羊毛", "sell_price": 10},
+	"egg": {"label": "鸡蛋", "sell_price": 5},
+}
 const CROP_ORDER := ["radish", "strawberry", "wheat", "pumpkin"]
+const PRODUCT_ORDER := ["milk", "wool", "egg"]
 const START_COINS := 20
 const HOURS_PER_DAY := 20.0  # 06:00 → 次日 02:00
 
 var coins: int = START_COINS
 var seeds := {"radish": 6, "strawberry": 0, "wheat": 0, "pumpkin": 0}
 var harvest := {"radish": 0, "strawberry": 0, "wheat": 0, "pumpkin": 0}
+var products := {"milk": 0, "wool": 0, "egg": 0}
 var day := 1
 var clock := 8.0
 
@@ -25,6 +32,10 @@ static func crop_label(kind: String) -> String:
 
 static func crop_field(kind: String, field: String) -> int:
 	return CROPS[kind][field]
+
+
+static func product_label(kind: String) -> String:
+	return PRODUCTS[kind]["label"]
 
 
 func add_coins(amount: int) -> void:
@@ -45,6 +56,9 @@ func sell_all_harvest() -> int:
 	for kind in harvest:
 		earned += harvest[kind] * CROPS[kind]["sell_price"]
 		harvest[kind] = 0
+	for kind in products:
+		earned += products[kind] * PRODUCTS[kind]["sell_price"]
+		products[kind] = 0
 	coins += earned
 	return earned
 

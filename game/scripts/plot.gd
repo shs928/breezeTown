@@ -24,6 +24,14 @@ var _ring: MeshInstance3D
 var _spot: MeshInstance3D
 var _rng := RandomNumberGenerator.new()
 
+static var _clump_template: Node3D = null
+
+
+static func _clump() -> Node3D:
+	if _clump_template == null:
+		_clump_template = L.grass_clump(5, 0.30)
+	return _clump_template.duplicate()
+
 
 func setup(kind_seed: int) -> void:
 	_rng.seed = kind_seed
@@ -45,7 +53,7 @@ func setup(kind_seed: int) -> void:
 	var turf: MeshInstance3D = M.ellipsoid(_wild_top, Vector3(0, 0.115, 0), Vector3(1.02, 0.085, 1.02), "#8fae68", "FallowTurf", 20, 6)
 	turf.material_override = M.paint("#87a862", 0.95)
 	for i in range(6):
-		var clump := L.grass_clump(kind_seed * 13 + i, 0.30)
+		var clump := _clump()
 		clump.position = Vector3(_rng.randf_range(-0.85, 0.85), 0.13, _rng.randf_range(-0.85, 0.85))
 		_wild_top.add_child(clump)
 	_ring = M.torus(self, Vector3(0, 1.05, 0), 0.62, 0.045, "#e8bf62", "MatureRing")

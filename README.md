@@ -2,18 +2,18 @@
 
 **2026-09-15 起，项目从 2D 转向 3D。** 旧 2D 版 `game/` 已整体删除，完整快照（含当时全部未提交修订）保留在 `backup/2d-game-20260915` 分支，可随时查阅或回退。
 
-当前 `game/` 是全新的 Godot 4.7.2 **3D 可玩原型**：WASD 移动、滚轮缩放、1–4 切换空手/锄头/水壶/种子、R 换种子、E 交互；支持整地→播种→浇水→逐日生长（需每天浇水）→收获、种子商店买卖、回屋睡觉跨天、昼夜光照。美术全部复用 `art/2_5d` 的程序化建模脚本，无外部模型或贴图。
+当前 `game/` 是全新的 Godot 4.7.2 **3D 可玩原型**，已扩展为第一张大地图（约 92×72 米，朝星露谷物语方向）：西南农舍、东南种子商店、西侧 30 块大农田（带围栏闸门）、东侧牧场（红谷仓、鸡舍、食槽、围栏草场与 2 牛 2 羊 3 鸡）、北部森林与东北池塘。操作：WASD 移动、滚轮缩放、1–4 切换空手/锄头/水壶/种子、R 换种子、E 交互；玩法：整地→播种→浇水→逐日生长→收获，牧场抚摸动物、填食槽、次日捡取牛奶/羊毛/鸡蛋，商店统一出售，回屋睡觉跨天，完整昼夜光照。美术全部复用 `art/2_5d` 的程序化建模脚本，无外部模型或贴图。
 
 启动：用 Godot 4.7.2 打开 `game/project.godot` 直接运行，或命令行执行 `tools/engine/Godot-4.7.2-stable/Godot_v4.7.2-stable_win64.exe --path game`。自动化验证：
 
 ```powershell
-# 10 步玩法冒烟测试（无头，SMOKE_RESULT PASS 为通过）
+# 17 步玩法冒烟测试（无头，覆盖耕种+商店+牧场，SMOKE_RESULT PASS 为通过）
 tools/engine/Godot-4.7.2-stable/Godot_v4.7.2-stable_win64_console.exe --headless --path game -- --smoke
-# 输出演示截图
-tools/engine/Godot-4.7.2-stable/Godot_v4.7.2-stable_win64.exe --path game -- --demo --shot=work/game-3d-demo.png
+# 输出演示截图（--at=x,z 可选相机跟随位置）
+tools/engine/Godot-4.7.2-stable/Godot_v4.7.2-stable_win64.exe --path game -- --demo --shot=work/shot.png
 ```
 
-`art/2_5d/` 仍是美术工坊（可旋转预览与出图，见其 README）。**尚未实现**：存档、联机、贡献榜、音效、低面数/LOD 优化、公共建设玩法。下方历史章节描述的是 2D 版需求与验收，仅作产品设计参考。
+`art/2_5d/` 仍是美术工坊（可旋转预览与出图，见其 README）。**尚未实现**：存档、联机、贡献榜、音效、动物购入/畜棚升级、低面数/LOD 优化、公共建设玩法。下方历史章节描述的是 2D 版需求与验收，仅作产品设计参考。
 
 ## 历史任务包
 

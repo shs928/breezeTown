@@ -203,6 +203,10 @@ func refresh() -> void:
 			any = true
 		harvest_line += "%s ×%d   " % [GameState.crop_label(kind), state.harvest[kind]]
 	_inventory_lines.add_child(_label(harvest_line, 14))
+	var product_line := "产品  "
+	for kind in GameState.PRODUCT_ORDER:
+		product_line += "%s ×%d   " % [GameState.product_label(kind), state.products[kind]]
+	_inventory_lines.add_child(_label(product_line, 14))
 	if not any:
 		_inventory_lines.add_child(_label("（还没有收成，去田里试试）", 13, INK_SOFT))
 	for kind in GameState.CROP_ORDER:
@@ -212,7 +216,9 @@ func refresh() -> void:
 	var total := 0
 	for kind in GameState.CROP_ORDER:
 		total += state.harvest[kind] * GameState.crop_field(kind, "sell_price")
-	sell_info.text = "全部收获折价 %d 金币" % total
+	for kind in GameState.PRODUCT_ORDER:
+		total += state.products[kind] * GameState.PRODUCTS[kind]["sell_price"]
+	sell_info.text = "收获与产品折价 %d 金币" % total
 
 
 func set_hint(text: String) -> void:

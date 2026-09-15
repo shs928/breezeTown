@@ -1,0 +1,254 @@
+{
+  "date": "2026-09-15",
+  "generated_utc": "2026-09-15T13:52:01+00:00",
+  "renders": 6,
+  "models": 18,
+  "verification": {
+    "ok": true,
+    "checks": 2664,
+    "failure_count": 0
+  },
+  "includes_engine": false,
+  "files": [
+    {
+      "path": "buildings/check_buildings.gd",
+      "bytes": 2364,
+      "sha256": "73f874b024a9f58a2396f0d67788ff059e33c1d62019c8338337f4b99a9b7263"
+    },
+    {
+      "path": "buildings/market_props.gd",
+      "bytes": 20344,
+      "sha256": "ed26ab8bb024a7a2a5604cb299b755913c6c02d7ad24b740b62c8dca6702fca1"
+    },
+    {
+      "path": "buildings/model-dimensions.json",
+      "bytes": 668,
+      "sha256": "6a560ff841419de999d268d93b60d7128191b32909dff7ef718a94a2d5b63ea5"
+    },
+    {
+      "path": "buildings/render_building.gd",
+      "bytes": 2205,
+      "sha256": "529c33ad240f11b0ac5edf6e57e6cf1ecf544df6cad3f25ec4a9bf9391a8da2a"
+    },
+    {
+      "path": "character/check_farmer.gd",
+      "bytes": 4545,
+      "sha256": "d6b883f54a87d0f0961121ef947b5dde0be9932bb6a1a68fbfb1a8b89edbe796"
+    },
+    {
+      "path": "character/README.md",
+      "bytes": 1972,
+      "sha256": "a72f7b306a0923f2197042ca1b35cfd9f9c744fb66c609d4ba939ff72e291763"
+    },
+    {
+      "path": "character/validation.json",
+      "bytes": 1355,
+      "sha256": "7c924bced2f0bb7c6022b0c9f5df686dba56a98e4e5650f902209e46f214b0b8"
+    },
+    {
+      "path": "models/apple_tree.glb",
+      "bytes": 384876,
+      "sha256": "8fcc953ea784ddbfe240b5a29b04b4551b5b11a6e6207ac87cc52cbc2691a922"
+    },
+    {
+      "path": "models/breeze_town_farm.glb",
+      "bytes": 36161628,
+      "sha256": "f8ebb296e46605cd3fab884a0e05c9f8f6084fadd1f11740b201f7bd73bcfbaa"
+    },
+    {
+      "path": "models/duck_pond.glb",
+      "bytes": 1514928,
+      "sha256": "2b8172f1f36fa03b2a9d521b450c9f8d64a1fb7651c39af3afe60c3fc671eb6b"
+    },
+    {
+      "path": "models/farmer_indigo.glb",
+      "bytes": 1737244,
+      "sha256": "4ce98f139b8d4ea85fc6d99a602f339e19552a3b197a2b85ce4b46482f92b6dc"
+    },
+    {
+      "path": "models/farmer_moss.glb",
+      "bytes": 1740888,
+      "sha256": "19a7b39a98e344cb306a6dae807813d34d83921e802b5e90692f7ca8f438a255"
+    },
+    {
+      "path": "models/footbridge.glb",
+      "bytes": 28700,
+      "sha256": "7f2d636d0ed99d63eb36f465c2cf3724644398e2aa02db96294e0249fbc89f19"
+    },
+    {
+      "path": "models/garden_fence.glb",
+      "bytes": 27240,
+      "sha256": "b9237dd12fabe65c16a74b4d073a3b08d7892c9b329083936e027013092dbaaa"
+    },
+    {
+      "path": "models/garden_well.glb",
+      "bytes": 46752,
+      "sha256": "c037b77ef1f25fb77e3cd8d37d32b6874e146002dd1898deb0569587f832db13"
+    },
+    {
+      "path": "models/harvest_crate.glb",
+      "bytes": 33804,
+      "sha256": "6a55822bc8c701f237f4ef9324ae1ef8c30e5d87e6736799aca26782d8a715c2"
+    },
+    {
+      "path": "models/manifest.json",
+      "bytes": 123435,
+      "sha256": "a988030eec8df3056ba1252aeff18dcbb8cdb8e09996da6d84371dd6b2f2a329"
+    },
+    {
+      "path": "models/meadow_oak.glb",
+      "bytes": 418192,
+      "sha256": "bb7815a1b0f0402f772bb4a40bc284bf34880831a035a6d749834ac145c011a3"
+    },
+    {
+      "path": "models/plot_pumpkin.glb",
+      "bytes": 96188,
+      "sha256": "c025a1498b9f0752262804f4a8abb856bb8ada915909ea79145fe3a2c12ca7fd"
+    },
+    {
+      "path": "models/plot_radish.glb",
+      "bytes": 294684,
+      "sha256": "34efd5c4cc589877cba794f406365f7389e566273def362e29db4cdf87d4f9bf"
+    },
+    {
+      "path": "models/plot_strawberry.glb",
+      "bytes": 207864,
+      "sha256": "c7fc993cecf94897a20758a32b81a36101c7b16a81f494a2eac2bcf220873ec6"
+    },
+    {
+      "path": "models/plot_wheat.glb",
+      "bytes": 416748,
+      "sha256": "41fc6a234e3aacf62aee7bf202ecc068f202f46518f82cf0ea293e349dccf946"
+    },
+    {
+      "path": "models/seed_market.glb",
+      "bytes": 2699524,
+      "sha256": "b5afd5ac89743478eadb1e6f6cec8b45a867c4411606b76682b655442bcb1063"
+    },
+    {
+      "path": "models/watering_can.glb",
+      "bytes": 38488,
+      "sha256": "6a41fcb81ba2ed420ffa20bc3a6260183dc6f379bb53ded62f8cecefc0dd2d5f"
+    },
+    {
+      "path": "models/willow_cottage.glb",
+      "bytes": 2235976,
+      "sha256": "732c384fa24463aadb4e78b412e6264b95049ba0984471764c4c9846802f5f5a"
+    },
+    {
+      "path": "models/wooden_barrel.glb",
+      "bytes": 46192,
+      "sha256": "a4ffff6799df72a7385e87629ebed711596deee2c4bbbf50ba47e420a5d75e5f"
+    },
+    {
+      "path": "project.godot",
+      "bytes": 1097,
+      "sha256": "b60d73f14b6bc5b0d1e6fd20f822a4f55715138cec6ff52240f9ad94d5b60b58"
+    },
+    {
+      "path": "README.md",
+      "bytes": 7025,
+      "sha256": "5d1339f4aedccbca811b1dbf3949d42d3c49f8b77c89d754afcef3895f8f9df7"
+    },
+    {
+      "path": "renders/01-farm-day.png",
+      "bytes": 825608,
+      "sha256": "17015b2b96bbf6e202104b2a40b1804719f1f7afe5f8ae1c9ad4e8373cbe8f5f"
+    },
+    {
+      "path": "renders/02-cottage.png",
+      "bytes": 679662,
+      "sha256": "19dfe3ca3ad2e4fde057f07d3fa24c94016a292ad5eed9bbf18ace36ed259864"
+    },
+    {
+      "path": "renders/03-farmer-turnaround.png",
+      "bytes": 417385,
+      "sha256": "fd07a113222b7eba5dae91a7ac092d82cde93202063b8531615a8a08ada69717"
+    },
+    {
+      "path": "renders/04-farm-dusk.png",
+      "bytes": 850028,
+      "sha256": "8bb0dbf4690202800d555b39692511828b381e3c657b608838aa31a4260d309b"
+    },
+    {
+      "path": "renders/05-seed-market.png",
+      "bytes": 706233,
+      "sha256": "8c344332c00691c9943463b4e707752c54bfb6d7a6e1f3f3c2324d819bf8e1f4"
+    },
+    {
+      "path": "renders/06-farmer-pair.png",
+      "bytes": 415946,
+      "sha256": "fe1a7baa47041d73ef5de45267571d22c1e2f7c97de06a18edd45aa275e696ee"
+    },
+    {
+      "path": "scripts/art_mesh.gd",
+      "bytes": 7678,
+      "sha256": "ce0c8c204f8d6a2b0a66baf48811010c308a262f85b10aac67b5ee2e7af1ce20"
+    },
+    {
+      "path": "scripts/building_models.gd",
+      "bytes": 30260,
+      "sha256": "37e533e8e988c0bfeef786350a3a81a0a79e4550110e3bc456420243bb91f270"
+    },
+    {
+      "path": "scripts/farmer_model.gd",
+      "bytes": 38325,
+      "sha256": "018a5857cf2f4c8f7326189046beca1c6ce2da9f7ba79ab69a82de06a5982ad2"
+    },
+    {
+      "path": "scripts/gltf_color_compat.gd",
+      "bytes": 12445,
+      "sha256": "2e4b0e5652aacb940b11271328d04cb15236ade62761cc1ae9e41d1c269a1bd7"
+    },
+    {
+      "path": "scripts/landscape_models.gd",
+      "bytes": 18128,
+      "sha256": "8a03ae47a1374e5564fcaf068fb95c8cb5a9c4c663b37d6a062bcc966e5e41dd"
+    },
+    {
+      "path": "scripts/model_pack.gd",
+      "bytes": 8317,
+      "sha256": "d6ca8214681d693f05cf3215d36855939424f04c3d305dc96efd59e7d334fd29"
+    },
+    {
+      "path": "scripts/scene_builder.gd",
+      "bytes": 8509,
+      "sha256": "b2aa752b1be976d04946b1c76022dcf217f85a4189a55c48695966e531cb7d87"
+    },
+    {
+      "path": "scripts/showcase.gd",
+      "bytes": 9544,
+      "sha256": "a0d0be52f0f695cd623916c6d8ccd7f3be61cbaeab4fc97ba72cb37894d9b9f3"
+    },
+    {
+      "path": "showcase.tscn",
+      "bytes": 180,
+      "sha256": "7779884917537035c97674ea350a97d3ee245c1eb94ab5144683d4aff549f3f0"
+    },
+    {
+      "path": "validation/imported-farm.png",
+      "bytes": 826238,
+      "sha256": "4f3f50a39814a1e6d6732a06c7aef219fe1cd9586013c16aa05043214b0cd253"
+    },
+    {
+      "path": "validation/render_imported.gd",
+      "bytes": 1373,
+      "sha256": "679c2bcb216776ea7f91f0bd6a9e3a5f6ccd3f0b3bc191e3d876fc40c9cd0979"
+    },
+    {
+      "path": "validation/verification.json",
+      "bytes": 6235,
+      "sha256": "b727b54b4ae5d8a3c9ec931503d49860d9c21d0c2cb0ef2ce6cb2b9303ccfc5f"
+    },
+    {
+      "path": "validation/verify_art.gd",
+      "bytes": 18958,
+      "sha256": "b9d8a405690ce44ad5c992b9e762b6f48505c4c2f6ae6ac470c8ee4c2bb6cca9"
+    },
+    {
+      "path": "validation/visual-comparison.json",
+      "bytes": 588,
+      "sha256": "0bf2714b095a1e1dc0990d93392d818b01bf386145d3511ad3229d52759d3852"
+    }
+  ]
+}

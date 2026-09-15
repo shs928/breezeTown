@@ -1,0 +1,29 @@
+{
+  "bin_chunks_identical": true,
+  "original_material_0": "Paint_ffffff",
+  "shifted_bin_chunks_sha256": "957ADBDA1890109292129E27A3F2A06C2767B169C3539F117B4827E42C88436E",
+  "source_sha256": "A97B444733A7D73BDCCF8E1E1E5CE97A8F8EDD9A239F826A7D61919B5F13CE1A",
+  "shifted_primitives": 817,
+  "split_meshes": 287,
+  "original_bin_chunks_sha256": "957ADBDA1890109292129E27A3F2A06C2767B169C3539F117B4827E42C88436E",
+  "source": "D:\\Workspace\\breezeTown\\art\\2_5d\\models\\breeze_town_farm.glb",
+  "shifted_material_1": "Paint_ffffff",
+  "variants": [
+    {
+      "bin_chunks_sha256": "957ADBDA1890109292129E27A3F2A06C2767B169C3539F117B4827E42C88436E",
+      "binary_identical": true,
+      "file": "diag_material_shift.glb"
+    },
+    {
+      "bin_chunks_sha256": "957ADBDA1890109292129E27A3F2A06C2767B169C3539F117B4827E42C88436E",
+      "binary_identical": true,
+      "file": "diag_material_primitive_prefix.glb"
+    },
+    {
+      "bin_chunks_sha256": "957ADBDA1890109292129E27A3F2A06C2767B169C3539F117B4827E42C88436E",
+      "binary_identical": true,
+      "file": "diag_material_triangle_split.glb"
+    }
+  ],
+  "source_unchanged": true
+}

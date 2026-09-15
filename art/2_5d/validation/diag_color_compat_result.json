@@ -1,0 +1,3507 @@
+{
+	"cases": [
+		{
+			"after": {
+				"nonwhite_color_surfaces": 443,
+				"nonwhite_disabled_surfaces": 0,
+				"triangles": 508684
+			},
+			"before": {
+				"nonwhite_color_surfaces": 344,
+				"nonwhite_disabled_surfaces": 157,
+				"triangles": 508684
+			},
+			"file": "breeze_town_farm.glb",
+			"patch": {
+				"already_compatible_meshes": 0,
+				"binary_unchanged": true,
+				"bytes_after": 36222016,
+				"bytes_before": 36102416,
+				"changed": true,
+				"file": "D:/Workspace/breezeTown/art/2_5d/validation/diag_compat_test_breeze_town_farm.glb",
+				"ok": true,
+				"other_meshes_skipped": 84,
+				"patched_meshes": 217,
+				"patches": [
+					{
+						"index_component_bytes": 2,
+						"mesh": 0,
+						"source_index_count": 2016,
+						"split_index_counts": [
+							3,
+							2013
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 52,
+						"source_index_count": 4104,
+						"split_index_counts": [
+							3,
+							4101
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 54,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 55,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 56,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 57,
+						"source_index_count": 360,
+						"split_index_counts": [
+							3,
+							357
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 58,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 59,
+						"source_index_count": 504,
+						"split_index_counts": [
+							3,
+							501
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 60,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 62,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 63,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 64,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 65,
+						"source_index_count": 504,
+						"split_index_counts": [
+							3,
+							501
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 66,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 68,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 69,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 70,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 72,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 73,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 74,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 75,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 76,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 77,
+						"source_index_count": 4104,
+						"split_index_counts": [
+							3,
+							4101
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 78,
+						"source_index_count": 1440,
+						"split_index_counts": [
+							3,
+							1437
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 79,
+						"source_index_count": 150,
+						"split_index_counts": [
+							3,
+							147
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 80,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 81,
+						"source_index_count": 540,
+						"split_index_counts": [
+							3,
+							537
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 82,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 83,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 84,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 89,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 90,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 91,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 92,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 93,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 94,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 95,
+						"source_index_count": 4104,
+						"split_index_counts": [
+							3,
+							4101
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 96,
+						"source_index_count": 1440,
+						"split_index_counts": [
+							3,
+							1437
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 97,
+						"source_index_count": 150,
+						"split_index_counts": [
+							3,
+							147
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 98,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 99,
+						"source_index_count": 540,
+						"split_index_counts": [
+							3,
+							537
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 100,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 101,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 102,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 107,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 108,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 109,
+						"source_index_count": 8352,
+						"split_index_counts": [
+							3,
+							8349
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 117,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 118,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 126,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 127,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 130,
+						"source_index_count": 240,
+						"split_index_counts": [
+							3,
+							237
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 132,
+						"source_index_count": 4608,
+						"split_index_counts": [
+							3,
+							4605
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 133,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 134,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 135,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 136,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 137,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 138,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 139,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 140,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 141,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 142,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 143,
+						"source_index_count": 8640,
+						"split_index_counts": [
+							3,
+							8637
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 144,
+						"source_index_count": 5376,
+						"split_index_counts": [
+							3,
+							5373
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 145,
+						"source_index_count": 2352,
+						"split_index_counts": [
+							3,
+							2349
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 146,
+						"source_index_count": 32640,
+						"split_index_counts": [
+							3,
+							32637
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 147,
+						"source_index_count": 18240,
+						"split_index_counts": [
+							3,
+							18237
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 148,
+						"source_index_count": 3840,
+						"split_index_counts": [
+							3,
+							3837
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 150,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 151,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 155,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 156,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 157,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 158,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 159,
+						"source_index_count": 168,
+						"split_index_counts": [
+							3,
+							165
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 161,
+						"source_index_count": 288,
+						"split_index_counts": [
+							3,
+							285
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 162,
+						"source_index_count": 288,
+						"split_index_counts": [
+							3,
+							285
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 166,
+						"source_index_count": 288,
+						"split_index_counts": [
+							3,
+							285
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 167,
+						"source_index_count": 4104,
+						"split_index_counts": [
+							3,
+							4101
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 169,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 170,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 171,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 172,
+						"source_index_count": 360,
+						"split_index_counts": [
+							3,
+							357
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 173,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 174,
+						"source_index_count": 504,
+						"split_index_counts": [
+							3,
+							501
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 175,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 177,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 178,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 179,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 180,
+						"source_index_count": 504,
+						"split_index_counts": [
+							3,
+							501
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 181,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 183,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 184,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 185,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 187,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 188,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 189,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 190,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 191,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 192,
+						"source_index_count": 4104,
+						"split_index_counts": [
+							3,
+							4101
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 193,
+						"source_index_count": 1440,
+						"split_index_counts": [
+							3,
+							1437
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 194,
+						"source_index_count": 150,
+						"split_index_counts": [
+							3,
+							147
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 195,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 196,
+						"source_index_count": 540,
+						"split_index_counts": [
+							3,
+							537
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 197,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 198,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 199,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 204,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 205,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 206,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 207,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 208,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 209,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 210,
+						"source_index_count": 4104,
+						"split_index_counts": [
+							3,
+							4101
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 211,
+						"source_index_count": 1440,
+						"split_index_counts": [
+							3,
+							1437
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 212,
+						"source_index_count": 150,
+						"split_index_counts": [
+							3,
+							147
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 213,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 214,
+						"source_index_count": 540,
+						"split_index_counts": [
+							3,
+							537
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 215,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 216,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 217,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 222,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 223,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 224,
+						"source_index_count": 8352,
+						"split_index_counts": [
+							3,
+							8349
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 232,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 233,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 241,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 242,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 245,
+						"source_index_count": 240,
+						"split_index_counts": [
+							3,
+							237
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 247,
+						"source_index_count": 4608,
+						"split_index_counts": [
+							3,
+							4605
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 248,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 249,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 250,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 251,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 252,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 253,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 254,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 255,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 256,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 262,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 268,
+						"source_index_count": 8640,
+						"split_index_counts": [
+							3,
+							8637
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 269,
+						"source_index_count": 5376,
+						"split_index_counts": [
+							3,
+							5373
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 270,
+						"source_index_count": 2352,
+						"split_index_counts": [
+							3,
+							2349
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 271,
+						"source_index_count": 32640,
+						"split_index_counts": [
+							3,
+							32637
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 272,
+						"source_index_count": 18240,
+						"split_index_counts": [
+							3,
+							18237
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 273,
+						"source_index_count": 3840,
+						"split_index_counts": [
+							3,
+							3837
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 275,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 276,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 280,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 281,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 282,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 283,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 284,
+						"source_index_count": 168,
+						"split_index_counts": [
+							3,
+							165
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 286,
+						"source_index_count": 288,
+						"split_index_counts": [
+							3,
+							285
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 287,
+						"source_index_count": 288,
+						"split_index_counts": [
+							3,
+							285
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 291,
+						"source_index_count": 288,
+						"split_index_counts": [
+							3,
+							285
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 292,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 293,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 294,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 295,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 296,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 297,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 298,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 299,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 300,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 302,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 303,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 304,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 305,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 306,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 307,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 309,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 311,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 312,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 313,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 314,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 315,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 316,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 317,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 318,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 320,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 321,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 322,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 325,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 327,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 329,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 330,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 331,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 332,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 335,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 336,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 337,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 338,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 339,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 340,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 341,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 342,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 343,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 344,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 345,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 346,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 347,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 348,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 349,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 350,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 351,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 353,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 354,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 355,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 356,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 357,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 358,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 359,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 360,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 361,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 363,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					}
+				],
+				"tail_sha256_after": "957adbda1890109292129e27a3f2a06c2767b169c3539f117b4827e42c88436e",
+				"tail_sha256_before": "957adbda1890109292129e27a3f2a06c2767b169c3539f117b4827e42c88436e",
+				"triangles_preserved": true,
+				"white_color_meshes_skipped": 70
+			},
+			"patched_sha256": "c3f323ff1876f04264f07f01d5196554e6809b5e64acd995a42ea7a774236043",
+			"repeat": {
+				"already_compatible_meshes": 217,
+				"binary_unchanged": true,
+				"bytes_after": 36222016,
+				"bytes_before": 36222016,
+				"changed": false,
+				"file": "D:/Workspace/breezeTown/art/2_5d/validation/diag_compat_test_breeze_town_farm.glb",
+				"ok": true,
+				"other_meshes_skipped": 84,
+				"patched_meshes": 0,
+				"patches": [],
+				"tail_sha256_after": "957adbda1890109292129e27a3f2a06c2767b169c3539f117b4827e42c88436e",
+				"tail_sha256_before": "957adbda1890109292129e27a3f2a06c2767b169c3539f117b4827e42c88436e",
+				"triangles_preserved": true,
+				"white_color_meshes_skipped": 70
+			},
+			"source_sha256": "a97b444733a7d73bdccf8e1e1e5ce97a8f8edd9a239f826a7d61919b5f13ce1a"
+		},
+		{
+			"after": {
+				"nonwhite_color_surfaces": 97,
+				"nonwhite_disabled_surfaces": 0,
+				"triangles": 78920
+			},
+			"before": {
+				"nonwhite_color_surfaces": 78,
+				"nonwhite_disabled_surfaces": 78,
+				"triangles": 78920
+			},
+			"file": "farmer_indigo.glb",
+			"patch": {
+				"already_compatible_meshes": 0,
+				"binary_unchanged": true,
+				"bytes_after": 1737244,
+				"bytes_before": 1705204,
+				"changed": true,
+				"file": "D:/Workspace/breezeTown/art/2_5d/validation/diag_compat_test_farmer_indigo.glb",
+				"ok": true,
+				"other_meshes_skipped": 37,
+				"patched_meshes": 78,
+				"patches": [
+					{
+						"index_component_bytes": 2,
+						"mesh": 0,
+						"source_index_count": 4104,
+						"split_index_counts": [
+							3,
+							4101
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 2,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 3,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 4,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 5,
+						"source_index_count": 360,
+						"split_index_counts": [
+							3,
+							357
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 6,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 7,
+						"source_index_count": 504,
+						"split_index_counts": [
+							3,
+							501
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 8,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 10,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 11,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 12,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 13,
+						"source_index_count": 504,
+						"split_index_counts": [
+							3,
+							501
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 14,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 16,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 17,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 18,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 20,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 21,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 22,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 23,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 24,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 25,
+						"source_index_count": 4104,
+						"split_index_counts": [
+							3,
+							4101
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 26,
+						"source_index_count": 1440,
+						"split_index_counts": [
+							3,
+							1437
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 27,
+						"source_index_count": 150,
+						"split_index_counts": [
+							3,
+							147
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 28,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 29,
+						"source_index_count": 540,
+						"split_index_counts": [
+							3,
+							537
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 30,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 31,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 32,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 37,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 38,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 39,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 40,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 41,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 42,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 43,
+						"source_index_count": 4104,
+						"split_index_counts": [
+							3,
+							4101
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 44,
+						"source_index_count": 1440,
+						"split_index_counts": [
+							3,
+							1437
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 45,
+						"source_index_count": 150,
+						"split_index_counts": [
+							3,
+							147
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 46,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 47,
+						"source_index_count": 540,
+						"split_index_counts": [
+							3,
+							537
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 48,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 49,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 50,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 55,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 56,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 57,
+						"source_index_count": 8352,
+						"split_index_counts": [
+							3,
+							8349
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 65,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 66,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 74,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 75,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 78,
+						"source_index_count": 240,
+						"split_index_counts": [
+							3,
+							237
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 80,
+						"source_index_count": 4608,
+						"split_index_counts": [
+							3,
+							4605
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 81,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 82,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 83,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 84,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 85,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 86,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 87,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 88,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 89,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 90,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 91,
+						"source_index_count": 8640,
+						"split_index_counts": [
+							3,
+							8637
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 92,
+						"source_index_count": 5376,
+						"split_index_counts": [
+							3,
+							5373
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 93,
+						"source_index_count": 2352,
+						"split_index_counts": [
+							3,
+							2349
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 94,
+						"source_index_count": 32640,
+						"split_index_counts": [
+							3,
+							32637
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 95,
+						"source_index_count": 18240,
+						"split_index_counts": [
+							3,
+							18237
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 96,
+						"source_index_count": 3840,
+						"split_index_counts": [
+							3,
+							3837
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 98,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 99,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 103,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 104,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 105,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 106,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 107,
+						"source_index_count": 168,
+						"split_index_counts": [
+							3,
+							165
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 109,
+						"source_index_count": 288,
+						"split_index_counts": [
+							3,
+							285
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 110,
+						"source_index_count": 288,
+						"split_index_counts": [
+							3,
+							285
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 114,
+						"source_index_count": 288,
+						"split_index_counts": [
+							3,
+							285
+						]
+					}
+				],
+				"tail_sha256_after": "04f1f546a2b09a29c6e840fde8559d8b1831c6f6f9d170572cabf27719a3b2a0",
+				"tail_sha256_before": "04f1f546a2b09a29c6e840fde8559d8b1831c6f6f9d170572cabf27719a3b2a0",
+				"triangles_preserved": true,
+				"white_color_meshes_skipped": 0
+			},
+			"patched_sha256": "4ce98f139b8d4ea85fc6d99a602f339e19552a3b197a2b85ce4b46482f92b6dc",
+			"repeat": {
+				"already_compatible_meshes": 78,
+				"binary_unchanged": true,
+				"bytes_after": 1737244,
+				"bytes_before": 1737244,
+				"changed": false,
+				"file": "D:/Workspace/breezeTown/art/2_5d/validation/diag_compat_test_farmer_indigo.glb",
+				"ok": true,
+				"other_meshes_skipped": 37,
+				"patched_meshes": 0,
+				"patches": [],
+				"tail_sha256_after": "04f1f546a2b09a29c6e840fde8559d8b1831c6f6f9d170572cabf27719a3b2a0",
+				"tail_sha256_before": "04f1f546a2b09a29c6e840fde8559d8b1831c6f6f9d170572cabf27719a3b2a0",
+				"triangles_preserved": true,
+				"white_color_meshes_skipped": 0
+			},
+			"source_sha256": "7e2b2f3e836a04fb080d39a4382009b198cfd840b6ec107fbe978f6dc44dbbde"
+		},
+		{
+			"after": {
+				"nonwhite_color_surfaces": 97,
+				"nonwhite_disabled_surfaces": 0,
+				"triangles": 88440
+			},
+			"before": {
+				"nonwhite_color_surfaces": 78,
+				"nonwhite_disabled_surfaces": 78,
+				"triangles": 88440
+			},
+			"file": "farmer_moss.glb",
+			"patch": {
+				"already_compatible_meshes": 0,
+				"binary_unchanged": true,
+				"bytes_after": 1740888,
+				"bytes_before": 1708716,
+				"changed": true,
+				"file": "D:/Workspace/breezeTown/art/2_5d/validation/diag_compat_test_farmer_moss.glb",
+				"ok": true,
+				"other_meshes_skipped": 47,
+				"patched_meshes": 78,
+				"patches": [
+					{
+						"index_component_bytes": 2,
+						"mesh": 0,
+						"source_index_count": 4104,
+						"split_index_counts": [
+							3,
+							4101
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 2,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 3,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 4,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 5,
+						"source_index_count": 360,
+						"split_index_counts": [
+							3,
+							357
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 6,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 7,
+						"source_index_count": 504,
+						"split_index_counts": [
+							3,
+							501
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 8,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 10,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 11,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 12,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 13,
+						"source_index_count": 504,
+						"split_index_counts": [
+							3,
+							501
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 14,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 16,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 17,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 18,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 20,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 21,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 22,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 23,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 24,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 25,
+						"source_index_count": 4104,
+						"split_index_counts": [
+							3,
+							4101
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 26,
+						"source_index_count": 1440,
+						"split_index_counts": [
+							3,
+							1437
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 27,
+						"source_index_count": 150,
+						"split_index_counts": [
+							3,
+							147
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 28,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 29,
+						"source_index_count": 540,
+						"split_index_counts": [
+							3,
+							537
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 30,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 31,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 32,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 37,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 38,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 39,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 40,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 41,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 42,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 43,
+						"source_index_count": 4104,
+						"split_index_counts": [
+							3,
+							4101
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 44,
+						"source_index_count": 1440,
+						"split_index_counts": [
+							3,
+							1437
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 45,
+						"source_index_count": 150,
+						"split_index_counts": [
+							3,
+							147
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 46,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 47,
+						"source_index_count": 540,
+						"split_index_counts": [
+							3,
+							537
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 48,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 49,
+						"source_index_count": 2808,
+						"split_index_counts": [
+							3,
+							2805
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 50,
+						"source_index_count": 2160,
+						"split_index_counts": [
+							3,
+							2157
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 55,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 56,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 57,
+						"source_index_count": 8352,
+						"split_index_counts": [
+							3,
+							8349
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 65,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 66,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 74,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 75,
+						"source_index_count": 144,
+						"split_index_counts": [
+							3,
+							141
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 78,
+						"source_index_count": 240,
+						"split_index_counts": [
+							3,
+							237
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 80,
+						"source_index_count": 4608,
+						"split_index_counts": [
+							3,
+							4605
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 81,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 82,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 83,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 84,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 85,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 86,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 87,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 88,
+						"source_index_count": 90,
+						"split_index_counts": [
+							3,
+							87
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 89,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 95,
+						"source_index_count": 720,
+						"split_index_counts": [
+							3,
+							717
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 101,
+						"source_index_count": 8640,
+						"split_index_counts": [
+							3,
+							8637
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 102,
+						"source_index_count": 5376,
+						"split_index_counts": [
+							3,
+							5373
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 103,
+						"source_index_count": 2352,
+						"split_index_counts": [
+							3,
+							2349
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 104,
+						"source_index_count": 32640,
+						"split_index_counts": [
+							3,
+							32637
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 105,
+						"source_index_count": 18240,
+						"split_index_counts": [
+							3,
+							18237
+						]
+					},
+					{
+						"index_component_bytes": 2,
+						"mesh": 106,
+						"source_index_count": 3840,
+						"split_index_counts": [
+							3,
+							3837
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 108,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 109,
+						"source_index_count": 108,
+						"split_index_counts": [
+							3,
+							105
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 113,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 114,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 115,
+						"source_index_count": 672,
+						"split_index_counts": [
+							3,
+							669
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 116,
+						"source_index_count": 180,
+						"split_index_counts": [
+							3,
+							177
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 117,
+						"source_index_count": 168,
+						"split_index_counts": [
+							3,
+							165
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 119,
+						"source_index_count": 288,
+						"split_index_counts": [
+							3,
+							285
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 120,
+						"source_index_count": 288,
+						"split_index_counts": [
+							3,
+							285
+						]
+					},
+					{
+						"index_component_bytes": 1,
+						"mesh": 124,
+						"source_index_count": 288,
+						"split_index_counts": [
+							3,
+							285
+						]
+					}
+				],
+				"tail_sha256_after": "48304a362bea59605c2f7de38b25e51ae24a15776250b525b8a16f2cd4edf19f",
+				"tail_sha256_before": "48304a362bea59605c2f7de38b25e51ae24a15776250b525b8a16f2cd4edf19f",
+				"triangles_preserved": true,
+				"white_color_meshes_skipped": 0
+			},
+			"patched_sha256": "19a7b39a98e344cb306a6dae807813d34d83921e802b5e90692f7ca8f438a255",
+			"repeat": {
+				"already_compatible_meshes": 78,
+				"binary_unchanged": true,
+				"bytes_after": 1740888,
+				"bytes_before": 1740888,
+				"changed": false,
+				"file": "D:/Workspace/breezeTown/art/2_5d/validation/diag_compat_test_farmer_moss.glb",
+				"ok": true,
+				"other_meshes_skipped": 47,
+				"patched_meshes": 0,
+				"patches": [],
+				"tail_sha256_after": "48304a362bea59605c2f7de38b25e51ae24a15776250b525b8a16f2cd4edf19f",
+				"tail_sha256_before": "48304a362bea59605c2f7de38b25e51ae24a15776250b525b8a16f2cd4edf19f",
+				"triangles_preserved": true,
+				"white_color_meshes_skipped": 0
+			},
+			"source_sha256": "d283ef318bc5e004c444272259a11774706d8fc15b1754816804e23b29731bcf"
+		}
+	],
+	"failures": [],
+	"ok": true
+}

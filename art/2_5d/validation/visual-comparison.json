@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "width": 1920,
+  "height": 1200,
+  "source": {
+    "file": "../renders/01-farm-day.png",
+    "bytes": 825608,
+    "sha256": "17015b2b96bbf6e202104b2a40b1804719f1f7afe5f8ae1c9ad4e8373cbe8f5f"
+  },
+  "imported": {
+    "file": "imported-farm.png",
+    "bytes": 826238,
+    "sha256": "4f3f50a39814a1e6d6732a06c7aef219fe1cd9586013c16aa05043214b0cd253"
+  },
+  "comparison": "same 1920x1200 composition and visible materials after GLB re-import; PNG container hashes differ because the imported render is written in a separate pass",
+  "verified_utc": "2026-09-15T13:51:35Z"
+}

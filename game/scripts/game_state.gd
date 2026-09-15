@@ -15,6 +15,12 @@ const PRODUCTS := {
 }
 const CROP_ORDER := ["radish", "strawberry", "wheat", "pumpkin"]
 const PRODUCT_ORDER := ["milk", "wool", "egg"]
+const ANIMALS := {
+	"chicken": {"label": "母鸡", "measure": "只", "price": 40},
+	"sheep": {"label": "绵羊", "measure": "只", "price": 90},
+	"cow": {"label": "奶牛", "measure": "头", "price": 150},
+}
+const ANIMAL_ORDER := ["chicken", "sheep", "cow"]
 const START_COINS := 20
 const HOURS_PER_DAY := 20.0  # 06:00 → 次日 02:00
 
@@ -22,6 +28,7 @@ var coins: int = START_COINS
 var seeds := {"radish": 6, "strawberry": 0, "wheat": 0, "pumpkin": 0}
 var harvest := {"radish": 0, "strawberry": 0, "wheat": 0, "pumpkin": 0}
 var products := {"milk": 0, "wool": 0, "egg": 0}
+var ranch_unlocked := false
 var day := 1
 var clock := 8.0
 

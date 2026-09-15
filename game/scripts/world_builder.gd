@@ -10,8 +10,6 @@ const Ranch = preload("res://scripts/ranch_models.gd")
 
 const BOUND_HALF := Vector2(46.0, 36.0)
 const BOUND_POW := 6
-const PASTURE := Rect2(10, 4, 24, 16)
-const FIELD_RECT := Rect2(-27, 1, 20, 17)
 const RANCH_RECT := Rect2(9, -2, 27, 24)
 
 static var _templates := {}
@@ -52,20 +50,8 @@ static func build() -> Dictionary:
 	place(root, L.pond(), Vector3(30, 0, -8), -0.15)
 	_sphere_obstacle(obstacles, Vector3(30.9, 0, -8.2), 1.3)
 	_sphere_obstacle(obstacles, Vector3(28.9, 0, -9.3), 1.15)
-	# 农田围栏（北侧留闸口）。
-	_fence_line(root, Vector2(-26.5, 1.5), Vector2(-26.5, 17.5), obstacles)
-	_fence_line(root, Vector2(-26, 1.5), Vector2(-19, 1.5), obstacles)
-	_fence_line(root, Vector2(-15, 1.5), Vector2(-9, 1.5), obstacles)
-	_fence_line(root, Vector2(-26, 17.3), Vector2(-13, 17.3), obstacles)
-	# 牧场围栏（西侧留闸门 z 9..12）。
-	_fence_line(root, Vector2(10, 4.2), Vector2(10, 9), obstacles)
-	_fence_line(root, Vector2(10, 12), Vector2(10, 19.8), obstacles)
-	_fence_line(root, Vector2(10.2, 4.2), Vector2(33.8, 4.2), obstacles)
-	_fence_line(root, Vector2(10.2, 19.8), Vector2(33.8, 19.8), obstacles)
-	_fence_line(root, Vector2(33.8, 4.2), Vector2(33.8, 19.8), obstacles)
-	for gate_x in [9.4, 12.6]:
-		var post := M.box(root, Vector3(gate_x, 0.6, 10.5), Vector3(0.2, 1.2, 0.2), "#a5824f", "GatePost", 0.03)
-		post.rotation.y = PI * 0.5
+	# 牧场区：谷仓前的牧场主 NPC 站位（模型由 main 生成）。
+	_sphere_obstacle(obstacles, Vector3(16.8, 0, 3.4), 0.35)
 	# 灯柱、装饰。
 	for lamp in [Vector3(1.8, 0.02, 8), Vector3(-1.8, 0.02, -2), Vector3(-12.5, 0.02, 11.2), Vector3(12.5, 0.02, 8.8)]:
 		place(root, L.lantern_post(), lamp, 0.0)
@@ -73,7 +59,6 @@ static func build() -> Dictionary:
 	place(root, L.barrel(), Vector3(-27.6, 0.02, -12.2))
 	place(root, L.crate(true), Vector3(19.5, 0.02, -14.5), 0.12)
 	place(root, L.watering_can(), Vector3(-8.5, 0.13, 12.5), -0.6)
-	# 北部森林 + 边缘树林。
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 91518
 	for i in range(26):
@@ -117,19 +102,35 @@ static func build() -> Dictionary:
 			"shop_door": Vector3(20.6, 0, -15.6),
 			"cottage_door": Vector3(-29.3, 0, -13.9),
 			"spawn": Vector3(0, 0, 24),
-			"trough": Vector3(13, 0, 7),
+			"npc": Vector3(16.8, 0, 3.4),
 		},
-		"pasture": PASTURE,
+		"blocked": {
+			"rects": [
+				Rect2(-33.6, -19.4, 7.4, 7.2),   # 农舍
+				Rect2(18.2, -21.4, 7.6, 7.4),    # 商店
+				Rect2(16.1, -3.2, 7.8, 6.4),     # 谷仓
+				Rect2(29.2, 15.4, 3.6, 3.4),     # 鸡舍
+				Rect2(-1.9, -14.5, 3.8, 42.0),   # 主径
+				Rect2(-19.5, 8.6, 34.0, 2.9),    # 东西径
+				Rect2(-28.5, -15.2, 26.5, 2.8),  # 农舍前径
+				Rect2(2.5, -16.5, 19.5, 2.8),    # 商店前径
+				Rect2(-45, -33, 90, 17.6),       # 北部森林
+				Rect2(1.5, 15.5, 5.0, 5.0),      # 水井
+			],
+			"circles": [
+				{"position": Vector2(30.9, -8.2), "radius": 1.5},
+				{"position": Vector2(28.9, -9.3), "radius": 1.35},
+				{"position": Vector2(24.5, 2.6), "radius": 0.9},
+				{"position": Vector2(25.9, 3.1), "radius": 0.9},
+				{"position": Vector2(5.5, 2.2), "radius": 0.7},
+				{"position": Vector2(-6.5, -10.5), "radius": 0.7},
+				{"position": Vector2(7.0, -10.8), "radius": 0.7},
+				{"position": Vector2(-27.6, -12.2), "radius": 0.7},
+				{"position": Vector2(19.5, -14.5), "radius": 0.7},
+			],
+		},
 		"bounds": {"half": BOUND_HALF, "pow": BOUND_POW},
 	}
-
-
-static func plot_positions() -> Array[Vector3]:
-	var spots: Array[Vector3] = []
-	for row in range(5):
-		for col in range(6):
-			spots.append(Vector3(-23.6 + col * 2.85, 0.02, 3.3 + row * 2.85))
-	return spots
 
 
 static func _plant_tree(root: Node3D, obstacles: Array, x: float, z: float, rng: RandomNumberGenerator) -> void:
@@ -140,7 +141,7 @@ static func _plant_tree(root: Node3D, obstacles: Array, x: float, z: float, rng:
 
 
 static func _in_scatter_exclusion(x: float, z: float) -> bool:
-	if FIELD_RECT.has_point(Vector2(x, z)) or RANCH_RECT.has_point(Vector2(x, z)):
+	if Rect2(-27, 1, 20, 17).has_point(Vector2(x, z)) or RANCH_RECT.has_point(Vector2(x, z)):
 		return true
 	if Vector2(x + 30, z + 16).length() < 5.5 or Vector2(x - 22, z + 18).length() < 5.5:
 		return true

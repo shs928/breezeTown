@@ -93,7 +93,7 @@ func _build_toolbar() -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	bar.add_child(row)
-	for i in range(4):
+	for i in range(5):
 		var slot := PanelContainer.new()
 		var style := StyleBoxFlat.new()
 		style.bg_color = Color(0.90, 0.87, 0.78, 0.9)
@@ -104,7 +104,7 @@ func _build_toolbar() -> void:
 		style.content_margin_bottom = 5.0
 		slot.add_theme_stylebox_override("panel", style)
 		_slot_styles.append(style)
-		var text := _label(["1 空手", "2 锄头", "3 水壶", "4 种子"][i], 17)
+		var text := _label(["1 空手", "2 锄头", "3 水壶", "4 种子", "5 围栏"][i], 17)
 		text.custom_minimum_size.x = 96.0
 		text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		slot.add_child(text)

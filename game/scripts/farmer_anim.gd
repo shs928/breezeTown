@@ -29,6 +29,25 @@ static func add_act(farmer: Node3D) -> void:
 	])
 	var library := player.get_animation_library("")
 	library.add_animation("act", act)
+	_add_swing(library, "mine", 0.64, true)
+	_add_swing(library, "slash", 0.48, false)
+
+
+static func _add_swing(library: AnimationLibrary, name: String, duration: float, mining: bool) -> void:
+	var action := Animation.new()
+	action.length = duration
+	var times: Array = [0.0, duration * 0.28, duration * 0.55, duration]
+	_rotation_track(action, "Body/Arm_R", times, [
+		Vector3(0, 0, 0.11),
+		Vector3(-1.9, 0.1, 0.15) if mining else Vector3(-0.55, -0.85, -0.7),
+		Vector3(0.24, 0, 0.18) if mining else Vector3(-0.8, 1.05, 0.7),
+		Vector3(0, 0, 0.11),
+	])
+	_rotation_track(action, "Body/Arm_R/Elbow_R", times, [Vector3(-0.08, 0, 0), Vector3(-0.7, 0, 0), Vector3(-0.12, 0, 0), Vector3(-0.08, 0, 0)])
+	_rotation_track(action, "Body/Arm_L", times, [Vector3(0, 0, -0.11), Vector3(-0.4, -0.1, -0.18), Vector3(0.25, 0, -0.18), Vector3(0, 0, -0.11)])
+	_rotation_track(action, "Body", times, [Vector3.ZERO, Vector3(-0.10, -0.18, 0), Vector3(0.13, 0.16, 0), Vector3.ZERO])
+	_rotation_track(action, "Body/HeadPivot", times, [Vector3.ZERO, Vector3(-0.08, 0, 0), Vector3(0.12, 0, 0), Vector3.ZERO])
+	library.add_animation(name, action)
 
 
 static func _rotation_track(animation: Animation, path: String, times: Array, values: Array) -> void:

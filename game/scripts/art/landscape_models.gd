@@ -2,6 +2,7 @@ extends RefCounted
 ## Original modeled plants, terrain and farm props. No third-party art.
 
 const M = preload("res://scripts/art/art_mesh.gd")
+static var _stone_material:StandardMaterial3D
 const GREENS := ["#709656", "#88a65d", "#91af66", "#618951", "#a4b975"]
 
 static func terrain() -> Node3D:
@@ -56,31 +57,7 @@ static func meadow_patch(radius_x: float, radius_z: float, hex: String, seed_val
 	return root
 
 static func tree(seed_value: int = 1, fruit: bool = false) -> Node3D:
-	var root := Node3D.new()
-	root.name = "AppleTree" if fruit else "MeadowOak"
-	var rng := RandomNumberGenerator.new()
-	rng.seed = seed_value
-	M.cylinder(root, Vector3(0, 1.15, 0), 0.23, 0.14, 2.30, "#816448", "Trunk", 11)
-	for i in range(5):
-		var theta := i * TAU / 5.0 + 0.3
-		M.beam(root, Vector3(0, 0.14, 0), Vector3(cos(theta) * 0.62, 0.035, sin(theta) * 0.62), 0.19, "#8b6a49", "RootFlare", -1, true)
-		var endpoint := Vector3(cos(theta) * 1.02, rng.randf_range(2.45, 2.85), sin(theta) * 0.92)
-		M.beam(root, Vector3(0, 1.1 + rng.randf() * 0.45, 0), endpoint, 0.18, "#8d6a48", "Branch", -1, true)
-		M.blob(root, endpoint + Vector3(0, 0.17, 0), Vector3(1.08, 0.82, 1.03), GREENS[i], seed_value + i, "LeafCrown")
-	M.blob(root, Vector3(-0.07, 3.24, -0.04), Vector3(1.13, 0.88, 1.06), "#9bb86e", seed_value + 8, "SunlitCrown")
-	M.blob(root, Vector3(0.34, 2.65, 0.72), Vector3(0.74, 0.58, 0.7), "#87a359", seed_value + 10, "FrontCrown")
-	for i in range(22):
-		var angle := rng.randf_range(0, TAU)
-		var y := rng.randf_range(2.05, 3.4)
-		var radius := sqrt(maxf(0.1, 1.0 - pow((y - 2.65) / 1.2, 2))) * rng.randf_range(1.35, 1.68)
-		var p := Vector3(cos(angle) * radius, y, sin(angle) * radius)
-		if fruit and i % 2 == 0:
-			M.ellipsoid(root, p, Vector3(0.135, 0.14, 0.125), "#d67450" if i % 4 == 0 else "#bf5842", "Apple", 12, 7)
-			M.beam(root, p + Vector3(0, 0.10, 0), p + Vector3(0.015, 0.19, 0), 0.027, "#715331", "AppleStem", -1, true)
-		else:
-			var tip := p + Vector3(cos(angle) * 0.18, 0.10, sin(angle) * 0.18)
-			M.leaf(root, p, tip, 0.18, "#a8b978", "CrownLeaf")
-	return root
+	return preload("res://scripts/art/tree_models.gd").build("apple" if fruit else "oak", seed_value)
 
 static func grass_clump(seed_value: int = 0, height: float = 0.22) -> Node3D:
 	var root := Node3D.new()
@@ -126,6 +103,14 @@ static func stone(seed_value: int = 0, scale_value: Vector3 = Vector3(0.35, 0.16
 	var root := Node3D.new()
 	root.name = "Fieldstone"
 	M.blob(root, Vector3(0, scale_value.y * 0.6, 0), scale_value, ["#b6b29a", "#c9c2a7", "#9aab9b", "#b8baa4"][posmod(seed_value, 4)], seed_value, "WaterwornStone")
+	if _stone_material==null:
+		_stone_material=M.paint("#999582").duplicate()
+		_stone_material.vertex_color_use_as_albedo=false
+		_stone_material.albedo_texture=preload("res://resources/architecture/painted_stone.png")
+		_stone_material.uv1_triplanar=true
+		_stone_material.uv1_scale=Vector3.ONE*1.6
+	for child in root.get_children():
+		if child is MeshInstance3D:child.material_override=_stone_material
 	return root
 
 static func crop(kind: String = "radish", seed_value: int = 0) -> Node3D:
@@ -154,6 +139,9 @@ static func crop(kind: String = "radish", seed_value: int = 0) -> Node3D:
 			M.beam(root, Vector3(0, 0.42, 0), Vector3(0.035, 0.61, -0.02), 0.075, "#6d7541", "Stem", -1, true)
 			M.leaf(root, Vector3(0.07, 0.09, 0.03), Vector3(0.42, 0.17, 0.26), 0.34, "#7c944e", "PumpkinLeaf")
 			M.leaf(root, Vector3(0.01, 0.08, -0.03), Vector3(-0.39, 0.19, -0.31), 0.31, "#829c54", "PumpkinLeaf")
+			for vine in range(4):
+				var a:=vine*2.399+.3
+				M.leaf(root,Vector3(cos(a)*.12,.08,sin(a)*.12),Vector3(cos(a)*.55,.17+vine%2*.11,sin(a)*.55),.36,"#567d37" if vine%2 else "#749745","PumpkinVine")
 		"strawberry":
 			for l in range(7):
 				var angle := l * TAU / 7.0

@@ -1,15 +1,19 @@
 extends Node3D
-## 牧场动物：在草场矩形内随机游荡，每天可抚摸一次，喂食后次日产出。
+## 牧场动物视图：在草场矩形内随机游荡，抚摸示爱动画。
+## 抚摸次数、产出种类等数据都在 AnimalState 领域对象上。
 
 const RanchModels = preload("res://scripts/ranch_models.gd")
+const StaticGeometry = preload("res://scripts/art/static_geometry.gd")
 
 const SPEEDS := {"cow": 0.72, "sheep": 0.95, "chicken": 1.35}
 const BOB_AMPS := {"cow": 0.030, "sheep": 0.026, "chicken": 0.055}
 const HEAD_HEIGHTS := {"cow": 1.45, "sheep": 1.10, "chicken": 0.72}
 
-var kind := "cow"
-var petted_today := false
+var data  # AnimalState（domain/animal_state.gd）
 var pasture := Rect2(11, 5, 22, 14)
+var navigation: RefCounted
+var _path := PackedVector3Array()
+var _waypoint := 0
 
 var _model: Node3D
 var _target := Vector2.ZERO
@@ -20,14 +24,24 @@ var _rng := RandomNumberGenerator.new()
 
 
 func setup(p_kind: String, p_pasture: Rect2, seed_value: int) -> void:
-	kind = p_kind
+	if data == null:
+		data = load("res://scripts/domain/animal_state.gd").new()
+	data.setup(p_kind)
 	pasture = p_pasture
 	_rng.seed = seed_value
 	_model = RanchModels.animal_model(kind, seed_value)
+	# 合并单只动物的静态部件，整体的走动、摆头和跳跃仍由本节点驱动。
+	StaticGeometry.bake(_model)
 	add_child(_model)
 	_target = _random_spot()
 	position = Vector3(_target.x, 0, _target.y)
 	_pick_target()
+
+
+var kind: String:
+	get: return data.kind if data != null else "cow"
+var petted_today: bool:
+	get: return data.petted_today if data != null else false
 
 
 func _process(delta: float) -> void:
@@ -42,12 +56,17 @@ func _process(delta: float) -> void:
 		return
 	_model.rotation.x = 0.0
 	var here := Vector2(position.x, position.z)
+	if not _path.is_empty() and _waypoint < _path.size():
+		if position.distance_to(_path[_waypoint]) < 0.15:
+			_waypoint += 1
+		if _waypoint < _path.size():
+			_target = Vector2(_path[_waypoint].x, _path[_waypoint].z)
 	var offset := _target - here
 	if offset.length() < 0.12:
 		_idle = _rng.randf_range(1.6, 4.5)
 		_pick_target()
 		return
-	var step: float = SPEEDS[kind] * delta
+	var step: float = minf(SPEEDS[kind] * delta, offset.length())
 	var heading := offset.normalized()
 	position.x += heading.x * step
 	position.z += heading.y * step
@@ -56,8 +75,34 @@ func _process(delta: float) -> void:
 	rotation.y = lerp_angle(rotation.y, atan2(heading.x, heading.y), 1.0 - exp(-8.0 * delta))
 
 
+func set_navigation(service: RefCounted) -> void:
+	navigation = service
+	_pick_target()
+
+
 func _pick_target() -> void:
-	_target = _random_spot()
+	_path.clear()
+	_waypoint = 0
+	for attempt in range(8):
+		var candidate := _random_spot()
+		if navigation == null:
+			_target = candidate
+			return
+		var route: PackedVector3Array = navigation.find_path(position, Vector3(candidate.x, 0, candidate.y))
+		if route.is_empty():
+			continue
+		var stays_home := true
+		for point in route:
+			if not pasture.grow(-0.4).has_point(Vector2(point.x, point.z)):
+				stays_home = false
+				break
+		if stays_home:
+			_path = route
+			_waypoint = mini(1, route.size() - 1)
+			_target = Vector2(route[_waypoint].x, route[_waypoint].z)
+			return
+	_target = Vector2(position.x, position.z)
+	_idle = 2.0
 
 
 func _random_spot() -> Vector2:
@@ -69,9 +114,8 @@ func _random_spot() -> Vector2:
 
 func pet() -> bool:
 	## 每天第一次抚摸返回 true 并跳一下示爱。
-	if petted_today:
+	if data == null or not data.pet():
 		return false
-	petted_today = true
 	_spawn_heart()
 	var tween := create_tween()
 	tween.tween_property(self, "position:y", 0.12, 0.14).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
@@ -80,15 +124,16 @@ func pet() -> bool:
 
 
 func on_new_day() -> void:
-	petted_today = false
+	if data != null:
+		data.new_day()
 
 
 func product_kind() -> String:
-	return RanchModels.ANIMAL_PRODUCTS[kind]
+	return data.product_kind() if data != null else "milk"
 
 
 func label() -> String:
-	return RanchModels.ANIMAL_LABELS[kind]
+	return data.label() if data != null else "动物"
 
 
 func _spawn_heart() -> void:

@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+GAME_READY
+INPUT enter-fade-locks-player OK
+INPUT repeated-input-does-not-double-transition OK
+INPUT number-seven-equips-sword OK
+INPUT map-key-pauses-actions OK
+INPUT escape-and-number-six-work OK
+INPUT interaction-key-mines-once OK
+INPUT interaction-key-reveals-stairs OK
+INPUT downstairs-fade-finishes OK
+INPUT physical-wasd-moves-player OK
+INPUT upstairs-key-and-fade-work OK
+INPUT exit-restores-normal-controls OK
+INPUT_RESULT PASS

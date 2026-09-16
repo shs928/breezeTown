@@ -4,6 +4,8 @@ extends RefCounted
 ## All surfaces use ordinary meshes and StandardMaterial3D; no runtime shader is needed.
 
 const MarketProps = preload("res://scripts/art/buildings/market_props.gd")
+const Painted = preload("res://scripts/art/buildings/painted_architecture.gd")
+static var _material_cache: Dictionary = {}
 
 
 static func cottage() -> Node3D:
@@ -12,31 +14,107 @@ static func cottage() -> Node3D:
 	root.set_meta("main_footprint_m", Vector2(4.0, 3.6))
 	root.set_meta("front", "+Z")
 	var p := _palette()
-	_house_shell(root, 4.0, 3.6, 2.62, 4.02, p)
-	_tiled_roof(root, 2.28, 2.08, 2.66, 4.07, [Color("#BC7860"), Color("#C68767"), Color("#AE6855"), Color("#CD9070"), Color("#B97A64")], p)
-	_front_window(root, "Front_Window", Vector3(-1.04, 1.49, 1.83), 0.94, 1.02, p, true)
-	var side := Node3D.new()
-	side.name = "East_Window_Assembly"
-	side.position = Vector3(2.015, 1.46, -0.45)
-	side.rotation.y = PI / 2.0
-	root.add_child(side)
-	_front_window(side, "Side_Window", Vector3.ZERO, 1.02, 1.06, p, true)
-	var west := Node3D.new()
-	west.name = "West_Window_Assembly"
-	west.position = Vector3(-2.015, 1.47, -0.50)
-	west.rotation.y = -PI / 2.0
-	root.add_child(west)
-	_front_window(west, "West_Window", Vector3.ZERO, 0.94, 1.03, p, false)
-	_door(root, Vector3(0.66, 0.29, 1.85), 0.89, 1.88, p)
-	_round_attic_window(root, Vector3(0.0, 3.15, 1.84), 0.28, p)
-	_portrait_porch(root, Vector3(0.66, 0.0, 1.80), p)
-	_chimney(root, Vector3(1.04, 2.92, -0.77), p)
-	_lantern(root, Vector3(1.45, 1.93, 2.00), p)
-	_box(root, "Door_Threshold", Vector3(1.14, 0.13, 0.44), Vector3(0.66, 0.275, 1.95), p["stone_light"], 0.045)
-	_box(root, "Porch_Upper_Step", Vector3(1.44, 0.20, 0.58), Vector3(0.66, 0.17, 2.32), p["stone"], 0.055)
-	_box(root, "Porch_Lower_Step", Vector3(1.70, 0.12, 0.60), Vector3(0.66, 0.06, 2.70), p["stone_light"], 0.045)
-	_flower_pot(root, Vector3(-1.77, 0.02, 2.08), 0.86, p)
+	_house_shell(root, 4.0, 3.6, 2.85, 4.91, p)
+	_slate_roof(root, 2.38, 2.22, 2.84, 4.97, p)
+	# 宽厚、微弯的木构形成真实投影，米白墙面保留在木框之间。
+	for z in [-1.86, 1.86]:
+		_bowed_beam(root, "Bowed_Tie_Beam", Vector3(-2.07, 2.71, z), Vector3(2.07, 2.71, z), 0.24, 0.25, Vector3(0, -0.075, 0), p["wood_light"])
+		for x in [-1.96, 0.02, 1.96]:
+			_bowed_beam(root, "Hand_Hewn_Upright", Vector3(x, 0.39, z), Vector3(x, 2.74, z), 0.22, 0.24, Vector3(0.04 * signf(x + 0.1), 0, 0), p["wood"])
+		for side in [-1.0, 1.0]:
+			_bowed_beam(root, "Swept_Gable_Brace", Vector3(side * 1.82, 2.85, z + 0.01), Vector3(side * 0.32, 4.42, z + 0.01), 0.17, 0.20, Vector3(side * -0.12, -0.03, 0), p["wood_light"])
+		_box(root, "Gable_Kingpost", Vector3(0.21, 1.80, 0.22), Vector3(0, 3.72, z), p["wood"], 0.04)
+	for x in [-2.04, 2.04]:
+		_box(root, "Side_Timber_Belt", Vector3(0.20, 0.21, 3.75), Vector3(x, 1.01, 0), p["wood_light"], 0.035)
+		for z in [-0.77, 0.89]:
+			_box(root, "Side_Frame_Post", Vector3(0.22, 2.32, 0.20), Vector3(x, 1.58, z), p["wood"], 0.035)
+	_front_window(root, "Deep_Front_Window", Vector3(-1.03, 1.78, 1.88), 0.83, 1.13, p, true)
+	_front_window(root, "Gable_Attic_Window", Vector3(0.0, 3.59, 1.88), 0.65, 0.84, p, false)
+	for direction in [-1.0, 1.0]:
+		var side := Node3D.new()
+		side.name = "Side_Window_Assembly"
+		side.position = Vector3(direction * 2.04, 1.78, -0.15)
+		side.rotation.y = direction * PI * 0.5
+		root.add_child(side)
+		_front_window(side, "Side_Window", Vector3.ZERO, 1.09, 1.16, p, true)
+	_door(root, Vector3(0.73, 0.36, 1.90), 0.97, 2.03, p)
+	_cottage_veranda(root, p)
+	# 西侧凸出的老虎窗打破规则屋顶轮廓，四面均为实体墙和板瓦。
+	var dormer := Node3D.new()
+	dormer.name = "West_Roof_Dormer"
+	dormer.position = Vector3(-1.64, 3.29, -0.55)
+	dormer.rotation.y = -PI * 0.5
+	root.add_child(dormer)
+	_box(dormer, "Dormer_Cream_Walls", Vector3(1.14, 0.72, 0.90), Vector3(0, 0.36, 0), p["plaster"], 0.03)
+	_extruded_outline(dormer, "Dormer_Triangle_Gable", PackedVector2Array([Vector2(-0.57, 0.70), Vector2(0.57, 0.70), Vector2(0, 1.35)]), 0.9, Vector3.ZERO, p["plaster_light"])
+	for side in [-1.0, 1.0]:
+		_box(dormer, "Dormer_Front_Corner", Vector3(0.14, 0.79, 0.14), Vector3(side * 0.55, 0.39, 0.48), p["wood"], 0.02)
+	_slate_roof(dormer, 0.73, 0.62, 0.73, 1.41, p)
+	_front_window(dormer, "Dormer_Window", Vector3(0, 0.46, 0.49), 0.58, 0.54, p, false)
+	var chimney_palette := p.duplicate()
+	chimney_palette["terra"] = p["stone"]
+	chimney_palette["terra_light"] = p["stone_light"]
+	_chimney(root, Vector3(0.94, 3.87, -0.89), chimney_palette)
+	_lantern(root, Vector3(1.56, 2.22, 2.0), p)
+	_flower_pot(root, Vector3(-1.57, 0.37, 2.61), 0.95, p)
+	_cottage_daily_props(root, p)
 	return root
+
+
+static func _cottage_daily_props(root: Node3D, p: Dictionary) -> void:
+	# 沿侧墙收纳，不占入口台阶；木柴、花盆和杂物让住宅读作有人生活。
+	var rack := Node3D.new()
+	rack.name = "Side_Wall_Firewood_Rack"
+	rack.position = Vector3(2.37, 0.05, -0.92)
+	root.add_child(rack)
+	for z in [-0.55, 0.55]:
+		_box(rack, "Firewood_Rack_Post", Vector3(0.085, 0.83, 0.09), Vector3(0.35, 0.39, z), p["wood_dark"], 0.018)
+		_box(rack, "Firewood_Rack_Foot", Vector3(0.70, 0.08, 0.12), Vector3(0, 0.06, z), p["wood"], 0.018)
+	for row in range(3):
+		for column in range(4 - row % 2):
+			var at := Vector3(0, 0.16 + row * 0.19, -0.43 + column * 0.27 + (row % 2) * 0.13)
+			var log := _cylinder(rack, "Split_Firewood_Bark", 0.115, 0.13, 0.70, at, p["wood_dark"])
+			log.rotation.z = PI * 0.5
+			var end := _cylinder(rack, "Firewood_End_Grain", 0.097, 0.105, 0.014, at + Vector3(0.36, 0, 0), p["wood_light"])
+			end.rotation.z = PI * 0.5
+			for ring_index in range(2):
+				var ring := TorusMesh.new()
+				ring.inner_radius = 0.031 + ring_index * 0.032
+				ring.outer_radius = ring.inner_radius + 0.007
+				ring.rings = 12
+				ring.ring_segments = 4
+				var node := _add_mesh(rack, "Visible_Log_Growth_Ring", ring, p["wood"], at + Vector3(0.369, 0, 0))
+				node.rotation.z = PI * 0.5
+	var shelter := _box(rack, "Firewood_Cover", Vector3(0.91, 0.09, 1.34), Vector3(0, 0.83, 0), p["wood"], 0.025)
+	shelter.rotation.z = 0.15
+	# 前廊木水桶：桶壁、箍带、提手和里面的暗部都是立体构件。
+	var bucket := Node3D.new()
+	bucket.name = "Porch_Water_Bucket"
+	bucket.position = Vector3(-1.23, 0.49, 2.10)
+	root.add_child(bucket)
+	_cylinder(bucket, "Bucket_Wood_Shell", 0.19, 0.145, 0.32, Vector3(0, 0.16, 0), p["wood"])
+	_cylinder(bucket, "Bucket_Inner_Shadow", 0.157, 0.157, 0.008, Vector3(0, 0.317, 0), p["wood_dark"])
+	for y in [0.065, 0.265]:
+		var hoop := TorusMesh.new()
+		hoop.inner_radius = 0.153 + y * 0.11
+		hoop.outer_radius = hoop.inner_radius + 0.019
+		hoop.rings = 16
+		hoop.ring_segments = 4
+		_add_mesh(bucket, "Bucket_Iron_Hoop", hoop, p["iron"], Vector3(0, y, 0))
+	_beam(bucket, "Bucket_Handle", Vector3(-0.20, 0.43, 0), Vector3(0.20, 0.43, 0), 0.043, 0.043, p["wood_light"])
+	for side in [-1.0, 1.0]:
+		_beam(bucket, "Bucket_Handle_Side", Vector3(side * 0.18, 0.27, 0), Vector3(side * 0.20, 0.43, 0), 0.023, 0.025, p["iron"])
+	# 门边的扫帚保持在门扇右侧。
+	var broom := Node3D.new()
+	broom.name = "Doorstep_Broom"
+	broom.position = Vector3(1.77, 0.47, 1.97)
+	broom.rotation.z = -0.11
+	root.add_child(broom)
+	_cylinder(broom, "Broom_Handle", 0.023, 0.031, 1.09, Vector3(0, 0.77, 0), p["wood_light"])
+	for i in range(9):
+		var strand := _cylinder(broom, "Broom_Straw", 0.017, 0.024, 0.39, Vector3((i - 4) * 0.029, 0.20, sin(i * 1.7) * 0.035), p["canvas_gold"])
+		strand.rotation.z = (i - 4) * 0.033
+	_box(broom, "Broom_Binding", Vector3(0.22, 0.06, 0.10), Vector3(0, 0.33, 0), p["wood_dark"], 0.016)
 
 
 static func shop() -> Node3D:
@@ -45,8 +123,8 @@ static func shop() -> Node3D:
 	root.set_meta("main_footprint_m", Vector2(4.4, 3.6))
 	root.set_meta("front", "+Z")
 	var p := _palette()
-	_house_shell(root, 4.4, 3.6, 2.60, 3.94, p)
-	_tiled_roof(root, 2.47, 2.09, 2.64, 3.99, [Color("#427D78"), Color("#508B82"), Color("#39746F"), Color("#60998C"), Color("#477D78")], p)
+	_house_shell(root, 4.4, 3.6, 2.60, 4.22, p)
+	_slate_roof(root, 2.52, 2.18, 2.64, 4.28, p)
 	_door(root, Vector3(-1.45, 0.27, 1.86), 0.82, 1.89, p)
 	_front_window(root, "Shop_Display_Window", Vector3(0.71, 1.47, 1.84), 2.09, 1.20, p, false)
 	_round_attic_window(root, Vector3(0.0, 3.12, 1.85), 0.26, p)
@@ -72,20 +150,20 @@ static func shop() -> Node3D:
 
 static func _palette() -> Dictionary:
 	return {
-		"plaster": _material("Warm_lime_plaster", Color("#F1D9AD")),
-		"plaster_light": _material("Gable_limewash", Color("#F5E2BB")),
-		"wood": _material("Honey_oak", Color("#8E6040")),
-		"wood_light": _material("Cut_oak_edges", Color("#B48658")),
-		"wood_dark": _material("Timber_recesses", Color("#654737")),
-		"wood_warm": _material("Door_honey_wood", Color("#BA8754")),
-		"stone": _material("Warm_foundation_stone", Color("#8C8977")),
-		"stone_light": _material("Sunlit_stone_edges", Color("#ADA28A")),
-		"mortar": _material("Mortar_recess", Color("#6E756B")),
-		"teal": _material("Sage_painted_shutters", Color("#68998A")),
-		"teal_light": _material("Sage_worn_edges", Color("#8DB49D")),
-		"teal_dark": _material("Deep_teal_joinery", Color("#3E716B")),
-		"glass": _material("Opaque_stylised_window_glass", Color("#739E9F"), 0.38),
-		"glass_light": _material("Hand_painted_glass_reflection", Color("#B9CFBB"), 0.48),
+		"plaster": _material("Warm_lime_plaster", Color("#F1D7A7")),
+		"plaster_light": _material("Gable_limewash", Color("#F7E5BE")),
+		"wood": _material("Honey_oak", Color("#84532D")),
+		"wood_light": _material("Cut_oak_edges", Color("#BE8747")),
+		"wood_dark": _material("Timber_recesses", Color("#463321")),
+		"wood_warm": _material("Door_honey_wood", Color("#B9803E")),
+		"stone": _material("Warm_foundation_stone", Color("#88877C")),
+		"stone_light": _material("Sunlit_stone_edges", Color("#C0B59A")),
+		"mortar": _material("Mortar_recess", Color("#575D53")),
+		"teal": _material("Sage_painted_shutters", Color("#668B77")),
+		"teal_light": _material("Sage_worn_edges", Color("#91AD88")),
+		"teal_dark": _material("Deep_teal_joinery", Color("#355947")),
+		"glass": _material("Opaque_stylised_window_glass", Color("#31606A"), 0.38),
+		"glass_light": _material("Hand_painted_glass_reflection", Color("#9AC5BD"), 0.48),
 		"iron": _material("Warm_charcoal_iron", Color("#454A40"), 0.55),
 		"brass": _material("Old_brass", Color("#BA9B56"), 0.43, 0.55),
 		"terra": _material("Terracotta_details", Color("#B86850")),
@@ -101,12 +179,17 @@ static func _palette() -> Dictionary:
 
 
 static func _material(label: String, color: Color, roughness: float = 0.88, metallic: float = 0.0) -> StandardMaterial3D:
+	var key := label + color.to_html() + str(roughness) + ":" + str(metallic)
+	if _material_cache.has(key):
+		return _material_cache[key]
 	var mat := StandardMaterial3D.new()
 	mat.resource_name = label
 	mat.albedo_color = color
 	mat.roughness = roughness
 	mat.metallic = metallic
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	Painted.configure(mat, label)
+	_material_cache[key] = mat
 	return mat
 
 
@@ -118,11 +201,11 @@ static func _house_shell(root: Node3D, width: float, depth: float, eave: float, 
 	for side in [-1.0, 1.0]:
 		for i in 7:
 			var stone_width := width / 7.0
-			var stone := _box(root, "Foundation_Front_Stone", Vector3(stone_width - 0.018, 0.245 + 0.018 * sin(float(i) * 1.7), 0.17), Vector3(-width * 0.5 + stone_width * (float(i) + 0.5), 0.165, side * (depth * 0.5 + 0.018)), p["stone_light"] if i % 3 == 0 else p["stone"], 0.042)
-			stone.rotation.z = 0.014 * sin(float(i) * 2.4 + side)
+			var stone := _box(root, "Foundation_Front_Stone", Vector3(stone_width - 0.018, 0.255 + 0.043 * sin(float(i) * 1.7), 0.17), Vector3(-width * 0.5 + stone_width * (float(i) + 0.5), 0.155 + 0.016 * cos(i * 2.9), side * (depth * 0.5 + 0.03)), p["stone_light"] if i % 3 == 0 else p["stone"], 0.042)
+			stone.rotation.z = 0.035 * sin(float(i) * 2.4 + side)
 		for i in 6:
 			var stone_depth := depth / 6.0
-			_box(root, "Foundation_Side_Stone", Vector3(0.17, 0.25, stone_depth - 0.020), Vector3(side * (width * 0.5 + 0.018), 0.16, -depth * 0.5 + stone_depth * (float(i) + 0.5)), p["stone_light"] if i % 2 == 0 else p["stone"], 0.045)
+			_box(root, "Foundation_Side_Stone", Vector3(0.19, 0.255 + 0.026 * cos(i * 1.7), stone_depth - 0.032), Vector3(side * (width * 0.5 + 0.03), 0.158 + 0.012 * sin(i * 3.1), -depth * 0.5 + stone_depth * (float(i) + 0.5)), p["stone_light"] if i % 2 == 0 else p["stone"], 0.045)
 		_box(root, "Front_Back_Lower_Timber", Vector3(width + 0.08, 0.15, 0.17), Vector3(0, 0.39, side * (depth * 0.5 + 0.025)), p["wood"], 0.027)
 		_box(root, "Front_Back_Upper_Timber", Vector3(width + 0.08, 0.17, 0.17), Vector3(0, eave - 0.03, side * (depth * 0.5 + 0.025)), p["wood"], 0.029)
 		_box(root, "Side_Lower_Timber", Vector3(0.17, 0.15, depth), Vector3(side * (width * 0.5 + 0.025), 0.39, 0), p["wood"], 0.026)
@@ -132,6 +215,103 @@ static func _house_shell(root: Node3D, width: float, depth: float, eave: float, 
 			_beam(root, "Gable_Rafter", Vector3(side * (width * 0.5 - 0.025), eave + 0.015, front_back * (depth * 0.5 + 0.035)), Vector3(0, peak - 0.095, front_back * (depth * 0.5 + 0.035)), 0.12, 0.14, p["wood"])
 	_box(root, "Rear_Centre_Timber", Vector3(0.13, eave - 0.41, 0.14), Vector3(0, (eave + 0.41) * 0.5, -depth * 0.5 - 0.025), p["wood"], 0.021)
 	_box(root, "Gable_Short_Kingpost", Vector3(0.115, 0.39, 0.13), Vector3(0, peak - 0.29, depth * 0.5 + 0.035), p["wood"], 0.02)
+
+
+static func _bowed_beam(root: Node3D, label: String, a: Vector3, b: Vector3, width: float, depth: float, bow: Vector3, material: StandardMaterial3D) -> void:
+	for i in range(4):
+		var t0 := i / 4.0
+		var t1 := (i + 1) / 4.0
+		_beam(root, label, a.lerp(b, t0) + bow * sin(t0 * PI), a.lerp(b, t1) + bow * sin(t1 * PI), width, depth, material)
+
+
+static func _slate_roof(root: Node3D, half_width: float, half_depth: float, eave: float, peak: float, p: Dictionary) -> void:
+	# 一张顶点色网格容纳所有石板瓦；厚边与交叠产生缝隙阴影。
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var shades := [Color("#416B88"), Color("#4B7896"), Color("#527F9A"), Color("#456F8C"), Color("#57859F")]
+	var rise := peak - eave
+	var length := sqrt(half_width * half_width + rise * rise)
+	var rows := maxi(3, ceili(length / 0.37))
+	var columns := maxi(3, ceili(half_depth * 2.0 / 0.40))
+	var pitch := half_depth * 2.0 / columns
+	for side in [-1.0, 1.0]:
+		var downhill := Vector3(side * half_width, -rise, 0).normalized()
+		var normal := Vector3(side * rise, half_width, 0).normalized()
+		var ridge := Vector3(0, peak, 0)
+		var roof_surface := SurfaceTool.new()
+		roof_surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+		_quad_facing(roof_surface, ridge + Vector3(0, 0, -half_depth), ridge + Vector3(0, 0, half_depth), ridge + downhill * length + Vector3(0, 0, half_depth), ridge + downhill * length + Vector3(0, 0, -half_depth), Color.WHITE, normal)
+		_add_mesh(root, "Deep_Slate_Underroof", roof_surface.commit(), p["wood_dark"], Vector3.ZERO)
+		for row in range(rows):
+			var d0 := row * length / rows
+			var d1 := minf(d0 + length / rows + 0.105, length + 0.035)
+			for col in range(columns + 1):
+				var offset := 0.5 if row % 2 else 0.0
+				var z0 := maxf(-half_depth, -half_depth + (col - offset) * pitch)
+				var z1 := minf(half_depth, -half_depth + (col + 1 - offset) * pitch - 0.013)
+				if z1 - z0 < 0.035:
+					continue
+				var tint: Color = shades[posmod(row * 7 + col * 11 + row * col * 3 + int(side), shades.size())]
+				var lift := 0.025 + (rows - row) * 0.010
+				var wobble := sin(row * 5.1 + col * 2.3) * 0.020
+				var cut := minf(0.052, (z1 - z0) * 0.17)
+				var outline := [Vector2(d0, z0), Vector2(d0, z1), Vector2(d1 - cut, z1), Vector2(d1 + wobble, z1 - cut), Vector2(d1 + wobble, z0 + cut), Vector2(d1 - cut, z0)]
+				var verts: Array[Vector3] = []
+				for point: Vector2 in outline:
+					verts.append(ridge + downhill * point.x + Vector3(0, 0, point.y) + normal * lift)
+				for index in range(1, verts.size() - 1):
+					_slate_face(surface, verts[0], verts[index], verts[index + 1], tint.darkened(0.075), tint.lightened(0.09) if index > 1 else tint.darkened(0.075), tint.lightened(0.09), normal)
+				for index in range(verts.size()):
+					var next := (index + 1) % verts.size()
+					_quad(surface, verts[index], verts[next], verts[next] - normal * 0.064, verts[index] - normal * 0.064, tint.lightened(0.07) if index in [2, 3, 4] else tint.darkened(0.24))
+				if (row + col) % 3 == 0:
+					var scratch_a := ridge + downhill * (d0 + 0.10) + Vector3(0, 0, lerpf(z0, z1, 0.32)) + normal * (lift + 0.003)
+					var scratch_b := scratch_a + downhill * (d1 - d0 - 0.17)
+					_quad_facing(surface, scratch_a, scratch_b, scratch_b + Vector3(0, 0, 0.008), scratch_a + Vector3(0, 0, 0.008), tint.lightened(0.10), normal)
+		for front in [-1.0, 1.0]:
+			_bowed_beam(root, "Thick_Carved_Roof_Edge", Vector3(0, peak - 0.075, front * (half_depth + 0.03)), Vector3(side * (half_width + 0.08), eave - 0.09, front * (half_depth + 0.03)), 0.19, 0.20, Vector3(side * -0.035, -0.035, 0), p["wood_light"])
+		_box(root, "Deep_Eave_Fascia", Vector3(0.18, 0.24, half_depth * 2.0 + 0.16), Vector3(side * half_width, eave - 0.11, 0), p["wood"], 0.035)
+		for i in range(columns):
+			_box(root, "Chunky_Rafter_End", Vector3(0.37, 0.14, 0.12), Vector3(side * (half_width - 0.04), eave - 0.18, -half_depth + (i + 0.5) * pitch), p["wood_light"], 0.022)
+	for col in range(columns):
+		var z0 := -half_depth - 0.025 + pitch * col
+		_ridge_tile(surface, peak + 0.048, z0, z0 + pitch + 0.055, shades[(col + 2) % shades.size()])
+	var material := _material("Batched_Blue_Slate", Color.WHITE)
+	material.vertex_color_use_as_albedo = true
+	_add_mesh(root, "Overlapping_Handcut_Blue_Slates", surface.commit(), material, Vector3.ZERO)
+
+
+static func _slate_face(surface: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, ca: Color, cb: Color, cc: Color, hint: Vector3) -> void:
+	var normal := (b - a).cross(c - a).normalized()
+	var vertices := PackedVector3Array([a, b, c] if normal.dot(hint) < 0 else [a, c, b])
+	var colors := PackedColorArray([ca, cb, cc] if normal.dot(hint) < 0 else [ca, cc, cb])
+	normal = normal if normal.dot(hint) >= 0 else -normal
+	for index in range(3):
+		surface.set_normal(normal)
+		surface.set_color(colors[index].srgb_to_linear())
+		surface.add_vertex(vertices[index])
+
+
+static func _cottage_veranda(root: Node3D, p: Dictionary) -> void:
+	_box(root, "Veranda_Dark_Substructure", Vector3(3.87, 0.30, 1.16), Vector3(0, 0.25, 2.38), p["wood_dark"], 0.035)
+	for i in range(13):
+		_box(root, "Veranda_Oak_Plank", Vector3(0.285, 0.10, 1.22), Vector3(-1.80 + i * 0.30, 0.43, 2.38), p["wood_light"] if i % 3 else p["wood_warm"], 0.022)
+	for x in [-1.84, -0.13, 1.65]:
+		_box(root, "Porch_Front_Post", Vector3(0.20, 1.13, 0.20), Vector3(x, 0.97, 2.97), p["wood"], 0.035)
+		_box(root, "Porch_Post_Cap", Vector3(0.27, 0.09, 0.27), Vector3(x, 1.57, 2.97), p["wood_light"], 0.023)
+	for rail_y in [0.75, 1.40]:
+		_bowed_beam(root, "Veranda_Left_Rail", Vector3(-1.86, rail_y, 2.97), Vector3(-0.13, rail_y, 2.97), 0.12, 0.14, Vector3(0, -0.035, 0), p["wood_light"])
+		for x in [-1.84, 1.65]:
+			_beam(root, "Veranda_Side_Rail", Vector3(x, rail_y, 1.88), Vector3(x, rail_y, 2.97), 0.12, 0.14, p["wood_light"])
+	for step in range(3):
+		_box(root, "Broad_Stone_Entry_Step", Vector3(1.54 + step * 0.09, 0.16, 0.43), Vector3(0.73, 0.33 - step * 0.11, 3.04 + step * 0.31), p["stone_light"] if step % 2 else p["stone"], 0.055)
+	var canopy := Node3D.new()
+	canopy.name = "Gabled_Entry_Canopy"
+	canopy.position = Vector3(0.73, 2.54, 2.19)
+	root.add_child(canopy)
+	_slate_roof(canopy, 1.03, 0.93, 0.0, 0.84, p)
+	for x in [-0.12, 1.58]:
+		_bowed_beam(root, "Porch_Canopy_Bracket", Vector3(x, 1.96, 1.91), Vector3(x, 2.48, 2.79), 0.15, 0.15, Vector3(0, -0.04, 0), p["wood_light"])
 
 
 static func _tiled_roof(root: Node3D, half_width: float, half_depth: float, eave: float, peak: float, colors: Array, p: Dictionary) -> void:
@@ -215,11 +395,11 @@ static func _front_window(root: Node3D, label: String, pos: Vector3, width: floa
 	group.name = label
 	group.position = pos
 	root.add_child(group)
-	_box(group, "Deep_Recess", Vector3(width + 0.19, height + 0.19, 0.14), Vector3(0, 0, 0.005), p["wood_dark"], 0.035)
+	_box(group, "Deep_Recess", Vector3(width + 0.25, height + 0.25, 0.20), Vector3(0, 0, 0.015), p["wood_dark"], 0.035)
 	_box(group, "Glazed_Opening", Vector3(width - 0.055, height - 0.055, 0.065), Vector3(0, 0, 0.10), p["glass"], 0.012)
 	for edge in [-1.0, 1.0]:
-		_box(group, "Window_Jamb", Vector3(0.083, height + 0.08, 0.14), Vector3(edge * width * 0.5, 0, 0.135), p["wood_light"], 0.016)
-		_box(group, "Window_Rail", Vector3(width + 0.14, 0.088, 0.15), Vector3(0, edge * height * 0.5, 0.135), p["wood_light"], 0.018)
+		_box(group, "Window_Jamb", Vector3(0.12, height + 0.15, 0.23), Vector3(edge * width * 0.5, 0, 0.19), p["wood_light"], 0.016)
+		_box(group, "Window_Rail", Vector3(width + 0.22, 0.12, 0.23), Vector3(0, edge * height * 0.5, 0.19), p["wood_light"], 0.018)
 	_box(group, "Window_Mullion", Vector3(0.046, height, 0.078), Vector3(0, 0, 0.18), p["canvas_cream"], 0.009)
 	_box(group, "Window_Crossbar", Vector3(width, 0.045, 0.078), Vector3(0, 0.015, 0.18), p["canvas_cream"], 0.009)
 	if width > 1.6:
@@ -425,10 +605,11 @@ static func _box(root: Node3D, label: String, size: Vector3, pos: Vector3, mater
 	var b := minf(bevel, minf(size.x, minf(size.y, size.z)) * 0.30)
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var levels := PackedFloat32Array([-size.y * 0.5, -size.y * 0.5 + b, size.y * 0.5 - b, size.y * 0.5])
+	var levels := PackedFloat32Array([-size.y * 0.5, -size.y * 0.5 + b * 0.293, -size.y * 0.5 + b, size.y * 0.5 - b, size.y * 0.5 - b * 0.293, size.y * 0.5])
+	var insets := PackedFloat32Array([b, b * 0.293, 0.0, 0.0, b * 0.293, b])
 	var rings: Array[PackedVector3Array] = []
-	for level in 4:
-		var inset := b if level == 0 or level == 3 else 0.0
+	for level in range(levels.size()):
+		var inset := insets[level]
 		var hx := size.x * 0.5 - inset
 		var hz := size.z * 0.5 - inset
 		var corner := minf(b * 0.65, minf(hx, hz) * 0.40)
@@ -440,14 +621,14 @@ static func _box(root: Node3D, label: String, size: Vector3, pos: Vector3, mater
 		for point in points:
 			ring.append(Vector3(point.x, levels[level], point.y))
 		rings.append(ring)
-	for level in 3:
+	for level in range(levels.size() - 1):
 		for edge in 8:
 			var next := (edge + 1) % 8
 			_quad(st, rings[level][edge], rings[level + 1][edge], rings[level + 1][next], rings[level][next], Color.WHITE)
 	for edge in 8:
 		var next := (edge + 1) % 8
 		_tri(st, Vector3(0, levels[0], 0), rings[0][edge], rings[0][next], Color.WHITE)
-		_tri(st, Vector3(0, levels[3], 0), rings[3][next], rings[3][edge], Color.WHITE)
+		_tri(st, Vector3(0, levels[-1], 0), rings[-1][next], rings[-1][edge], Color.WHITE)
 	return _add_mesh(root, label, st.commit(), material, pos)
 
 
@@ -497,7 +678,7 @@ static func _extruded_outline(root: Node3D, label: String, outline: PackedVector
 static func _add_mesh(root: Node3D, label: String, mesh: Mesh, material: StandardMaterial3D, pos: Vector3) -> MeshInstance3D:
 	var node := MeshInstance3D.new()
 	node.name = label
-	node.mesh = mesh
+	node.mesh = Painted.uv_mesh(mesh, material, pos)
 	node.material_override = material
 	node.position = pos
 	root.add_child(node)

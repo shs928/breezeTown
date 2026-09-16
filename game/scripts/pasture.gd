@@ -16,6 +16,12 @@ var trough: Node3D
 var animals: Array = []
 
 
+func _exit_tree() -> void:
+	if _fence_template != null:
+		_fence_template.free()
+		_fence_template = null
+
+
 func setup(rect: Rect2) -> void:
 	interior = rect
 	var p := rect.position
@@ -52,6 +58,7 @@ func _fence_run(from: Vector2, to: Vector2) -> void:
 		var t := (i + 0.5) / float(count)
 		var at := from.lerp(to, t)
 		var fence := _fence_tpl()
+		fence.scale.x = length / count / 2.4
 		fence.position = Vector3(at.x, 0.01, at.y)
 		fence.rotation.y = 0.0 if along_x else PI * 0.5
 		add_child(fence)

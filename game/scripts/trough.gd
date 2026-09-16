@@ -1,5 +1,5 @@
 extends Node3D
-## 牧场食槽：装满干草后，动物次日清早产出。
+## 牧场食槽视图：装满干草后，动物次日清早产出。
 
 const RanchModels = preload("res://scripts/ranch_models.gd")
 
@@ -15,5 +15,8 @@ func setup() -> void:
 
 
 func set_filled(value: bool) -> void:
+	var changed := filled != value
 	filled = value
 	_hay.visible = value
+	if changed and value:
+		EventBus.instance().trough_filled.emit()

@@ -1,0 +1,16 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+GAME_READY
+FORESTRY_INPUT eight-equips-visible-axe OK
+FORESTRY_INPUT repeated-keys-produce-one-chop OK
+FORESTRY_INPUT inventory-cancels-chop OK
+FORESTRY_INPUT left-click-faces-and-chops-tree OK
+FORESTRY_INPUT space-fells-tree-and-collects-wood OK
+FORESTRY_INPUT felling-opens-ground-in-normal-play OK
+FORESTRY_INPUT nine-equips-visible-sapling OK
+FORESTRY_INPUT left-click-plants-and-consumes-sapling OK
+FORESTRY_INPUT empty-inventory-cannot-plant-again OK
+FORESTRY_INPUT normal-clock-rollover-grows-sapling OK
+FORESTRY_INPUT inventory-shows-wood-saplings-and-ore-rules OK
+FORESTRY_INPUT young-tree-recovery-uses-normal-input OK
+FORESTRY_INPUT_RESULT PASS

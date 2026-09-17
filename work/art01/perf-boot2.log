@@ -1,0 +1,24 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M5 (Apple9)
+
+SCRIPT ERROR: Parse Error: Function "_pebble()" not found in base self.
+          at: GDScript::reload (res://scripts/art/water_models.gd:164)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/world_builder.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+          at: GDScript::reload (res://scripts/tests/perf_boot.gd:0)
+ERROR: Failed to load script "res://scripts/tests/perf_boot.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+BOOT definition.create ms=1
+PROF terrain=1
+PROF roads+buildings=3697
+SCRIPT ERROR: Invalid call. Nonexistent function 'build' in base 'GDScript'.
+          at: build (res://scripts/first_map_builder.gd:45)
+          GDScript backtrace (most recent call first):
+              [0] build (res://scripts/first_map_builder.gd:45)
+              [1] build (res://scripts/world_builder.gd:21)
+              [2] _run (res://scripts/tests/perf_boot.gd:11)
+SCRIPT ERROR: Invalid access to property or key 'root' on a base object of type 'Dictionary'.
+          at: _run (res://scripts/tests/perf_boot.gd:12)
+          GDScript backtrace (most recent call first):
+              [0] _run (res://scripts/tests/perf_boot.gd:12)

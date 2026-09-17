@@ -10,9 +10,9 @@ static func ground_material() -> ShaderMaterial:
 	var shader := Shader.new()
 	shader.code = """shader_type spatial;
 render_mode cull_disabled;
-uniform vec4 shade : source_color = vec4(0.27,0.38,0.15,1.0);
-uniform vec4 grass : source_color = vec4(0.40,0.51,0.23,1.0);
-uniform vec4 sunlit : source_color = vec4(0.55,0.61,0.30,1.0);
+uniform vec4 shade : source_color = vec4(0.21,0.37,0.13,1.0);
+uniform vec4 grass : source_color = vec4(0.33,0.55,0.19,1.0);
+uniform vec4 sunlit : source_color = vec4(0.50,0.66,0.27,1.0);
 varying vec3 world;
 float hash21(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
 float noise(vec2 p){ vec2 i=floor(p); vec2 f=fract(p); f=f*f*(3.0-2.0*f); return mix(mix(hash21(i),hash21(i+vec2(1,0)),f.x),mix(hash21(i+vec2(0,1)),hash21(i+vec2(1,1)),f.x),f.y); }
@@ -22,9 +22,12 @@ void fragment(){
  float broad=noise(p*0.23)*0.65+noise(p*0.57+5.0)*0.35;
  float brush=noise(p*vec2(3.7,5.9));
  vec3 base=mix(shade.rgb,grass.rgb,smoothstep(0.05,0.66,broad));
- base=mix(base,sunlit.rgb,smoothstep(0.56,0.90,broad)*0.65);
- float fleck=smoothstep(0.79,0.97,noise(p*19.0));
- ALBEDO=base*(0.94+0.10*brush)+sunlit.rgb*fleck*0.12;
+ base=mix(base,sunlit.rgb,smoothstep(0.56,0.90,broad)*0.70);
+ // 参考图的修剪条纹与细密双色斑点：大尺度斜向条带 + 小尺度明暗点。
+ float stripe=sin((p.x+p.y)*0.33+noise(p*0.11)*2.2)*0.5+0.5;
+ base*=mix(0.93,1.04,stripe);
+ float fleck=smoothstep(0.76,0.96,noise(p*19.0));
+ ALBEDO=base*(0.93+0.12*brush)+sunlit.rgb*fleck*0.16;
  ROUGHNESS=1.0; SPECULAR=0.05;
 }
 """
@@ -123,7 +126,8 @@ static func _flower(stems: SurfaceTool, petals: SurfaceTool, at: Vector2, rng: R
 	var height := rng.randf_range(0.25,0.52)
 	var center := Vector3(at.x,height,at.y)
 	M.polygon(stems,[Vector3(at.x-0.012,0,at.y),Vector3(at.x+0.012,0,at.y),center+Vector3(0.01,0,0)],Vector3.FORWARD,Color("#4e7d33"))
-	var color := Color(["#fff1d0","#d0b4e5","#f6ce4b","#fff6e1"][kind])
+	var palette := ["#fff1d0","#d0b4e5","#f6ce4b","#fff6e1","#ef9fb2","#e0796f"]
+	var color := Color(palette[absi(kind) % palette.size()])
 	for i in range(5):
 		var angle := i*TAU/5.0
 		var direction := Vector3(cos(angle),0,sin(angle))
@@ -133,12 +137,20 @@ static func _flower(stems: SurfaceTool, petals: SurfaceTool, at: Vector2, rng: R
 
 
 static func _bush(root: Node3D, at: Vector2, rng: RandomNumberGenerator) -> void:
-	for i in range(20):
-		var angle:=i*2.399
-		var spread:=sqrt(float(i)/20.)*.9
-		var pos:=Vector3(at.x+cos(angle)*spread,.32+(.9-spread)*.45,at.y+sin(angle)*spread)
-		var part:=M.ellipsoid(root,pos,Vector3(.33,.30,.32),["#4b7134","#638536","#7a9641","#8da64b"][i%4],"RoundLeafCluster",10,6)
-		part.rotation.y=rng.randf()*TAU
+	# 不规则团簇：随机角度/半径/尺寸代替螺旋排布，顶部偶有浆果或小花。
+	var blobs := 15 + rng.randi_range(0, 7)
+	var squash := rng.randf_range(0.72, 1.05)
+	for i in range(blobs):
+		var angle := rng.randf() * TAU
+		var spread := sqrt(rng.randf()) * 0.92
+		var pos := Vector3(at.x + cos(angle) * spread, 0.28 + (0.88 - spread) * rng.randf_range(0.30, 0.58), at.y + sin(angle) * spread * squash)
+		var part := M.ellipsoid(root, pos, Vector3(0.30, 0.26, 0.30) * rng.randf_range(0.72, 1.28), ["#47703a", "#5d8437", "#74993f", "#89a94a"][i % 4], "RoundLeafCluster", 10, 6)
+		part.rotation.y = rng.randf() * TAU
+		part.rotation.z = rng.randf_range(-0.28, 0.28)
+	if rng.randf() < 0.4:
+		for i in range(6):
+			var berry_angle := rng.randf() * TAU
+			M.ellipsoid(root, Vector3(at.x + cos(berry_angle) * 0.5, 0.68 + rng.randf() * 0.3, at.y + sin(berry_angle) * 0.5), Vector3(0.05, 0.05, 0.05), "#d4553f" if i % 2 == 0 else "#e46f4f", "BushBerry", 8, 5)
 
 
 static func _build_precinct(root:Node3D,definition:Dictionary,data:Dictionary,rng:RandomNumberGenerator) -> void:

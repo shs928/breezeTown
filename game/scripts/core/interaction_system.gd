@@ -20,6 +20,8 @@ func update_targeting() -> Dictionary:
 	var state = game.state
 	tiles.set_highlight(null)
 	game.surface_resources.clear_focus()
+	if game.scenery != null:
+		game.scenery.clear_focus()
 	var focus := {}
 	var player_pos: Vector3 = player.global_position
 	if hud.modal_open() or game._transitioning:
@@ -58,6 +60,8 @@ func update_targeting() -> Dictionary:
 		hud.set_hint("树苗已用完 · 用 8 斧头砍成年树，有机会获得树苗" if state.forestry["sapling"] <= 0 else ("E / 左键 种树苗 · 三个清晨后长大 · 需空草地" if clear else "此处无法种树 · 避开耕地、道路、建筑和其他树木"))
 		return focus
 	var resource_focus: Dictionary = game.surface_resources.target_at(player_pos, tool)
+	if resource_focus.is_empty() and game.scenery != null:
+		resource_focus = game.scenery.target_at(player_pos, tool)
 	if not resource_focus.is_empty():
 		focus = resource_focus
 		hud.set_hint(focus["hint"])
@@ -133,6 +137,13 @@ func interact() -> void:
 			game._use_tool()
 		"sapling":
 			game._plant_sapling(focus["position"])
+		"chunk_tree":
+			if tool != "axe":
+				hud.show_toast(focus["hint"])
+				return
+			if not game.player.acting:
+				game.player.face_point(focus["position"])
+			game._use_tool()
 		"mine_entrance":
 			if state.deepest_mine_floor >= 5:
 				hud.open_mine_travel(0)

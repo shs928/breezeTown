@@ -38,9 +38,12 @@ static func build(definition: Dictionary) -> Node3D:
 			_walkway(root, bridge["rect"], false, str(bridge.get("id", "bridge")))
 	for dock: Dictionary in definition.get("docks", []):
 		_walkway(root, dock["rect"], true, str(dock.get("id", "dock")))
-	if definition["bounds"]["half"].x<200:
+	if definition["bounds"]["half"].x < 200:
 		_build_source(root, water_material)
 		_build_outlet(root, water_material, polygons)
+	elif definition.get("landmarks", {}).has("waterfall"):
+		var fall: Vector3 = definition["landmarks"]["waterfall"]
+		_cascade(root, water_material, Vector2(fall.x, fall.z), Vector2(0.06, 1.0), 24.0, 13.0)
 	return root
 
 
@@ -105,13 +108,13 @@ void fragment(){
  float cloud=noise(p*.31+vec2(TIME*.012,0));
  float flow=sin(p.x*.9+p.y*1.2+TIME*.33)*.5+.5;
  float depth=smoothstep(.12,.34,COLOR.r);
- vec3 deep=mix(vec3(.014,.16,.235),vec3(.025,.25,.30),cloud);
- vec3 shallow=vec3(.13,.34,.30);
- vec3 base=mix(deep,shallow,depth*.5);
+ vec3 deep=mix(vec3(.008,.11,.19),vec3(.015,.19,.26),cloud);
+ vec3 shallow=vec3(.06,.26,.29);
+ vec3 base=mix(deep,shallow,depth*.62);
  float caustic=pow(1.-abs(sin(p.x*2.5+sin(p.y*1.5+TIME*.28))*sin(p.y*2.2+cos(p.x+TIME*.2))),18.);
- base+=vec3(.02,.045,.033)*caustic;
+ base+=vec3(.02,.05,.04)*caustic;
  float reflection=smoothstep(.97,.997,noise(p*vec2(1.1,5.)+TIME*.02));
- ALBEDO=base+vec3(.14,.17,.15)*reflection;
+ ALBEDO=base+vec3(.12,.15,.14)*reflection;
  ROUGHNESS=.28;SPECULAR=.45;
  NORMAL_MAP=vec3(.5+sin(p.x*1.4+TIME*.3)*.025,.5+cos(p.y*2.+TIME*.4)*.018,1.);
 }
@@ -156,17 +159,33 @@ static func _shore_details(root: Node3D, grass: SurfaceTool, foam: SurfaceTool, 
 			if not _covered_by_walkway(shore, definition, 1.0) and absf(shore.y) < definition["bounds"]["half"].y-1.0:
 				var outside := shore - inward * 0.22
 				if not _in_water(outside, all_water):
+					# PERF-01：岸石并入共享网格（此前每颗一个 320 顶点实例，海岸线全程 1500+ 次）。
 					if rng.randf() < 0.58:
-						var stone := L.stone(rng.randi_range(0, 4), Vector3(rng.randf_range(0.26, 0.47), rng.randf_range(0.12, 0.24), rng.randf_range(0.24, 0.42)))
-						stone.position = Vector3(outside.x, 0.008, outside.y)
-						stone.rotation.y = rng.randf_range(0.0, TAU)
-						root.add_child(stone)
+						_pebble(grass, outside, rng)
 					if rng.randf() < 0.42:
 						_reeds(grass, outside - inward * 0.25, rng)
-				var crest := shore + inward * 0.22
-				_stroke(foam, crest, along, rng.randf_range(0.45, 1.1), 0.045, Color("#c0e8d8"), WATER_Y + 0.009)
+					var crest := shore + inward * 0.22
+					_stroke(foam, crest, along, rng.randf_range(0.45, 1.1), 0.045, Color("#c0e8d8"), WATER_Y + 0.009)
 			sample += 5.2
-		travelled += length
+			travelled += length
+
+
+static func _pebble(surface: SurfaceTool, at: Vector2, rng: RandomNumberGenerator) -> void:
+	# 岸线卵石：七边形轮廓加矮裙边，直接写进共享网格，替代逐颗实例化。
+	var radius := Vector3(rng.randf_range(0.20, 0.34), rng.randf_range(0.07, 0.13), rng.randf_range(0.18, 0.30))
+	var tint := Color(["#b6b29a", "#c9c2a7", "#9aab9b", "#b8baa4"][rng.randi_range(0, 3)])
+	var top: Array[Vector3] = []
+	var base: Array[Vector3] = []
+	for corner in range(7):
+		var angle := corner * TAU / 7.0 + rng.randf_range(-0.15, 0.15)
+		var reach := 1.0 + rng.randf_range(-0.18, 0.18)
+		var offset := Vector3(cos(angle) * radius.x * reach, 0, sin(angle) * radius.z * reach)
+		top.append(Vector3(at.x, 0.02, at.y) + offset + Vector3(0, radius.y, 0))
+		base.append(Vector3(at.x, 0.0, at.y) + offset)
+	M.polygon(surface, top, Vector3.UP, tint)
+	for corner in range(7):
+		var next := (corner + 1) % 7
+		M.polygon(surface, [base[corner], base[next], top[next], top[corner]], Vector3.RIGHT, tint.darkened(0.14))
 
 
 static func _reeds(surface: SurfaceTool, at: Vector2, rng: RandomNumberGenerator) -> void:
@@ -192,9 +211,9 @@ static func _ripples(surface: SurfaceTool, polygon: PackedVector2Array, definiti
 			var length := rng.randf_range(0.30, 0.84)
 			if not Geometry2D.is_point_in_polygon(at + direction * length, polygon) or not Geometry2D.is_point_in_polygon(at - direction * length, polygon):
 				continue
-			_stroke(surface, at, direction, length, 0.038, Color("#b2e2d9") if (x + z) % 3 else Color("#65c9cd"), WATER_Y + 0.012)
+			_stroke(surface, at, direction, length, 0.032, Color("#7fc6c5") if (x + z) % 3 else Color("#54b4bc"), WATER_Y + 0.012)
 			if (x * 3 + z) % 5 == 0:
-				_stroke(surface, at + Vector2(-0.12, 0.22), direction, length * 0.48, 0.032, Color("#93d6d4"), WATER_Y + 0.012)
+				_stroke(surface, at + Vector2(-0.12, 0.22), direction, length * 0.48, 0.028, Color("#6cbfc0"), WATER_Y + 0.012)
 
 
 static func _stroke(surface: SurfaceTool, at: Vector2, direction: Vector2, length: float, width: float, tint: Color, height: float) -> void:
@@ -240,6 +259,45 @@ static func _walkway(root: Node3D, rect: Rect2, dock: bool, label: String) -> vo
 	if dock:
 		for side in [-1.0, 1.0]:
 			M.torus(deck, Vector3(length * 0.31, 0.16, side * width * 0.29), 0.18, 0.035, "#cfb681", "CoiledMooringRope")
+
+
+static func _cascade(root: Node3D, material: ShaderMaterial, at: Vector2, dir: Vector2, drop: float, width: float) -> void:
+	# 大图北岭瀑布：沿溪流方向从山体多级跌入 north_creek，两侧以岩峰收口。
+	var cascade := _surface()
+	var froth := _surface()
+	var forward := Vector3(dir.x, 0, dir.y).normalized()
+	var side := Vector3(-forward.z, 0, forward.x)
+	var run := drop * 1.35
+	var stages := 5
+	for i in range(stages):
+		var t0 := float(i) / stages
+		var t1 := float(i + 1) / stages
+		var y0 := lerpf(drop, WATER_Y + 0.012, pow(t0, 1.55))
+		var y1 := lerpf(drop, WATER_Y + 0.012, pow(t1, 1.55))
+		var from := Vector3(at.x, y0, at.y) + forward * (t0 - 0.5) * run
+		var to := Vector3(at.x, y1, at.y) + forward * (t1 - 0.5) * run
+		var span := width * (0.80 + 0.42 * t1)
+		var cross := side * span * 0.5
+		var normal := (to - from).cross(side).normalized()
+		if normal.y < 0:
+			normal = -normal
+		M.polygon(cascade, [from - cross, from + cross, to + cross, to - cross], normal, Color("#72cfd4"))
+		for lane in range(9):
+			var offset := side * ((lane / 8.0 - 0.5) * span * 0.86)
+			var top := from + offset + forward * 0.05
+			var foot := to + offset + forward * 0.05
+			var spread := side * (0.05 if lane % 2 else 0.16)
+			M.polygon(froth, [top - spread, top + spread, foot + spread, foot - spread], normal, Color("#d6eee0") if lane % 2 else Color("#b4e3de"))
+		for side_sign in [-1.0, 1.0]:
+			if i % 2 == 0:
+				var rock := Valley.crag(610 + i + int(side_sign), Vector2(2.6 + i * 0.3, 3.6 + i * 0.35), maxf(2.4, y0 * 0.5))
+				rock.position = Vector3(at.x, 0, at.y) + forward * ((t0 + t1) * 0.5 - 0.5) * run + side * side_sign * (span * 0.5 + 2.6)
+				root.add_child(rock)
+		if i >= stages - 2:
+			for wave in range(3):
+				_stroke(froth, Vector2(to.x, to.z) + Vector2(forward.x, forward.z) * wave * 0.55, Vector2(side.x, side.z), span * (0.8 + wave * 0.2), 0.14 - wave * 0.03, Color("#d2ede0"), to.y + 0.02)
+	_keep_mesh(root, cascade, material, "NorthernRidgeWaterfall")
+	_keep_mesh(root, froth, M.paint("#ffffff", 0.72), "RidgeWaterfallFoam")
 
 
 static func _build_source(root: Node3D, material: ShaderMaterial) -> void:

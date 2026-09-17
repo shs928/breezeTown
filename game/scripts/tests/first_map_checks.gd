@@ -25,7 +25,7 @@ func _run() -> void:
 	for building: Dictionary in layout["buildings"]:
 		symbol_size_ok = symbol_size_ok and building["size"].x <= 35 and building["size"].y <= 35
 	_check("buildings-have-physical-not-symbol-size", symbol_size_ok)
-	_check("traced-bridges-and-harbor", layout["bridges"].size() == 4 and layout["docks"].size() == 6)
+	_check("traced-bridges-and-harbor", layout["bridges"].size() == 4 and layout["docks"].size() == 7)
 	root.size = Vector2i(1600, 1000)
 	game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
@@ -37,6 +37,35 @@ func _run() -> void:
 	_check("npc-farm-still-walkable", game.tiles.map.is_walkable(npc_ground))
 	_check("npc-farm-not-player-tillable", not game.tiles.is_open(Vector2i((npc_ground / 2).round())))
 	_check("npc-farm-rejects-player-enclosure", not game._can_place_pasture(Rect2(npc_ground, Vector2(8, 8))))
+	# MAP-01：三条主干路线连续可达（农场→镇区→矿口、镇区→NPC 农庄、镇区→港口）。
+	# 途经点大致沿道路，跨河只经桥；每跳 ≤250m 以保持寻路分辨率。
+	var farm_gate := Vector2(layout["landmarks"]["spawn"].x, layout["landmarks"]["spawn"].z)
+	var square := (layout["square"] as Rect2).get_center()
+	var mine := Vector2(layout["landmarks"]["mine_door"].x, layout["landmarks"]["mine_door"].z)
+	var npc_home := Vector2.ZERO
+	var harbor := Vector2.ZERO
+	for building: Dictionary in layout["buildings"]:
+		if building["id"] == "npc_farmhouse": npc_home = building["door"]
+		if building["id"] == "harbor_house": harbor = building["door"]
+	var north_bridge := Vector2(-276.0, -600.0)
+	var npc_bridge := Vector2(499.0, -520.0)
+	var harbor_bridge := Vector2(100.0, 595.0)
+	var routes := {
+		"farm-to-town": [farm_gate, Vector2(-350, 60), Vector2(-100, -90), Vector2(square.x, square.y + 76.0)],
+		"town-to-mine": [Vector2(square.x, square.y + 12.0), Vector2(-150, -380), north_bridge, Vector2(-450, -650), Vector2(-650, -740), mine],
+		"town-to-npc-farm": [Vector2(square.x, square.y + 12.0), Vector2(250, -350), Vector2(420, -470), npc_bridge, Vector2(480, -650), npc_home],
+		"town-to-harbor": [Vector2(square.x, square.y + 12.0), Vector2(0, 100), Vector2(80, 450), harbor_bridge, Vector2(0, 640), harbor],
+	}
+	for key: String in routes:
+		var waypoints: Array = routes[key]
+		var connected := true
+		for i in range(waypoints.size() - 1):
+			var a: Vector2 = waypoints[i]
+			var b: Vector2 = waypoints[i + 1]
+			if game.navigation.find_path(Vector3(a.x, 0, a.y), Vector3(b.x, 0, b.y)).is_empty():
+				connected = false
+				push_error("FIRST_MAP route %s broken between (%.0f,%.0f) and (%.0f,%.0f)" % [key, a.x, a.y, b.x, b.y])
+		_check("route-" + key, connected)
 	var active_slot := SaveManager.slot_dir(1)
 	SaveManager.select_world("breeze_valley")
 	var legacy_slot := SaveManager.slot_dir(1)

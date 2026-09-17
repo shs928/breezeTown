@@ -253,18 +253,33 @@ func _bar_row(title: String, bar: ProgressBar) -> Array:
 func _build_info_chips() -> void:
 	_header = PanelContainer.new()
 	_header.add_theme_stylebox_override("panel", _skin("paper",24))
-	_header.custom_minimum_size = Vector2(500,70)
+	_header.custom_minimum_size = Vector2(560,70)
 	add_child(_header)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation",20)
+	row.add_theme_constant_override("separation",12)
 	_header.add_child(row)
 	_season_chip = _label("春季",21)
 	_day_chip = _label("第 1 天",19)
 	_weather_chip = _label("晴",20)
 	_clock_label = _label("08:00",24)
-	for chip in [_season_chip,_day_chip,_weather_chip,_clock_label]:
+	# 参考图的分段信息药丸：季节/日期/天气/时钟各自成格，配小图标点。
+	var palettes: Array[Color] = [Color("#e78fb0"), Color("#e5604c"), Color("#f2c14e"), Color("#8fc3e8")]
+	for i in range(4):
+		var chip: Label = [_season_chip,_day_chip,_weather_chip,_clock_label][i]
 		chip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		row.add_child(chip)
+		var box := HBoxContainer.new()
+		box.add_theme_constant_override("separation",8)
+		var dot := PanelContainer.new()
+		var dot_style := StyleBoxFlat.new()
+		dot_style.bg_color = palettes[i]
+		dot_style.set_corner_radius_all(7)
+		dot.add_theme_stylebox_override("panel", dot_style)
+		dot.custom_minimum_size = Vector2(14,14)
+		dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		box.add_child(dot)
+		box.add_child(chip)
+		row.add_child(_chip(box))
 	_money = PanelContainer.new()
 	var money_skin := _skin("money", 18)
 	money_skin.set_texture_margin(SIDE_LEFT, 84)
@@ -283,7 +298,7 @@ func _build_info_chips() -> void:
 
 func _layout_header() -> void:
 	var width := get_viewport().get_visible_rect().size.x
-	_header.position = Vector2(maxf(380,width-maxf(500,_header.size.x)-24),20)
+	_header.position = Vector2(maxf(380,width-maxf(560,_header.size.x)-24),20)
 	_money.position = Vector2(maxf(380,width-maxf(210,_money.size.x)-24),98)
 
 
@@ -589,11 +604,11 @@ func set_hint(text: String) -> void:
 func select_slot(index: int, seed_kind: String, seed_count: int) -> void:
 	for i in range(_slots.size()):
 		var selected := i == index
-		_slot_styles[i].bg_color = Color.TRANSPARENT
-		_slot_styles[i].border_color = Color("#f4d77a") if selected else Color.TRANSPARENT
-		_slot_styles[i].set_border_width_all(3 if selected else 2)
-		_slot_styles[i].shadow_color = Color(0.96, 0.76, 0.25, 0.5) if selected else Color.TRANSPARENT
-		_slot_styles[i].shadow_size = 5 if selected else 0
+		_slot_styles[i].bg_color = Color(1.0, 0.93, 0.66, 0.12) if selected else Color.TRANSPARENT
+		_slot_styles[i].border_color = Color("#ffd970") if selected else Color.TRANSPARENT
+		_slot_styles[i].set_border_width_all(4 if selected else 2)
+		_slot_styles[i].shadow_color = Color(0.98, 0.78, 0.22, 0.68) if selected else Color.TRANSPARENT
+		_slot_styles[i].shadow_size = 9 if selected else 0
 		_slot_markers[i].visible = selected
 		if i == 3:
 			_slot_counts[i].text = "×%d" % seed_count

@@ -25,12 +25,22 @@ static func mesh_node(parent: Node3D, mesh: Mesh, at: Vector3, material: Materia
 	parent.add_child(part)
 	return part
 
+static var _shape_cache := {}
+
+static func _shared_shape(key: String, build_shape: Callable) -> Mesh:
+	# PERF-01：同参数图元共享网格实例，静态合并时的顶点色转换与数组重建只发生一次。
+	if not _shape_cache.has(key):
+		_shape_cache[key] = build_shape.call()
+	return _shape_cache[key]
+
 static func box(parent: Node3D, at: Vector3, size: Vector3, hex: String, label: String = "Wood", bevel: float = 0.035) -> MeshInstance3D:
 	var half := size * 0.5
 	var b := minf(bevel, minf(half.x, minf(half.y, half.z)) * 0.7)
 	if b < 0.001:
-		var shape := BoxMesh.new()
-		shape.size = size
+		var shape: Mesh = _shared_shape("box%.3f,%.3f,%.3f" % [size.x, size.y, size.z], func() -> Mesh:
+			var fresh := BoxMesh.new()
+			fresh.size = size
+			return fresh)
 		return mesh_node(parent, shape, at, paint(hex), label)
 	var core := half - Vector3.ONE * b
 	var surface := SurfaceTool.new()
@@ -95,22 +105,26 @@ static func polygon(surface: SurfaceTool, vertices: Array, normal: Vector3, tint
 			surface.add_vertex(vertex)
 
 static func ellipsoid(parent: Node3D, at: Vector3, radii: Vector3, hex: String, label: String = "Organic", segments: int = 16, rings: int = 10) -> MeshInstance3D:
-	var shape := SphereMesh.new()
-	shape.radius = 1.0
-	shape.height = 2.0
-	shape.radial_segments = segments
-	shape.rings = rings
+	var shape: Mesh = _shared_shape("sph%d,%d" % [segments, rings], func() -> Mesh:
+		var fresh := SphereMesh.new()
+		fresh.radius = 1.0
+		fresh.height = 2.0
+		fresh.radial_segments = segments
+		fresh.rings = rings
+		return fresh)
 	var result := mesh_node(parent, shape, at, paint(hex), label)
 	result.scale = radii
 	return result
 
 static func cylinder(parent: Node3D, at: Vector3, bottom: float, top: float, height: float, hex: String, label: String = "Cylinder", sides: int = 14) -> MeshInstance3D:
-	var shape := CylinderMesh.new()
-	shape.bottom_radius = bottom
-	shape.top_radius = top
-	shape.height = height
-	shape.radial_segments = sides
-	shape.rings = 1
+	var shape: Mesh = _shared_shape("cyl%.3f,%.3f,%.3f,%d" % [bottom, top, height, sides], func() -> Mesh:
+		var fresh := CylinderMesh.new()
+		fresh.bottom_radius = bottom
+		fresh.top_radius = top
+		fresh.height = height
+		fresh.radial_segments = sides
+		fresh.rings = 1
+		return fresh)
 	return mesh_node(parent, shape, at, paint(hex), label)
 
 static func beam(parent: Node3D, start: Vector3, finish: Vector3, width: float, hex: String, label: String = "Beam", depth: float = -1.0, round: bool = false) -> MeshInstance3D:
@@ -125,11 +139,13 @@ static func beam(parent: Node3D, start: Vector3, finish: Vector3, width: float, 
 	return part
 
 static func torus(parent: Node3D, at: Vector3, radius: float, tube: float, hex: String, label: String = "Ring") -> MeshInstance3D:
-	var shape := TorusMesh.new()
-	shape.inner_radius = radius - tube
-	shape.outer_radius = radius + tube
-	shape.rings = 24
-	shape.ring_segments = 8
+	var shape: Mesh = _shared_shape("tor%.3f,%.3f" % [radius, tube], func() -> Mesh:
+		var fresh := TorusMesh.new()
+		fresh.inner_radius = radius - tube
+		fresh.outer_radius = radius + tube
+		fresh.rings = 24
+		fresh.ring_segments = 8
+		return fresh)
 	return mesh_node(parent, shape, at, paint(hex, 0.75), label)
 
 static func leaf(parent: Node3D, start: Vector3, finish: Vector3, width: float, hex: String, label: String = "Leaf") -> MeshInstance3D:

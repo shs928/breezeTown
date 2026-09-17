@@ -63,6 +63,8 @@ var _mine_root: Node3D
 var mine: Node3D
 var mine_depth := 0
 var _mine_floors: Dictionary = {}
+var scenery: Node3D
+var _pending_mine_state: Dictionary = {}
 var _transitioning := false
 var _surface_tool := 0
 var _surface_zoom := 3
@@ -123,9 +125,11 @@ func _ready() -> void:
 	player.surface_map = tiles.map
 	if world_data["definition"]["id"]=="willow_creek_valley_v1":
 		player.camera_target_offset=Vector3(0,0,-4)
-		var scenery:=preload("res://scripts/first_map_scenery.gd").new()
+		scenery=preload("res://scripts/first_map_scenery.gd").new()
 		scenery.name="StreamedScenery"
 		_outdoors.add_child(scenery)
+		scenery.farm_tiles=tiles.farm
+		scenery.tree_broken.connect(_on_forest_tree_broken)
 		scenery.configure(player,tiles.map,world_data["definition"])
 	player.set_bounds(world_data["bounds"]["half"], world_data["bounds"]["pow"])
 	_camera = Camera3D.new()
@@ -378,6 +382,22 @@ func _autosave() -> void:
 	SaveManager.save_game(1, _save_payload())
 
 
+func _mine_state_payload() -> Dictionary:
+	var floors := {}
+	for depth: int in _mine_floors:
+		floors[str(depth)] = _mine_floors[depth].to_dict()
+	return {"depth": mine_depth, "floors": floors}
+
+
+func _on_forest_tree_broken(species: String, at: Vector3) -> void:
+	# 分块森林的战利品走与地表树相同的掉落通道。
+	var loot: Dictionary = surface_resources.roll_tree_loot(true)
+	var offset := 0
+	for kind: String in loot:
+		surface_resources.spawn_drop(kind, loot[kind], at + Vector3(offset * 0.55, 0, 0.30))
+		offset += 1
+
+
 func _save_payload() -> Dictionary:
 	## 存档内容代表游戏世界状态，而不是场景树（V2 PRD 第 28 节）。
 	var clock_data: Dictionary = state.time.to_dict()
@@ -398,6 +418,9 @@ func _save_payload() -> Dictionary:
 		"pastures": tiles.map.to_dict(),
 		"animals": animals_data,
 		"troughs": troughs,
+		"surface": surface_resources.to_dict(),
+		"forest": scenery.to_dict() if scenery != null else {"removed": []},
+		"mine": _mine_state_payload(),
 	}
 
 
@@ -427,6 +450,16 @@ func _apply_load(saved: Dictionary) -> void:
 		_create_pasture(Rect2(entry[0], entry[1], entry[2], entry[3]))
 	trough = pastures[0].trough
 	tiles.restore_views()
+	# WORLD-01：地表资源/掉落物与分块森林按存档重建，再执行田块/圈地冲突清理。
+	if restore.has("surface"):
+		surface_resources.apply_state(restore["surface"])
+	if scenery != null and restore.has("forest"):
+		scenery.farm_tiles = tiles.farm
+		scenery.apply_state(restore["forest"])
+	_pending_mine_state = restore.get("mine", {})
+	for depth: int in _mine_floors:
+		if _pending_mine_state.get("floors", {}).has(str(depth)):
+			_mine_floors[depth].apply_state(_pending_mine_state["floors"][str(depth)])
 	# 初始资源不能覆盖存档中的田块/圈地。清理的是加载时重新生成的资源。
 	for resource: Node3D in surface_resources.resources.duplicate():
 		var at := Vector2(resource.position.x, resource.position.z)
@@ -468,10 +501,19 @@ func _apply_load(saved: Dictionary) -> void:
 			arrival = landmarks["spawn"]
 	player.teleport(arrival)
 	player.zoom_index = clampi(restore.get("player", {}).get("zoom_index", 3), 0, player.zoom_levels.size() - 1)
+	# 存档在矿场时回到对应层与原位置；地表传送被矿内坐标跳过。
+	var saved_mine_depth := int(restore.get("mine", {}).get("depth", 0))
+	if saved_mine_depth > 0:
+		_switch_map(saved_mine_depth, "entry")
+		_finish_transition()
+		if pos.size() == 2:
+			player.teleport(Vector3(float(pos[0]), 0.0, float(pos[1])))
 	hud.refresh()
 	var notice := "已读取存档 · 第 %d 天 %s" % [state.day, state.time.season()]
 	if restore["relocated"] > 0:
 		notice += " · %d 处旧田地/牧场已迁至空地" % restore["relocated"]
+	if saved_mine_depth > 0:
+		notice += " · 矿场第 %d 层进度已恢复" % saved_mine_depth
 	hud.show_toast(notice)
 
 
@@ -732,7 +774,9 @@ func _on_tool_hit(tool: String) -> void:
 	if mine_depth > 0:
 		mine.swing(tool, player.global_position, player.facing())
 	else:
-		surface_resources.swing(tool, player.global_position, player.facing())
+		var dealt: int = surface_resources.swing(tool, player.global_position, player.facing())
+		if dealt <= 0 and scenery != null:
+			scenery.swing(tool, player.global_position, player.facing())
 
 
 func _eat_ration() -> void:
@@ -828,6 +872,8 @@ func _switch_map(depth: int, arrival: String = "entry") -> void:
 			floor_node.changed.connect(_refresh_mine_hud)
 			_mine_root.add_child(floor_node)
 			_mine_floors[depth] = floor_node
+			if _pending_mine_state.get("floors", {}).has(str(depth)):
+				floor_node.apply_state(_pending_mine_state["floors"][str(depth)])
 		mine = _mine_floors[depth]
 		mine.show()
 		mine.process_mode = Node.PROCESS_MODE_INHERIT

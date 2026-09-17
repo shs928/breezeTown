@@ -1,3 +1,5 @@
+> **2D 历史记录，不作为当前开发依据。** 当前 3D 工作见 [V2 PRD](../product/01-product-prd-v2.md) 和 [当前任务板](../execution/task-board.md)；本文旧状态、路径和命令仅供追溯。
+
 # ADR：世界写锁与代际快照发布方案（DATA-00）
 
 日期：2026-09-08；状态：**候选方案，本机 macOS 已实验验证；Windows 行为未验证**  

@@ -86,6 +86,9 @@ static func create() -> Dictionary:
 		var at:=point(source["landmarks"][key])
 		definition["landmarks"][key]=Vector3(at.x,0,at.y)
 	definition["landmarks"]["spawn"]=definition["landmarks"]["cottage_door"]+Vector3(0,0,4)
+	# MAP-01：湖畔观景码头，从 lake_view 地标向湖心（东侧）延伸。
+	var lake_view:Vector3=definition["landmarks"].get("lake_view",Vector3(516,0,546))
+	definition["docks"].append({"id":"lake_pier","rect":Rect2(Vector2(lake_view.x,lake_view.y-1.6),Vector2(17.0,3.2))})
 	definition["square"]=rect([637,454,119,92])
 	var farm_home:Vector2=definition["buildings"][0]["position"]
 	definition["pasture"]=Rect2(farm_home+Vector2(21,14),Vector2(25,20))

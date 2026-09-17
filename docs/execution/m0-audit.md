@@ -1,3 +1,5 @@
+> **M0 历史审计。** 后续重建状态见 [接续记录](SUMMARY.md)。当时的旧 PRD 归档已被 2026-09-16 用户要求的删除取代；当前工作见 [任务板](task-board.md)。
+
 # M0 架构重构审计报告与完成度核查
 
 **日期：2026-09-16 · 基线：V2 PRD（[docs/product/01-product-prd-v2.md](../product/01-product-prd-v2.md)）第 50 节 Definition of Done**

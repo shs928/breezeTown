@@ -225,3 +225,42 @@ func spawn_drop(kind: String, amount: int, at: Vector3) -> Node3D:
 		loot_collected.emit(item.kind, item.amount)
 	)
 	return drop
+
+
+## ---- 存档：地表资源与掉落物的完整状态；读档后按状态重建 ----
+
+func to_dict() -> Dictionary:
+	var entries: Array = []
+	for resource in resources:
+		if resource.depleted:
+			continue
+		entries.append({
+			"category": resource.category, "kind": resource.kind, "species": resource.species,
+			"stage": resource.stage, "variant": resource.variant, "scale": resource.size_factor,
+			"yaw": resource.yaw, "planted": resource.planted,
+			"position": [resource.position.x, resource.position.z],
+		})
+	var drop_entries: Array = []
+	for drop in drops:
+		if is_instance_valid(drop):
+			drop_entries.append({"kind": drop.kind, "amount": drop.amount, "position": [drop.position.x, drop.position.y, drop.position.z]})
+	return {"resources": entries, "drops": drop_entries}
+
+
+func apply_state(data: Dictionary) -> void:
+	for resource in resources:
+		tiles.release_resource(resource.get_instance_id())
+		resource.queue_free()
+	resources.clear()
+	for drop in drops:
+		if is_instance_valid(drop):
+			drop.queue_free()
+	drops.clear()
+	clear_focus()
+	for entry: Dictionary in data.get("resources", []):
+		var restored := entry.duplicate(true)
+		restored["position"] = Vector2(entry["position"][0], entry["position"][1])
+		_add_resource(restored)
+	for entry: Dictionary in data.get("drops", []):
+		var position: Array = entry.get("position", [0, 0, 0])
+		spawn_drop(entry.get("kind", "wood"), int(entry.get("amount", 1)), Vector3(position[0], position[1], position[2]))

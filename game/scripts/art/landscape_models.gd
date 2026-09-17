@@ -212,6 +212,50 @@ static func crate(filled: bool = false) -> Node3D:
 			M.ellipsoid(root, Vector3((i % 3 - 1) * 0.19, 0.38, (i / 3 - 0.5) * 0.24), Vector3(0.115, 0.12, 0.11), "#c76953" if i % 2 == 0 else "#dbb666", "Harvest", 12, 6)
 	return root
 
+static func hay_bale(seed_value: int = 0) -> Node3D:
+	var root := Node3D.new()
+	root.name = "HayBale"
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value + 881
+	var axis := Node3D.new()
+	axis.rotation.z = PI * 0.5
+	root.add_child(axis)
+	M.cylinder(axis, Vector3.ZERO, 0.60, 0.60, 1.14, "#d8b258", "HayCore", 20)
+	for x in [-0.30, 0.30]:
+		M.torus(axis, Vector3(x, 0, 0), 0.625, 0.024, "#8a6b3a", "HayStrap")
+	for i in range(16):
+		var angle := rng.randf() * TAU
+		var tuft := M.ellipsoid(axis, Vector3(rng.randf_range(-0.48, 0.48), cos(angle) * 0.58, sin(angle) * 0.58), Vector3(0.10, 0.13, 0.10), "#c9a44e" if i % 2 else "#e8c66c", "HayTuft", 8, 5)
+		tuft.rotation.x = sin(angle) * 0.6
+	return root
+
+static func firewood_pile(seed_value: int = 0) -> Node3D:
+	var root := Node3D.new()
+	root.name = "FirewoodPile"
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value + 882
+	for row in range(4):
+		var count := 5 - row
+		for i in range(count):
+			var x := (i - (count - 1) * 0.5) * 0.29 + rng.randf_range(-0.015, 0.015)
+			var y := 0.155 + row * 0.235
+			var log := M.cylinder(root, Vector3(x, y, rng.randf_range(-0.04, 0.04)), 0.115, 0.115, 0.98, ["#8f6a43", "#9a7146", "#84613e"][row % 3], "Firewood", 10)
+			log.rotation.x = PI * 0.5
+			M.ellipsoid(root, Vector3(x, y, 0.495), Vector3(0.108, 0.108, 0.02), "#cfa068" if i % 2 else "#c2955c", "LogRings", 10, 6)
+	return root
+
+static func mailbox() -> Node3D:
+	var root := Node3D.new()
+	root.name = "FarmMailbox"
+	M.beam(root, Vector3(0, 0.28, 0), Vector3(0, 1.02, 0), 0.055, "#7d5c39", "MailPost")
+	M.beam(root, Vector3(0, 0.56, 0), Vector3(0.04, 0.56, 0.26), 0.045, "#7d5c39", "MailBrace")
+	M.box(root, Vector3(0.10, 1.10, 0.30), Vector3(0.30, 0.26, 0.52), "#a8763f", "MailBox")
+	var arch := M.cylinder(root, Vector3(0.10, 1.23, 0.30), 0.15, 0.15, 0.30, "#b5854a", "MailArch", 12)
+	arch.rotation.z = PI * 0.5
+	M.box(root, Vector3(0.245, 1.26, 0.30), Vector3(0.018, 0.15, 0.032), "#d0533d", "MailFlag")
+	M.box(root, Vector3(0.10, 0.97, 0.30), Vector3(0.34, 0.035, 0.56), "#8a6540", "MailShelf")
+	return root
+
 static func watering_can() -> Node3D:
 	var root := Node3D.new()
 	root.name = "SageWateringCan"

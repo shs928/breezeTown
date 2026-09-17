@@ -22,6 +22,7 @@ var drops: Array[Node3D] = []
 var descent_open := false
 var chest_opened := false
 var camp_used := false
+var broken_cells: Array[Vector2i] = []
 var paused := false
 var _grid: AStarGrid2D
 var _down_ladder: Node3D
@@ -228,6 +229,7 @@ func navigation() -> Dictionary:
 
 func _on_rock_broken(rock: Node3D) -> void:
 	rocks.erase(rock)
+	broken_cells.append(rock.cell)
 	_grid.set_point_solid(rock.cell, false)
 	_spawn_drop(rock.kind, 2 if rock.kind != "stone" else 1, rock.position)
 	if rock.seal:
@@ -301,3 +303,41 @@ func _add_prop_collision(at: Vector3, size: Vector3) -> void:
 	shape.shape = box
 	body.add_child(shape)
 	add_child(body)
+
+
+## ---- 存档：已破坏岩格/掉落物/旗帜位；怪物按设计在重启后重新出现 ----
+
+func to_dict() -> Dictionary:
+	var broken: Array = []
+	for cell: Vector2i in broken_cells:
+		broken.append([cell.x, cell.y])
+	var drop_data: Array = []
+	for drop in drops:
+		drop_data.append({"kind": drop.kind, "amount": drop.amount, "position": [drop.position.x, drop.position.y, drop.position.z]})
+	return {"broken": broken, "drops": drop_data, "chest": chest_opened, "camp": camp_used, "descent": descent_open}
+
+
+func apply_state(data: Dictionary) -> void:
+	if data.is_empty():
+		return
+	var broken: Dictionary = {}
+	broken_cells.clear()
+	for cell: Array in data.get("broken", []):
+		broken[Vector2i(cell[0], cell[1])] = true
+		broken_cells.append(Vector2i(cell[0], cell[1]))
+	for rock in rocks.duplicate():
+		if rock.depleted or not broken.has(rock.cell):
+			continue
+		rock.depleted = true
+		rocks.erase(rock)
+		_grid.set_point_solid(rock.cell, false)
+		rock.queue_free()
+	chest_opened = bool(data.get("chest", false))
+	camp_used = bool(data.get("camp", false))
+	descent_open = bool(data.get("descent", false))
+	if _down_ladder != null:
+		_down_ladder.visible = descent_open
+	for entry: Dictionary in data.get("drops", []):
+		var position: Array = entry.get("position", [0, 0, 0])
+		_spawn_drop(entry.get("kind", "stone"), int(entry.get("amount", 1)), Vector3(position[0], position[1], position[2]))
+	changed.emit()

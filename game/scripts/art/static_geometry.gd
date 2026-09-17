@@ -22,6 +22,7 @@ static func bake(root: Node3D) -> void:
 	root.set_meta("static_batches", batches.size())
 
 
+
 static func _collect(node: Node3D, parent_transform: Transform3D, batches: Dictionary, source_meshes: Dictionary) -> void:
 	if node.get_meta("keep_meshes", false):
 		return

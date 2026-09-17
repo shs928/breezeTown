@@ -1,6 +1,0 @@
-config_version=5
-
-[application]
-
-config/name="net-spike"
-config/features=PackedStringArray("4.7")

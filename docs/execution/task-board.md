@@ -1,57 +1,92 @@
-# 微风小镇 V2：当前任务板
+# 微风小镇 V2 · 任务板（续作唯一入口）
 
-更新：2026-09-17。当前阶段：**P0 三项（ART-01 画风样板、MAP-01 逐区地形、WORLD-01 森林交互与持久化）第一轮全部完成并通过回归，画风待用户评估**。下一步：P1 的 `PERF-01` / `PLAY-01` / `FARM-01`，或按用户画风反馈迭代；本文件统一保存后续任务，完成一项就更新状态和证据。产品范围见 [V2 PRD](../product/01-product-prd-v2.md)，实现与验证见 [接续记录](SUMMARY.md)。
+更新：2026-09-17（画风第二轮 + 工作区清理后）。上一提交 `aa6f164`；工作区未提交改动 = ART/MAP/WORLD/PERF 四轮实现 + 文档清理。
+
+**下次接续方法**：读本文 → `git status` / `git log -3` 确认现场 → 从「下一批任务」按顺序取第一项执行。历史过程见 [接续记录](SUMMARY.md)，产品范围见 [V2 PRD](../product/01-product-prd-v2.md)，地图/画风规范见 [地图说明](../maps/first-map.md) 与 [Art Bible](../art/art-bible.md)。
 
 ## 已确认，不重复询问
 
-1. Godot 4.7.2 / 3D；以用户 UI 和美术参考为目标，允许重建和破坏性改造，旧模型与布局不构成保留约束。
-2. 地理基准为 [first-map-scale.png](../art/reference/first-map-scale.png)，400 米 / 202 像素，约 **2598 × 2374 米**；X 向东、Z 向南，耕地格为 2 米。
-3. 建筑是地标符号：中心按图，模型用合理实际尺寸，不按放大图标轮廓确定占地。
-4. **西南是玩家农场，东北是 NPC 农庄**；出生、初始菜园和牧场在西南，东北土地不能被玩家开垦或围建。
-5. 可并行使用子智能体；不能从资料推定且影响布局或玩法范围的问题再向用户确认。已有确认持续有效。
-6. 旧 2D 需求包已删除。V2 单机完整地图先行，联机列为 V2.5；旧 2D 的通过状态不适用于本版本。
+1. Godot 4.7.2 / 3D；以用户 UI 与美术参考图（`docs/art/reference/`）为目标，允许破坏性改造，旧模型与布局不构成保留约束。
+2. 地理基准 [first-map-scale.png](../art/reference/first-map-scale.png)，400 米 / 202 像素 ≈ **2598 × 2374 米**；X 东 Z 南，耕地格 2 米；建筑按图定位、用实际尺寸，不按图标轮廓定占地。
+3. **西南玩家农场，东北 NPC 农庄**；出生、初始菜园、初始牧场在西南；东北土地不可开垦/围建。
+4. V2 单机完整地图先行；联机 V2.5、独立服务器 V3.0。旧 2D 文档与其通过状态不适用本版本。
+5. 可并行子智能体；资料能推定的事不问用户；影响布局/玩法范围的决定先给方案再实施。
 
-## 已完成的接续基线
+## 当前基线（全部通过回归，可直接在其上继续）
 
-- [x] 米制蓝图统一管理；默认进入大图，`--reference-farm` 保留近景对照场景。
-- [x] 描摹 9 区域、22 建筑、21 主路、4 段河道、3 片湖塘、4 座桥及南部海岸与港口。
-- [x] 建筑和成年树接入 GLB、保存 Blender 源文件；增加绘制材质、草花、道路和木框 HUD。
-- [x] 初始田地为实际种植状态；商店、农牧、林业和十层矿场继续接入。
-- [x] 修正入口、围栏门洞、石桥方向/护栏/拱面行走、水域阻挡、NPC 农田经营保护。
-- [x] 导览图显示归属、位置和米制标尺；HUD 随窗口缩放。
-- [x] 64 米森林区块、局部水岸碰撞、有界寻路；全图性能仍待验收。
-- [x] 新旧地图存档隔离；拒绝跨地图或不明来源旧档，保持当前状态。
-- [x] 最新地图专项 132 项、领域 49 项、地图规则 21 项通过；更多日志见接续记录。
+- **ART-01 玩家农场近景**：庭院草花/花境/灌木/道具（柴堆、干草捆、邮箱、灯柱…）、苗床低木框（相邻格耕开自动隐藏）、作物随机错位高矮、大田犁沟条纹着色器。证据 `work/art01/final-garden.png`、`final-homestead.png`。
+- **MAP-01 逐区地形**：西北雪山主脉 + 溪源五级瀑布；果园 13 米行栽苹果树（分块加载）；湖畔码头+划艇（第 7 个 dock）；港口吊车/系缆桩/货堆；镇广场家具与市集棚；NPC 农庄畜栏与庭院。证据 `work/art01/map01-*.png` 六张。
+- **WORLD-01 森林与持久化**：分块森林稳定 ID 可砍伐（破坏后重建区块、统一掉落通道）；存档新增 `surface`/`forest`/`mine` 三键；读档回矿层；环境树避让已存耕地。两阶段重启测试 `tests/world_persist_checks.gd`（write/verify 两个独立进程）。
+- **PERF-01 第一轮**：启动 56.4→23.0s；农场 draws 4607→2529；五区域 60fps（M5/1600×1000，p50/p90 在 16.7ms 预算内）；常驻采样工具 `tests/perf_checks.gd`。
+- **画风第二轮**：草地饱和色板+修剪条纹、水更深蓝、波纹细化、干土调暖、HUD 日期栏四段药丸、选中槽金光；并修复 PERF 引入的两处回归（木框方向、作物烘焙偏移散落）。证据 `work/art01/style3-farm.png`、`fix3-garden.png`、`fix3-homestead.png`、`style2-dock2.png`。
+- 最新回归：`work/art01/style-{smoke,first,core}.log` 全 PASS（smoke 310 项、地图专项 146 项含 4 条主干路线、领域 49 项），0 脚本错误。
 
-## 下一批任务
+## 下一批任务（按顺序执行）
 
-| 顺序 / ID | 状态 | 具体工作 | 验收条件 |
+| 顺序 / ID | 状态 | 具体工作 | 验收标准 |
 |---|---|---|---|
-| P0 · ART-01 | 已实现一轮 · 待用户画面评估 | 农舍庭院成片草花与花境、苗床低木框（相邻耕开自动隐藏）、作物随机错位与高矮、干草捆/柴堆/邮箱/灯柱/木桶/踏石等生活道具、围栏与畜舍灌木群、庭院背景树、大田犁沟条纹着色（零额外面数）。实机截图见 [菜园](../../work/art01/final-garden.png) 与 [庭院](../../work/art01/final-homestead.png)。 | 132 项地图专项 + 310 项默认 smoke + 领域/地图规则检查全部通过（`work/art01/`）。画风差距是否可接受由用户对照参考图评估；未通过则按反馈迭代。 |
-| P0 · MAP-01 | 已实现一轮 | 西北雪山主脉+溪源多级瀑布（`_cascade` 参数化，大图接入）；果园 13 米行栽苹果树（分块加载、世界对齐网格）；湖畔观景码头+小划艇（第 7 个 dock，行走/碰撞自动生效）；港口木吊车/系缆桩/货堆；镇广场长椅/街灯/市集棚/告示板；NPC 农庄畜栏/干草/庭院草花（避开耕地与道路）。实机近景见 `work/art01/map01-*.png`（瀑布/果园/港口/镇区/NPC 农庄/湖畔）。 | 坐标与尺度全部来自既有蓝图与地标，无偏移；146 项地图专项含 4 条主干路线寻路连通（农场→镇区→矿口、镇区→NPC 农庄、镇区→港口）全部 PASS；smoke 310 项、领域、地图规则回归通过。homes 住宅区庭院装饰留待下一轮；画面验收仍需用户对照参考图。 |
-| P0 · WORLD-01 | 已实现一轮 | 分块森林可砍伐（稳定 ID、注册表斧击、破坏后重建区块、统一掉落）；差异持久化（森林移除/地表资源/掉落物/矿层岩格与旗标）；环境树避让已存耕地；读档回矿层。怪物重启后重出、半砍血量不持久（已记录设计）。 | 新增两阶段重启测试（write/verify 独立进程）10+9 项全过：砍/种/采/耕→存→重启→无复活/复制/覆盖，双读档幂等；默认+旧图 smoke、地图专项 146、领域、地图规则全 PASS（`work/art01/world01-*.log`）。 |
-| P1 · PERF-01 | 第一轮完成 | 常驻采样工具 `perf_checks.gd`；岸石共享网格、图元缓存、耕地作物 MultiMesh 化。启动 56.4→23.0s，农场 draws 4607→2529，五区域 p50/p90 达 60fps 帧预算（M5/1600×1000），2560×1600 农场 47fps，内存 ~180MB。 | 第二轮待办：冷启动 ~20s 世界构建可用视觉缓存消除；跨区传送的区块重建尖峰（~1s）与 LOD/裁剪未做。数据在 `work/art01/perf01-run3.log`，不以瞬时 FPS 替代分位数。 |
-| P1 · PLAY-01 | TODO | 实测公里级步行/快跑、一天时长、商店/矿口往返；提出交通与时间节奏方案，补沿途交互与导览。 | 记录实测耗时和一天能完成的活动。不擅自缩回小图；实质交通/出生规则变动确认后实施。 |
-| P1 · FARM-01 | TODO | 按 V2 M2/M3 完善季节种植、体力、工具升级、动物状态/饲养/购买/产出，明确大片田地经营规则。 | 数据驱动；跨天、换季、存读档、库存与经济结算闭环；NPC 土地保护持续有效。 |
-| P2 · LIFE-01 | TODO | 按 V2 M4–M6 完成钓鱼、采集内容、NPC 日程/对话/好感/任务、室内、制作/加工与仓库；先逐个打通闭环。 | 各项具备数据、交互、失败处理、存档与玩法验证；建筑外观不等于服务完成。 |
-| P2 · POLISH-01 | TODO | 天气/季节视觉及实际影响、音效、设置/输入、构建和长时间回归。 | 场景/存档回归、目标设备性能和真人体验证据齐全后判断首图完成度。 |
-| P3 · NET-01 | BACKLOG | V2.5 联机及之后的专用服务器。 | 依赖单机世界状态、存档、首图玩法稳定；另行设计网络契约和真实多机验收。 |
+| 1 · ART-02 | **下一项** | 画风差距收尾（对照 style-board / ui-hud）：①初始牧场与畜栏放进牛/鸡（`main.gd` 初始动物 + `animal.gd`，参考图牲畜可见）；②角色头身比更 Q 版（`art/farmer_model.gd`）；③工具栏图标换手绘风贴图（可从 `docs/art/reference/ui-hud.png` 裁切图标与九宫格，Pillow Python 路径见文末）；④近景补 1–2 株开花果树点缀。 | 固定 `--hour=11` 实机截图与参考逐项对照；smoke / 地图专项回归通过；画风由用户实机验收。 |
+| 2 · PERF-02 | TODO | 冷启动世界视觉+数据缓存：`world_builder.build()` 的场景与 data 字典按脚本指纹缓存到 `user://cache/`（改任何 builder/定义脚本自动失效），目标二次启动 <5s；跨区传送的区块重建尖峰（~1s）分帧摊平。 | 二次启动 <5s；五区域帧时间分位不劣于 `work/art01/perf01-run3.log`；指纹失效机制有测试。 |
+| 3 · PLAY-01 | TODO | 实测公里级步行/快跑、一天时长、商店/矿口往返耗时；提出交通（马车站/传送点）与时间节奏方案，**经用户确认后**实施；补沿途交互与导览。 | 记录实测耗时与一天可完成的活动清单；交通方案先给用户确认再动工。 |
+| 4 · FARM-01 | TODO | 按 V2 PRD M2/M3：季节种植与轮作、体力、工具升级、动物饲养/购买/产出；明确大片田地的经营规则。 | 数据驱动；跨天/换季/存读档/经济闭环测试；NPC 土地保护持续有效。 |
+| 5 · LIFE-01 | TODO | 按 V2 M4–M6 逐个打通闭环：钓鱼、采集、NPC 日程/对话/好感/任务、室内、制作加工与仓库。 | 每项具备数据、交互、失败处理、存档与玩法验证；建筑外观 ≠ 服务完成。 |
+| 6 · POLISH-01 | TODO | 天气/季节视觉与实际影响、音效、设置/输入、构建产物、长时间回归。 | 场景/存档回归、目标设备性能与真人体验证据齐全后判定首图完成度。 |
 
-## 并行分工
+## 长期 / 备忘
 
-- 主线程负责整合、实机画面对照、验证和本板更新，协调 `main.gd`、蓝图和公共接口的修改。
-- 美术子任务负责 `ART-01` 源资产、材质和近景，不移动蓝图地标。
-- 地图子任务负责 `MAP-01` 地形与分区，碰撞和视觉共用定义。
-- 系统子任务负责 `WORLD-01` 分块生命周期和持久化，可与美术并行；公共调用先约定接口。
-- 每次交接记录文件、验证和差距。不要为完成一个功能同时引入无关的大范围变更。
+- **NET-01（V2.5 BACKLOG）**：联机与专用服务器；依赖单机世界状态、存档、首图玩法稳定；届时另行设计网络契约与真实多机验收。
+- MAP-01 遗留：homes 住宅区（西区 5 栋）庭院未装饰；瀑布山地可穿行（沿既有矿山行为，如需阻挡须专门设计）。
+- 已记录的设计决定：矿场怪物重启后重现（宝箱旗标防重复领取）；半砍森林树血量不持久；森林存档为差异存储（只存移除列表）。
+- 视觉风险备忘：`tile.gd::_bake_model` 依赖"烘焙后顶点平移回原点"——若复用该函数给带随机朝向的 MultiMesh，切勿去掉 `-BAKE_CENTER` 的顶点回移（曾造成作物散落十几米的回归）。
 
-## 接着做时
+## 运行与验证命令
 
-1. 阅读本板、[接续记录](SUMMARY.md)、[地图说明](../maps/first-map.md)、[Art Bible](../art/art-bible.md)，再查看相关 V2 章节。
-2. 查看 `git status` 与最近提交，保留已有工作。整合基线为 `aa6f164`，不要回到旧 2D 任务阶段。
-3. 查看实际 [农场截图](../../work/visual-slice/scaled-farm-final.png)和[地图截图](../../work/visual-slice/scaled-map-final.png)，不要把参考图或描图叠加图当成已实现画面。
-4. 根据改动运行相关检查；地图/交互/存档优先 `first_map_checks.gd`，设置独立 `BREEZETOWN_SAVE_ROOT`，命令见接续记录。
+```sh
+# 实机（默认大图，出生点即玩家农场）
+tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --path game
 
-## 后续需要确认的事项
+# 专项验证（存档一律用独立目录）
+BREEZETOWN_SAVE_ROOT="$PWD/work/game-data/check" tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --headless --path game --script res://scripts/tests/first_map_checks.gd
+BREEZETOWN_SAVE_ROOT="$PWD/work/game-data/check" tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --headless --path game --script res://scripts/tests/core_checks.gd
+tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --headless --path game --script res://scripts/tests/map_domain_checks.gd
 
-比例、建筑符号、双方农场归属无需再问。公共土地永久经营范围、长途交通、NPC 农庄经营关系、最终门牌名称或室内布局若需定案，先给具体方案与影响。当前若干名称和服务建筑类别属于实现暂定值，不作为用户最终命名。
+# 完整冒烟（310 项）与持久化两阶段（write 后必须 verify，两个独立进程）
+BREEZETOWN_SAVE_ROOT="$PWD/work/game-data/check" tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --headless --path game -- --smoke
+BREEZETOWN_SAVE_ROOT="$PWD/work/game-data/wp" tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --headless --path game --script res://scripts/tests/world_persist_checks.gd -- --phase=write
+BREEZETOWN_SAVE_ROOT="$PWD/work/game-data/wp" tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --headless --path game --script res://scripts/tests/world_persist_checks.gd -- --phase=verify
+
+# 性能采样（窗口模式才有真实渲染负载）
+tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --path game --windowed --resolution 1600x1000 --script res://scripts/tests/perf_checks.gd
+
+# 固定视角截图
+tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --path game --windowed --resolution 1600x1000 -- --at=-672,252 --zoom=1.35 --hour=11 --shot="$PWD/work/art01/next.png"
+```
+
+注意：Godot 脚本报错后可能仍退出码 0，**必须 grep 日志**确认 `SCRIPT ERROR` 为 0 且 `*_RESULT PASS`。资源导入用 `--headless --editor --path game --quit`。带 Pillow 的 Python：`/Users/shenhongshi/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3`。
+
+## 关键文件地图
+
+| 关注点 | 文件 |
+|---|---|
+| 地图蓝图（唯一坐标源） | `game/resources/maps/first_map_blueprint.json` → 换算 `game/scripts/data/first_map_definition.gd` |
+| 世界构建 | `game/scripts/world_builder.gd` → `first_map_builder.gd`；地形 `art/first_map_terrain.gd`；水系 `art/water_models.gd`（瀑布 `_cascade`） |
+| 森林/果园分块 | `game/scripts/first_map_scenery.gd`（稳定 ID、可砍伐、差异持久化、耕地避让） |
+| 耕地视图 | `game/scripts/tile.gd`（网格静态缓存 + MultiMesh；`_bake_model` 见风险备忘）；领域 `domain/farm_state.gd` |
+| 地表资源/掉落 | `game/scripts/surface_resources.gd`、`surface_resource.gd`、`surface_drop.gd` |
+| 存档 | `core/save_manager.gd`、`core/map_restore.gd`；载荷在 `main.gd::_save_payload()`（surface/forest/mine 三键在此）；读档 `_apply_load()` |
+| 矿场 | `mine_layout.gd`（确定性布局）、`mine_floor.gd`（含 to_dict/apply_state）、`mine_rock/monster/drop.gd` |
+| 交互 | `core/interaction_system.gd`（目标解析与执行统一入口，新交互类型在此注册） |
+| 导航/规则 | `core/map_data.gd`（水域/障碍/占用）、`core/world_navigation.gd`（局部有界寻路） |
+| HUD/UI | `game/scripts/hud.gd`（木框+羊皮纸；日期栏四段药丸在 `_build_info_chips`） |
+| 测试 | `game/scripts/tests/`：`first_map_checks` / `core_checks` / `map_domain_checks` / `world_persist_checks` / `perf_checks` |
+| 资产 | 模型 `game/resources/models/*.glb`；Blender 源 `art/3d/source/`；生成器 `tools/art/` |
+
+## 证据索引（work/ 已清理，仅以下文件有效）
+
+- 截图：`work/art01/`——`final-garden/final-homestead`（ART-01）、`map01-waterfall/orchard/harbor/town-square/npc-farm/lake-pier`（MAP-01）、`style3-farm + fix3-garden + fix3-homestead + style2-dock2`（画风）；`work/visual-slice/scaled-{farm,map}-final.png`（大图全景）。
+- 日志：`work/art01/*.log`——最新 `style-*`，此前 `map01-*` / `world01-*` / `perf01-*`；更早基线 `work/first-map/validation/`（2026-09-16）。
+- 对图：`docs/maps/first-map-trace.png`（描图叠加，仅对位用，不是实现画面）。
+
+## 后续需要确认的事项（实施前先给方案）
+
+公共土地永久经营范围、长途交通形式、NPC 农庄经营关系、最终门牌命名与室内布局。当前若干名称与服务建筑类别为实现暂定值，不作为用户最终命名。

@@ -1,6 +1,6 @@
-# V2 接续记录
+# V2 接续记录（历史日志）
 
-更新：2026-09-17。`ART-01`、`MAP-01`、`WORLD-01`、`PERF-01` 与第二轮**画风对照迭代**均已完成并通过回归；对照截图 `work/art01/style3-farm.png`，其余日志同目录，画风终验待用户实机确认。
+更新：2026-09-17。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近一轮：画风对照迭代完成，对照截图 `work/art01/style3-farm.png`，画风终验待用户实机确认。
 
 ## 2026-09-17 · 画风对照第二轮（视觉对照 + 回归修复）
 
@@ -21,7 +21,7 @@
 - 基线（M5 / 1600×1000 / 窗口）：启动 56.4s；农场 p50 16.8ms、draws 4607；传送后偶发 >1s 卡顿。
 - 热点：①海岸线水岸石逐颗实例化（1542 个 320 顶点网格）；②每块耕格的作物逐格烘焙 ≈0.45s/格 ×64 初始格 ≈29s；③静态合并按实例 append 固定开销 ~0.9ms × 1.6 万实例 ≈14s。
 - 优化后：**启动 56.4s→23.0s**（剩 ~20s 为冷启动世界构建，可用世界视觉缓存解决，留待第二轮）；**农场 draws 4607→2529**；农场/镇区/森林/果园/港口 p50、p90 全部在 16.7ms 帧预算内（60fps）；2560×1600 农场 p50 21.3ms（≈47fps）；内存 ~180MB。传送后的区块重建尖峰（单次 ~0.5–1.7s）仍在，属跨区传送场景，正常游玩按 64m 分块渐进加载。
-- 验证：默认 smoke、地图专项 146、持久化两阶段 10+9 全 PASS，0 脚本错误；菜园实机截图视觉无损（`work/art01/perf01-garden.png`）。性能日志 `work/art01/perf01-run3.log`，命令见 `perf_checks.gd` 头注。
+- 验证：默认 smoke、地图专项 146、持久化两阶段 10+9 全 PASS，0 脚本错误；菜园实机截图视觉无损（见画风第二轮 `style3-farm.png`；当时截图 `perf01-garden.png` 已在清理中删除）。性能日志 `work/art01/perf01-run3.log`，命令见 `perf_checks.gd` 头注。
 
 ## 2026-09-17 · WORLD-01 第一轮（分块森林可交互与全量持久化）
 
@@ -112,13 +112,13 @@
 tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --path game
 
 # 专项验证，隔离存档
-BREEZETOWN_SAVE_ROOT="$PWD/work/game-data/validation" tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --headless --path game --script res://scripts/tests/first_map_checks.gd
+BREEZETOWN_SAVE_ROOT="$PWD/work/game-data/check" tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --headless --path game --script res://scripts/tests/first_map_checks.gd
 
 # 地图规则
 tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --headless --path game --script res://scripts/tests/map_domain_checks.gd
 
 # 固定窗口与时间截图
-tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --path game --windowed --resolution 1600x1000 -- --hour=11 --shot="$PWD/work/visual-slice/next-farm.png"
+tools/engine/Godot-4.7.2-stable/Godot.app/Contents/MacOS/Godot --path game --windowed --resolution 1600x1000 -- --hour=11 --shot="$PWD/work/art01/next.png"
 ```
 
 资源导入使用 `--headless --editor --path game --quit`。Godot 可能在脚本报错后仍退出 0，必须检查日志。

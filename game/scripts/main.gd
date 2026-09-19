@@ -34,6 +34,7 @@ const InteractionSystem := preload("res://scripts/core/interaction_system.gd")
 const SaveManager := preload("res://scripts/core/save_manager.gd")
 const WorldNavigation := preload("res://scripts/core/world_navigation.gd")
 const MapRestore := preload("res://scripts/core/map_restore.gd")
+const InputActions := preload("res://scripts/core/input_actions.gd")
 
 const DAY_SECONDS := 150.0  # 现实秒 / 游戏日
 const SHOP_RANGE := 2.4
@@ -127,6 +128,7 @@ const SKY_KEYS := [
 
 
 func _ready() -> void:
+	InputActions.register()  # POLISH-02：先注册输入动作，键盘行为与旧直查一致，手柄可用
 	state = GameState.new()
 	_npc_rng.randomize()
 	_interaction = InteractionSystem.new()
@@ -272,7 +274,7 @@ func _process(delta: float) -> void:
 			_tick_machines(hours)
 			_update_npc_schedules()
 		_update_targeting()
-		_tick_fishing(delta, Input.is_physical_key_pressed(KEY_E) or Input.is_physical_key_pressed(KEY_SPACE) or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT))
+		_tick_fishing(delta, Input.is_action_pressed("interact") or Input.is_action_pressed("tool_use") or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT))
 		hud.update_clock()
 	if mine_depth > 0:
 		mine.paused = hud.modal_open() or _transitioning
@@ -291,50 +293,75 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _smoke or _shot_path != "" or _transitioning:
 		return
-	if event is InputEventKey and event.pressed and not event.echo:
-		if hud.modal_open() and event.keycode not in [KEY_M, KEY_ESCAPE, KEY_TAB]:
+	var key_event: bool = event is InputEventKey and event.pressed and not event.echo
+	var joy_event: bool = event is InputEventJoypadButton and event.pressed
+	if not (key_event or joy_event):
+		if event is InputEventMouseButton and event.pressed and not hud.modal_open():
+			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+				player.zoom_index = maxi(0, player.zoom_index - 1)
+			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				player.zoom_index = mini(player.zoom_levels.size() - 1, player.zoom_index + 1)
+			elif event.button_index == MOUSE_BUTTON_LEFT:
+				_on_world_click(event)
+		return
+	# POLISH-02：模态开启时仅 地图/关闭/背包 三项可用（与旧按键白名单一致）。
+	if hud.modal_open():
+		if event.is_action_pressed("map"):
+			hud.toggle_map()
+		elif event.is_action_pressed("ui_cancel"):
+			_cancel_overlays()
+		elif event.is_action_pressed("inventory"):
+			hud.toggle_inventory()
+		return
+	for index in range(10):
+		if event.is_action_pressed("slot_%d" % (index + 1)):
+			_select_tool(index)
 			return
-		match event.keycode:
-			KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0:
-				_select_tool(9 if event.keycode == KEY_0 else event.keycode - KEY_1)
-			KEY_R:
-				var next := GameState.CROP_ORDER.find(selected_seed) + 1
-				selected_seed = GameState.CROP_ORDER[next % GameState.CROP_ORDER.size()]
-				player.set_tool(TOOLS[tool_index], selected_seed)
-				hud.select_slot(tool_index, selected_seed, state.seeds[selected_seed])
-				hud.show_toast("选中种子：" + GameState.crop_label(selected_seed))
-			KEY_E:
-				_update_targeting()
-				_interact()
-			KEY_SPACE:
-				_use_tool()
-			KEY_Q:
-				_eat_ration()
-			KEY_TAB:
-				hud.toggle_inventory()
-			KEY_M:
-				hud.toggle_map()
-			KEY_F5:
-				SaveManager.save_game(1, _save_payload())
-				hud.show_toast("已保存 · 第 %d 天 %s" % [state.day, state.time.season()])
-			KEY_F9:
-				_apply_load(SaveManager.load_game(1))
-			KEY_ESCAPE:
-				hud.dismiss_panels()
-				_cancel_fence()
-				_cancel_fishing("")
-	elif event is InputEventMouseButton and event.pressed and not hud.modal_open():
-		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			player.zoom_index = maxi(0, player.zoom_index - 1)
-		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			player.zoom_index = mini(player.zoom_levels.size() - 1, player.zoom_index + 1)
-		elif event.button_index == MOUSE_BUTTON_LEFT:
-			var ray_from := _camera.project_ray_origin(event.position)
-			var ray_direction := _camera.project_ray_normal(event.position)
-			var point: Variant = Plane(Vector3.UP, 0.7).intersects_ray(ray_from, ray_direction)
-			if point != null and not player.acting and fishing_state == "idle":
-				player.face_point(point)
-			_use_tool()
+	if event.is_action_pressed("tool_prev"):
+		_select_tool((tool_index + TOOLS.size() - 1) % TOOLS.size())
+	elif event.is_action_pressed("tool_next"):
+		_select_tool((tool_index + 1) % TOOLS.size())
+	elif event.is_action_pressed("seed_cycle"):
+		var next := GameState.CROP_ORDER.find(selected_seed) + 1
+		selected_seed = GameState.CROP_ORDER[next % GameState.CROP_ORDER.size()]
+		player.set_tool(TOOLS[tool_index], selected_seed)
+		hud.select_slot(tool_index, selected_seed, state.seeds[selected_seed])
+		hud.show_toast("选中种子：" + GameState.crop_label(selected_seed))
+	elif event.is_action_pressed("interact"):
+		_update_targeting()
+		_interact()
+	elif event.is_action_pressed("tool_use"):
+		_use_tool()
+	elif event.is_action_pressed("eat_ration"):
+		_eat_ration()
+	elif event.is_action_pressed("inventory"):
+		hud.toggle_inventory()
+	elif event.is_action_pressed("map"):
+		hud.toggle_map()
+	elif event.is_action_pressed("quick_save"):
+		SaveManager.save_game(1, _save_payload())
+		hud.show_toast("已保存 · 第 %d 天 %s" % [state.day, state.time.season()])
+	elif event.is_action_pressed("quick_load"):
+		_apply_load(SaveManager.load_game(1))
+	elif event.is_action_pressed("ui_cancel"):
+		_cancel_overlays()
+
+
+func _cancel_overlays() -> void:
+	hud.dismiss_panels()
+	_cancel_fence()
+	_cancel_fishing("")
+
+
+func _on_world_click(event: InputEventMouseButton) -> void:
+	## POLISH-02：左键点击——面向落点并使用工具（原 _unhandled_input 鼠标分支）。
+	if event.button_index == MOUSE_BUTTON_LEFT:
+		var ray_from := _camera.project_ray_origin(event.position)
+		var ray_direction := _camera.project_ray_normal(event.position)
+		var point: Variant = Plane(Vector3.UP, 0.7).intersects_ray(ray_from, ray_direction)
+		if point != null and not player.acting and fishing_state == "idle":
+			player.face_point(point)
+		_use_tool()
 
 
 func _select_tool(index: int) -> void:

@@ -45,6 +45,7 @@ func _run() -> void:
 	await _chest_flow()
 	await _store02_flow()
 	await _rain_water_flow()
+	await _joy_flow()
 	await _capture()
 	var verdict := "PASS %d" % count if failures.is_empty() else "FAIL %s" % ",".join(failures)
 	print("INDOOR_SCENE_RESULT " + verdict)
@@ -447,3 +448,28 @@ func _rain_water_flow() -> void:
 	_check("snow-no-auto-water", not game.tiles.farm.data_of(snow_key).watered)
 	_check("weather-fx-particles-exist", game._weather_rain != null and game._weather_snow != null)
 	_check("weather-fx-off-indoors", true)  # 视觉遮蔽逻辑在 _apply_daylight 按 interior/mine 门控，随场景检查覆盖
+
+
+func _joy_flow() -> void:
+	## POLISH-02：手柄按键注入——A 键等价 E（进门/出门），动作层对 Joypad 事件生效。
+	await _teleport_door("cottage")
+	game._update_targeting()
+	_check("joy-door-focus", game.focus.get("kind") == "building_door")
+	var press_a := InputEventJoypadButton.new()
+	press_a.button_index = JOY_BUTTON_A
+	press_a.pressed = true
+	Input.parse_input_event(press_a)
+	Input.flush_buffered_events()
+	await _until(func(): return game.interior_id == "cottage" and not game._transitioning)
+	_check("joy-enters-cottage", game.interior_id == "cottage")
+	game.player.teleport(game.current_interior.to_global(game.current_interior.exit_position()))
+	await _frames(2)
+	game._update_targeting()
+	_check("joy-exit-focus", game.focus.get("kind") == "interior_exit")
+	var press_a2 := InputEventJoypadButton.new()
+	press_a2.button_index = JOY_BUTTON_A
+	press_a2.pressed = true
+	Input.parse_input_event(press_a2)
+	Input.flush_buffered_events()
+	await _until(func(): return game.interior_id == "" and not game._transitioning)
+	_check("joy-exits-cottage", game.interior_id == "" and game._outdoors.visible)

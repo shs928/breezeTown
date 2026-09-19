@@ -104,7 +104,7 @@ func _physics_process(delta: float) -> void:
 		input = _move_vector()
 	var direction := Vector3(input.x, 0, input.y)
 	if direction.length_squared() > 0.02:
-		velocity = direction.normalized() * (RUN_SPEED if Input.is_physical_key_pressed(KEY_SHIFT) else SPEED)
+		velocity = direction.normalized() * (RUN_SPEED if Input.is_action_pressed("run") else SPEED)
 		var target_yaw := atan2(direction.x, direction.z)
 		_farmer.rotation.y = lerp_angle(_farmer.rotation.y, target_yaw, 1.0 - exp(-TURN_SPEED * delta))
 		if _anim.current_animation != "walk":
@@ -141,19 +141,11 @@ func _physics_process(delta: float) -> void:
 
 
 func _move_vector() -> Vector2:
-	var x := 0.0
-	var y := 0.0
-	if Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT):
-		x -= 1.0
-	if Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT):
-		x += 1.0
-	if Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP):
-		y -= 1.0
-	if Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN):
-		y += 1.0
+	## POLISH-02：动作化输入（WASD/方向键/左摇杆），相机相对方向不变。
+	var input := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	var forward := Vector2(-CAMERA_OFFSET.x, -CAMERA_OFFSET.z).normalized()
 	var right := Vector2(-forward.y, forward.x)
-	return right * x - forward * y
+	return right * input.x - forward * input.y
 
 
 func start_act() -> void:

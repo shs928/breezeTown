@@ -884,6 +884,7 @@ func _layout_chest() -> void:
 
 func open_chest() -> void:
 	chest_open = true
+	_focus_first_button.call_deferred(_chest_panel)
 	_chest_panel.visible = true
 	refresh_chest()
 	call_deferred("_layout_chest")
@@ -1044,6 +1045,7 @@ func _toggle_gift_list() -> void:
 ## quest_offer/quest_turnin 为 {id,label[,progress,ready]} 时显示对应委托按钮。
 func open_dialogue(npc_label: String, npc_role: String, hearts: int, max_hearts: int, text: String, entries: Array, gifted: bool, quest_offer: Dictionary = {}, quest_turnin: Dictionary = {}) -> void:
 	dialogue_open = true
+	_focus_first_button.call_deferred(_dialogue_panel)
 	_dialogue_name.text = npc_label
 	_dialogue_role.text = npc_role
 	set_dialogue_hearts(hearts, max_hearts)
@@ -1341,6 +1343,7 @@ func toggle_inventory() -> void:
 
 func open_shop() -> void:
 	shop_open = true
+	_focus_first_button.call_deferred(_shop_panel)
 	_inventory_panel.visible = false
 	inventory_open = false
 	_shop_panel.visible = true
@@ -1378,6 +1381,7 @@ func modal_open() -> bool:
 
 func open_mine_travel(current_depth: int) -> void:
 	travel_open = true
+	_focus_first_button.call_deferred(_travel_panel)
 	_travel_panel.show()
 	for depth: int in _travel_buttons:
 		var button: Button = _travel_buttons[depth]
@@ -1533,3 +1537,17 @@ func fade_sleep(wake_up: Callable) -> void:
 	tween.tween_callback(wake_up)
 	tween.tween_interval(0.35)
 	tween.tween_property(_fade, "modulate:a", 0.0, 0.7)
+
+
+func _focus_first_button(panel: Control) -> void:
+	## POLISH-02：手柄导航——仅在连接了手柄时把焦点交给第一个可用按钮，
+	## 键盘/鼠标用户的 Space 等按键行为保持与旧版一致。
+	if Input.get_connected_joypads().is_empty():
+		return
+	if panel == null or not panel.visible:
+		return
+	for node in panel.find_children("*", "BaseButton", true, false):
+		var button := node as BaseButton
+		if button != null and button.visible and not button.disabled:
+			button.grab_focus()
+			return

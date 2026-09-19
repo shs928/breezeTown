@@ -1,0 +1,77 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+WORLD_CACHE MISS
+WORLD_CACHE STORED
+GAME_READY
+FORAGE forage-manager-present OK
+FORAGE first-day-forage-populated OK
+FORAGE manager-count-matches-nodes OK
+FORAGE kinds-legal OK
+FORAGE visual-built OK
+FORAGE on-land-dandelion OK
+FORAGE walkable-spot-dandelion OK
+FORAGE not-on-farm-tile-dandelion OK
+FORAGE away-from-npc-farm-dandelion OK
+FORAGE away-from-pastures-dandelion OK
+FORAGE inside-habitat-dandelion OK
+FORAGE on-land-daffodil OK
+FORAGE walkable-spot-daffodil OK
+FORAGE not-on-farm-tile-daffodil OK
+FORAGE away-from-npc-farm-daffodil OK
+FORAGE away-from-pastures-daffodil OK
+FORAGE inside-habitat-daffodil OK
+FORAGE on-land-leek OK
+FORAGE walkable-spot-leek OK
+FORAGE not-on-farm-tile-leek OK
+FORAGE away-from-npc-farm-leek OK
+FORAGE away-from-pastures-leek OK
+FORAGE inside-habitat-leek OK
+FORAGE on-land-dandelion OK
+FORAGE walkable-spot-dandelion OK
+FORAGE not-on-farm-tile-dandelion OK
+FORAGE away-from-npc-farm-dandelion OK
+FORAGE away-from-pastures-dandelion OK
+FORAGE inside-habitat-dandelion OK
+FORAGE on-land-daffodil OK
+FORAGE walkable-spot-daffodil OK
+FORAGE not-on-farm-tile-daffodil OK
+FORAGE away-from-npc-farm-daffodil OK
+FORAGE away-from-pastures-daffodil OK
+FORAGE inside-habitat-daffodil OK
+FORAGE on-land-dandelion OK
+FORAGE walkable-spot-dandelion OK
+FORAGE not-on-farm-tile-dandelion OK
+FORAGE away-from-npc-farm-dandelion OK
+FORAGE away-from-pastures-dandelion OK
+FORAGE inside-habitat-dandelion OK
+FORAGE on-land-shell OK
+FORAGE walkable-spot-shell OK
+FORAGE not-on-farm-tile-shell OK
+FORAGE away-from-npc-farm-shell OK
+FORAGE away-from-pastures-shell OK
+FORAGE inside-habitat-shell OK
+FORAGE spawn-spacing-respected OK
+FORAGE daily-spawn-deterministic OK
+FORAGE daily-spawn-plants OK
+FORAGE daily-spawn-same-season-no-removal OK
+FORAGE focus-targets-forage OK
+FORAGE hint-names-forage OK
+FORAGE hint-shows-price OK
+FORAGE gather-adds-to-inventory OK
+FORAGE gather-removes-node OK
+FORAGE gather-grants-xp OK
+FORAGE gathered-node-freed OK
+FORAGE no-double-gather OK
+FORAGE payload-has-forage-key OK
+FORAGE payload-season-matches-clock OK
+FORAGE gather-before-load-removes-node OK
+FORAGE load-restores-node-count OK
+FORAGE load-restores-same-spot OK
+FORAGE load-restores-inventory OK
+FORAGE test-spot-found OK
+FORAGE offseason-plant-placed OK
+FORAGE season-change-removes-summer OK
+FORAGE winter-spawn-happens OK
+FORAGE offseason-species-gone OK
+FORAGE remaining-species-in-season OK
+FORAGE_RESULT PASS 71 checks

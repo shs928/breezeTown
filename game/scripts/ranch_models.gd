@@ -178,20 +178,25 @@ static func _cow(variant_seed: int) -> Node3D:
 			M.box(root, Vector3(x, 0.02, z), Vector3(0.20, 0.06, 0.23), "#4a423a", "Hoof", 0.015)
 	M.ellipsoid(root, Vector3(0, 0.88, 0), Vector3(0.62, 0.56, 0.98), "#ece7db", "Body")
 	M.ellipsoid(root, Vector3(0, 0.52, -0.28), Vector3(0.26, 0.10, 0.22), "#e8b7ad", "Udder", 14, 7)
-	for i in range(3):
-		var patch := M.blob(root, Vector3(rng.randf_range(-0.3, 0.3), 0.98 + rng.randf_range(0.0, 0.14), rng.randf_range(-0.5, 0.5)), Vector3(0.26, 0.14, 0.30), "#3c3a36", variant_seed + i, "HidePatch")
-		patch.scale = Vector3(1, 0.5, 1)
+	# 花斑用暖棕大块面包裹体侧并盖过背脊，俯视相机下也能一眼认出奶牛（参考图牲畜可读性）。
+	var patch_tones := ["#8a5a3f", "#7b4e35", "#93644a"]
+	for i in range(6):
+		var patch := M.blob(root, Vector3(
+			rng.randf_range(-0.42, 0.42), rng.randf_range(0.92, 1.24), rng.randf_range(-0.72, 0.66)
+		), Vector3(0.32, 0.26, 0.38), patch_tones[(variant_seed + i) % patch_tones.size()], variant_seed + i, "HidePatch")
+		patch.scale = Vector3(1, 0.82, 1)
 	var neck := M.ellipsoid(root, Vector3(0, 1.10, 0.72), Vector3(0.24, 0.26, 0.30), "#ece7db", "Neck")
 	var head := Node3D.new()
 	head.name = "Head"
 	head.position = Vector3(0, 1.22, 0.98)
 	root.add_child(head)
-	M.ellipsoid(head, Vector3.ZERO, Vector3(0.22, 0.20, 0.28), "#ece7db", "Skull")
+	M.ellipsoid(head, Vector3.ZERO, Vector3(0.24, 0.21, 0.29), "#ece7db", "Skull")
+	M.ellipsoid(head, Vector3(0, 0.10, -0.10), Vector3(0.17, 0.12, 0.16), patch_tones[variant_seed % patch_tones.size()], "HeadPatch", 12, 7)
 	M.ellipsoid(head, Vector3(0, -0.06, 0.20), Vector3(0.17, 0.13, 0.14), "#d9a28f", "Muzzle", 16, 8)
 	M.ellipsoid(head, Vector3(0, -0.13, 0.27), Vector3(0.08, 0.035, 0.05), "#c78f7d", "MuzzleTip", 10, 5)
 	for side in [-1, 1]:
-		M.ellipsoid(head, Vector3(side * 0.23, 0.06, -0.02), Vector3(0.10, 0.06, 0.04), "#e0d9c9", "Ear", 10, 5)
-		var horn := M.cylinder(head, Vector3(side * 0.12, 0.20, -0.02), 0.018, 0.035, 0.16, "#d8c9a8", "Horn", 8)
+		M.ellipsoid(head, Vector3(side * 0.25, 0.06, -0.02), Vector3(0.11, 0.065, 0.045), "#e0d9c9", "Ear", 10, 5)
+		var horn := M.cylinder(head, Vector3(side * 0.13, 0.20, -0.02), 0.021, 0.038, 0.19, "#d8c9a8", "Horn", 8)
 		horn.rotation.z = side * -0.5
 		M.ellipsoid(head, Vector3(side * 0.13, 0.06, 0.17), Vector3(0.028, 0.033, 0.02), "#39332d", "Eye", 8, 5)
 	var tail := M.beam(root, Vector3(0, 1.05, -0.92), Vector3(0, 0.55, -1.12), 0.035, "#e0d9c9", "Tail", -1, true)

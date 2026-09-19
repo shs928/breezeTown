@@ -28,6 +28,7 @@ var _farmer: Node3D
 var _anim: AnimationPlayer
 var _bound_half := Vector2(46, 36)
 var _bound_pow := 6
+var _bound_center := Vector2.ZERO
 var _socket: Node3D
 var _held: Node3D
 var _swing_tool := ""
@@ -40,9 +41,10 @@ var _flash_material: StandardMaterial3D
 var _visual_meshes: Array = []
 
 
-func set_bounds(half: Vector2, power: int) -> void:
+func set_bounds(half: Vector2, power: int, center: Vector2 = Vector2.ZERO) -> void:
 	_bound_half = half
 	_bound_pow = power
+	_bound_center = center
 
 
 func _ready() -> void:
@@ -121,12 +123,15 @@ func _physics_process(delta: float) -> void:
 		if surface_map.is_water(flat, 0.25) and not surface_map.on_deck(flat, 0.25):
 			global_position = before_move
 			velocity = Vector3.ZERO
-	# 圈定在山脚以内，与山谷地形及可开垦区域共用同一条边界。
+	# 圈定在山脚以内，与山谷地形及可开垦区域共用同一条边界；室内则以房间中心为界。
 	var p := global_position
 	p.y = preload("res://scripts/core/surface_height.gd").deck_height(Vector2(p.x,p.z),surface_map.bridges,surface_map.ramps) if surface_map != null else 0.0
-	var edge: float = pow(absf(p.x) / _bound_half.x, _bound_pow) + pow(absf(p.z) / _bound_half.y, _bound_pow)
+	var rel := Vector2(p.x, p.z) - _bound_center
+	var edge: float = pow(absf(rel.x) / _bound_half.x, _bound_pow) + pow(absf(rel.y) / _bound_half.y, _bound_pow)
 	if edge > 1.0:
-		p *= pow(1.0 / edge, 1.0 / float(_bound_pow)) as float
+		rel *= pow(1.0 / edge, 1.0 / float(_bound_pow)) as float
+	p.x = rel.x + _bound_center.x
+	p.z = rel.y + _bound_center.y
 	global_position = p
 	if is_instance_valid(camera):
 		var desired: Vector3 = global_position + camera_target_offset + CAMERA_OFFSET * zoom_levels[zoom_index]

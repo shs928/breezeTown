@@ -149,7 +149,7 @@ func target_at(at: Vector3, tool: String) -> Dictionary:
 	return {"kind": "mine_idle", "hint": "6 镐子 · 7 短剑 · E 交互 · 空格 / 左键挥动 · Q 口粮"}
 
 
-func swing(tool: String, origin: Vector3, facing: Vector3) -> int:
+func swing(tool: String, origin: Vector3, facing: Vector3, power: float = 1.0) -> int:
 	if paused or tool not in ["pickaxe", "sword"]:
 		return 0
 	var hit_count := 0
@@ -175,7 +175,7 @@ func swing(tool: String, origin: Vector3, facing: Vector3) -> int:
 			if delta.length() < best and (delta.length() < 0.3 or facing.dot(delta.normalized()) >= cone) and clear_line(origin, rock.global_position, rock):
 				closest = rock
 				best = delta.length()
-		if closest != null and closest.hit(18) > 0:
+		if closest != null and closest.hit(maxi(1, roundi(18 * power))) > 0:
 			hit_count += 1
 	return hit_count
 

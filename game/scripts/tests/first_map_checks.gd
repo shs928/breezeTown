@@ -10,7 +10,7 @@ var game: Node3D
 
 
 func _initialize() -> void:
-	create_timer(180).timeout.connect(func(): push_error("FIRST_MAP timeout"); quit(1))
+	create_timer(240).timeout.connect(func(): push_error("FIRST_MAP timeout"); quit(1))
 	_run.call_deferred()
 
 
@@ -85,24 +85,51 @@ func _run() -> void:
 	game.player.teleport(game.landmarks["shop_door"] + Vector3(0, 0, .6))
 	await _frames(3)
 	_press(KEY_E)
+	await _frames(55)
+	_check("town-shop-interactive", game.interior_id == "shop" and game.current_interior != null)
+	game.player.teleport(game.current_interior.service_world_position("counter_shop") + Vector3(0, 0, 1.4))
+	await _frames(3)
+	_press(KEY_E)
 	await _frames(2)
-	_check("town-shop-interactive", game.hud.shop_open)
+	_check("town-shop-counter-opens-shop", game.hud.shop_open)
 	_press(KEY_ESCAPE)
+	await _frames(2)
+	game._exit_building()
+	await _frames(55)
+	_check("town-shop-exit-outdoors", game.interior_id == "" and game._outdoors.visible)
 	game.player.teleport(game.landmarks["cottage_door"] + Vector3(0, 0, .6))
 	await _frames(3)
 	game._update_targeting()
-	_check("southwest-home-interactive", game.focus.get("kind") == "cottage")
+	_check("southwest-home-interactive", game.focus.get("kind") == "building_door")
 	await SurfaceChecks.run(game, _check)
 	_check("navigation-grid-is-bounded", game.navigation._grid.region.size.x <= 194 and game.navigation._grid.region.size.y <= 194)
 	await _bridge_input(layout["bridges"][0])
 	await _bridge_input(layout["bridges"][3])
 	await _bank_input()
 	await _save_roundtrip()
+	await _world_cache_checks(layout)
 	game.player.teleport(Vector3(500, 0, -800))
 	await _frames(35)
 	_check("forest-chunks-bounded", game._outdoors.get_node("StreamedScenery")._chunks.size() <= 9)
 	print("FIRST_MAP_RESULT %s %d checks" % ["PASS" if failures.is_empty() else "FAIL " + ",".join(failures), count])
 	quit(0 if failures.is_empty() else 1)
+
+
+func _world_cache_checks(layout: Dictionary) -> void:
+	# PERF-02：世界缓存——写盘齐全、指纹与源一致、篡改即失效、重建恢复、再次命中。
+	var Builder = preload("res://scripts/first_map_builder.gd")
+	var cache: String = Builder._cache_root()
+	_check("cache-files-written", FileAccess.file_exists(cache + "/fingerprint.txt") and FileAccess.file_exists(cache + "/world.scn") and FileAccess.file_exists(cache + "/data.var"))
+	var fingerprint: String = Builder._fingerprint()
+	var stored: String = FileAccess.open(cache + "/fingerprint.txt", FileAccess.READ).get_as_text().strip_edges()
+	_check("cache-fingerprint-matches-sources", stored == fingerprint)
+	FileAccess.open(cache + "/fingerprint.txt", FileAccess.WRITE).store_string("tampered")
+	_check("cache-misses-on-fingerprint-change", Builder._load_cache(fingerprint).is_empty())
+	var rebuilt: Dictionary = Builder.build()
+	_check("cache-rebuild-restores-world", rebuilt["sites"].size() == layout["buildings"].size() and rebuilt["definition"]["id"] == layout["id"])
+	_check("cache-restored-on-disk", FileAccess.open(cache + "/fingerprint.txt", FileAccess.READ).get_as_text().strip_edges() == fingerprint)
+	var hit: Dictionary = Builder.build()
+	_check("cache-hit-returns-equivalent-world", not hit.is_empty() and hit["root"].get_child_count() == rebuilt["root"].get_child_count() and hit["sites"].size() == layout["buildings"].size())
 
 
 func _bridge_input(bridge: Dictionary) -> void:

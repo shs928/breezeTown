@@ -3,6 +3,7 @@ extends RefCounted
 ## 本类不持有 Node，也不根据视觉网格推导规则。
 
 const GRID := 2.0
+const INDEX_CELL := 16.0
 
 var map_id := "breeze_valley"
 var revision := 1
@@ -21,6 +22,13 @@ var docks: Array = []
 var ramps: Array = []
 var obstacles: Array = []
 var navigation_revision := 0
+# PERF-03：导航失效改为事件驱动。occupy/release/add_pasture 记录 (x, z, radius)，
+# WorldNavigation 只刷新受影响格子；全量重建仅在网格区域变化或显式标记时发生。
+var navigation_events: Array[Vector3] = []
+var navigation_full_dirty := false
+var _obstacle_index := {}  # Vector2i -> Array[int]（obstacles 下标）
+var _resource_index := {}  # Vector2i -> Array[int]（resource_blocks 键）
+var _index_ready := false
 
 
 func load_from_world(world: Dictionary) -> void:
@@ -46,17 +54,88 @@ func load_from_world(world: Dictionary) -> void:
 	blocked_circles = blocked.get("circles", []).duplicate(true)
 	blocked_paths = blocked.get("paths", []).duplicate(true)
 	resource_blocks.clear()
+	_index_ready = false
+	navigation_full_dirty = true
+	navigation_events.clear()
 	navigation_revision += 1
 
 
 func occupy_resource(id: int, at: Vector2, radius: float) -> void:
 	resource_blocks[id] = {"position": at, "radius": radius}
+	_index_resource(id, at, radius)
+	navigation_events.append(Vector3(at.x, at.y, radius))
 	navigation_revision += 1
 
 
 func release_resource(id: int) -> void:
-	if resource_blocks.erase(id):
-		navigation_revision += 1
+	var entry: Dictionary = resource_blocks.get(id, {})
+	if entry.is_empty():
+		return
+	_deindex_resource(id, entry)
+	resource_blocks.erase(id)
+	navigation_events.append(Vector3(entry["position"].x, entry["position"].y, entry["radius"]))
+	navigation_revision += 1
+
+
+## ---- PERF-03：障碍/资源空间哈希，is_walkable 只查邻域格 ----
+
+func _index_key(at: Vector2) -> Vector2i:
+	return Vector2i(floori(at.x / INDEX_CELL), floori(at.y / INDEX_CELL))
+
+
+func _index_cells_covering_circle(at: Vector2, radius: float) -> Array[Vector2i]:
+	var lo := _index_key(at - Vector2.ONE * radius)
+	var hi := _index_key(at + Vector2.ONE * radius)
+	var cells: Array[Vector2i] = []
+	for x in range(lo.x, hi.x + 1):
+		for y in range(lo.y, hi.y + 1):
+			cells.append(Vector2i(x, y))
+	return cells
+
+
+func _index_resource(id: int, at: Vector2, radius: float) -> void:
+	for key in _index_cells_covering_circle(at, radius):
+		var bucket: Array = _resource_index.get(key, [])
+		if not _resource_index.has(key):
+			_resource_index[key] = bucket
+		bucket.append(id)
+
+
+func _deindex_resource(id: int, entry: Dictionary) -> void:
+	var at: Vector2 = entry["position"]
+	var radius: float = entry["radius"]
+	for key in _index_cells_covering_circle(at, radius):
+		var bucket: Array = _resource_index.get(key, [])
+		bucket.erase(id)
+
+
+func _index_obstacle(index: int, obstacle: Dictionary) -> void:
+	var pos: Vector3 = obstacle["position"]
+	var reach: Vector2
+	if obstacle["shape"] == "box":
+		var size: Vector3 = obstacle["size"]
+		reach = Vector2(size.x, size.z) * 0.5
+	else:
+		reach = Vector2.ONE * float(obstacle["radius"])
+	var center := Vector2(pos.x, pos.z)
+	for key in _index_cells_covering_circle(center, maxf(reach.x, reach.y)):
+		var bucket: Array = _obstacle_index.get(key, [])
+		if not _obstacle_index.has(key):
+			_obstacle_index[key] = bucket
+		bucket.append(index)
+
+
+func _ensure_index() -> void:
+	if _index_ready:
+		return
+	_obstacle_index.clear()
+	_resource_index.clear()
+	for index in range(obstacles.size()):
+		_index_obstacle(index, obstacles[index])
+	for id in resource_blocks:
+		var entry: Dictionary = resource_blocks[id]
+		_index_resource(id, entry["position"], entry["radius"])
+	_index_ready = true
 
 
 func key_of(world: Vector3) -> Vector2i:
@@ -98,19 +177,27 @@ func is_walkable(at: Vector2, radius: float = 0.35) -> bool:
 		return false
 	if not on_deck(at, radius) and is_water(at, radius):
 		return false
-	for obstacle: Dictionary in obstacles:
-		var pos: Vector3 = obstacle["position"]
-		var center := Vector2(pos.x, pos.z)
-		if obstacle["shape"] == "box":
-			var size: Vector3 = obstacle["size"]
-			var half := Vector2(size.x, size.z) * 0.5
-			if at.distance_to(at.clamp(center - half, center + half)) <= radius:
-				return false
-		elif at.distance_to(center) < float(obstacle["radius"]) + radius:
-			return false
-	for entry: Dictionary in resource_blocks.values():
-		if at.distance_to(entry["position"]) < float(entry["radius"]) + radius:
-			return false
+	_ensure_index()
+	var lo := _index_key(at - Vector2.ONE * radius)
+	var hi := _index_key(at + Vector2.ONE * radius)
+	for ix in range(lo.x, hi.x + 1):
+		for iy in range(lo.y, hi.y + 1):
+			var key := Vector2i(ix, iy)
+			for index: int in _obstacle_index.get(key, []):
+				var obstacle: Dictionary = obstacles[index]
+				var pos: Vector3 = obstacle["position"]
+				var center := Vector2(pos.x, pos.z)
+				if obstacle["shape"] == "box":
+					var size: Vector3 = obstacle["size"]
+					var half := Vector2(size.x, size.z) * 0.5
+					if at.distance_to(at.clamp(center - half, center + half)) <= radius:
+						return false
+				elif at.distance_to(center) < float(obstacle["radius"]) + radius:
+					return false
+			for id: int in _resource_index.get(key, []):
+				var entry: Dictionary = resource_blocks.get(id, {})
+				if not entry.is_empty() and at.distance_to(entry["position"]) < float(entry["radius"]) + radius:
+					return false
 	return true
 
 
@@ -181,7 +268,12 @@ func add_pasture(rect: Rect2) -> void:
 	for line in [[p, Vector2(p.x, e.y)], [p, Vector2(e.x, p.y)], [Vector2(e.x, p.y), e], [Vector2(p.x, e.y), Vector2(gate - 1.2, e.y)], [Vector2(gate + 1.2, e.y), e]]:
 		var a: Vector2 = line[0]
 		var b: Vector2 = line[1]
-		obstacles.append({"shape": "box", "position": Vector3((a.x + b.x) * 0.5, 0.45, (a.y + b.y) * 0.5), "size": Vector3(absf(a.x - b.x) + 0.35, 0.9, absf(a.y - b.y) + 0.35)})
+		var size := Vector3(absf(a.x - b.x) + 0.35, 0.9, absf(a.y - b.y) + 0.35)
+		obstacles.append({"shape": "box", "position": Vector3((a.x + b.x) * 0.5, 0.45, (a.y + b.y) * 0.5), "size": size})
+		if _index_ready:
+			_index_obstacle(obstacles.size() - 1, obstacles[obstacles.size() - 1])
+		var reach := maxf(size.x, size.z) * 0.5
+		navigation_events.append(Vector3((a.x + b.x) * 0.5, (a.y + b.y) * 0.5, reach))
 	navigation_revision += 1
 
 

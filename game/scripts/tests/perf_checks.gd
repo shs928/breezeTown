@@ -31,7 +31,7 @@ func _run() -> void:
 		var at: Vector2 = regions[key]
 		game.player.teleport(Vector3(at.x, 0, at.y))
 		if game.scenery != null:
-			game.scenery._refresh()
+			game.scenery._refresh(true)
 		for i in range(30):
 			await process_frame
 		var sample := await _sample(240)
@@ -41,7 +41,7 @@ func _run() -> void:
 	root.size = Vector2i(2560, 1600)
 	game.player.teleport(Vector3(-663, 0, 242))
 	if game.scenery != null:
-		game.scenery._refresh()
+		game.scenery._refresh(true)
 	for i in range(30):
 		await process_frame
 	var hires := await _sample(240)

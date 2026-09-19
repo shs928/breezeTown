@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SHOP_LAYOUT viewport=(1600, 1000) panel=[P: (540.0, 90.0), S: (520.0, 820.0)]
+SHOP_ACTION 卖出全部 rect=[P: (812.0, 814.0), S: (80.0, 36.0)]
+SHOP_ACTION 离开（Esc） rect=[P: (558.0, 858.0), S: (484.0, 36.0)]
+SHOP_LAYOUT viewport=(1280, 800) panel=[P: (380.0, 32.0), S: (520.0, 736.0)]
+SHOP_ACTION 卖出全部 rect=[P: (652.0, 672.0), S: (80.0, 36.0)]
+SHOP_ACTION 离开（Esc） rect=[P: (398.0, 716.0), S: (484.0, 36.0)]
+HUD_LAYOUT_RESULT PASS 60 checks

@@ -34,7 +34,7 @@ static func build(species: String = "oak", variant: int = 0, stage: int = 3) -> 
 		elif species == "pine":
 			_pine(wood, leaves, rng)
 		else:
-			_oak(wood, leaves, rng, species == "apple")
+			_oak(wood, leaves, rng, species == "apple", species == "blossom")
 		_meshes[key] = [wood.commit(), leaves.commit()]
 	var root := Node3D.new()
 	root.name = "LivingTree"
@@ -47,7 +47,7 @@ static func build(species: String = "oak", variant: int = 0, stage: int = 3) -> 
 	return root
 
 
-static func _oak(wood: SurfaceTool, leaves: SurfaceTool, rng: RandomNumberGenerator, fruit: bool) -> void:
+static func _oak(wood: SurfaceTool, leaves: SurfaceTool, rng: RandomNumberGenerator, fruit: bool, blossom: bool = false) -> void:
 	var lean := Vector3(rng.randf_range(-0.18, 0.18), 0, rng.randf_range(-0.13, 0.13))
 	var trunk := [Vector3.ZERO, Vector3(0.06, 0.5, -0.02), Vector3(-0.06, 1.4, 0.04) + lean * 0.4, Vector3(0.07, 2.3, -0.05) + lean, Vector3(-0.12, 3.35, 0.02) + lean]
 	_stem(wood, trunk, [0.32, 0.235, 0.18, 0.12, 0.045], Color("#73543b"), rng)
@@ -56,6 +56,12 @@ static func _oak(wood: SurfaceTool, leaves: SurfaceTool, rng: RandomNumberGenera
 		var tip := Vector3(cos(angle), 0, sin(angle)) * rng.randf_range(0.6, 0.88)
 		_stem(wood, [Vector3(0, 0.25, 0), tip * 0.52 + Vector3(0, 0.08, 0), tip + Vector3(0, 0.025, 0)], [0.13, 0.085, 0.015], Color("#806143"), rng)
 	# 每个分枝托起自己的叶簇；高度、长短和轮廓均有变化，留出透光的枝隙。
+	# 开花树整冠换成粉色系叶簇（樱花式），近景一眼可读（ART-02）。
+	var leaf_tints: Array = ["#3a7131", "#538c34", "#73a13e", "#92b54d"]
+	var crown_tint := Color("#809c52")
+	if blossom:
+		leaf_tints = ["#efaac6", "#f6c6d8", "#e89ab8", "#fbe0ea"]
+		crown_tint = Color("#f3bcd0")
 	for branch in range(9):
 		var angle := branch * 2.399 + rng.randf_range(-0.3, 0.3)
 		var tier := branch % 3
@@ -68,14 +74,20 @@ static func _oak(wood: SurfaceTool, leaves: SurfaceTool, rng: RandomNumberGenera
 			var side := Vector3(cos(angle + 1.15 + fork * 2.3), 0.35 + fork * 0.16, sin(angle + 1.15 + fork * 2.3)) * 0.57
 			var twig := tip + side
 			_stem(wood, [elbow.lerp(tip, 0.7), twig], [0.04, 0.009], Color("#917046"), rng)
-			var tint := Color(["#3a7131", "#538c34", "#73a13e", "#92b54d"][mini(tier + fork, 3)])
+			var tint := Color(leaf_tints[mini(tier + fork, 3)])
 			_leaf_bough(leaves, twig + Vector3(0, 0.10, 0), Vector3(rng.randf_range(0.64, 0.88), rng.randf_range(0.43, 0.66), rng.randf_range(0.62, 0.82)), tint, rng)
-	_leaf_bough(leaves, Vector3(-0.15, 4.14, 0.04) + lean, Vector3(0.82, 0.66, 0.78), Color("#809c52"), rng)
+	_leaf_bough(leaves, Vector3(-0.15, 4.14, 0.04) + lean, Vector3(0.82, 0.66, 0.78), crown_tint, rng)
 	if fruit:
 		for i in range(16):
 			var angle := i * 2.399
 			var at := Vector3(cos(angle) * rng.randf_range(1.28, 1.80), rng.randf_range(2.45, 3.7), sin(angle) * rng.randf_range(1.3, 1.8))
 			_clump(leaves, at, Vector3(0.12, 0.135, 0.12), Color("#c85d40" if i % 3 else "#d38a48"), rng, false, false)
+	elif blossom:
+		# 深粉花团缀在冠层外围边缘，制造"压满花"的层次。
+		for i in range(20):
+			var angle := i * 2.399
+			var at := Vector3(cos(angle) * rng.randf_range(1.35, 1.95), rng.randf_range(2.3, 3.85), sin(angle) * rng.randf_range(1.35, 1.95))
+			_clump(leaves, at, Vector3(0.19, 0.17, 0.19), Color("#e58cae" if i % 3 else "#f0bcd2"), rng, false, false)
 
 
 static func _pine(wood: SurfaceTool, leaves: SurfaceTool, rng: RandomNumberGenerator) -> void:

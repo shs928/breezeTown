@@ -20,6 +20,8 @@ var _orchard:=Rect2()
 var _chunks:Dictionary={}
 var _registry:Dictionary={}  # int 稳定 ID -> {position,chunk,species,hp}
 var _sector:=Vector2i(2147483647,2147483647)
+var _queue:Array[Vector2i]=[]  # PERF-02：待建区块队列（近处优先，每帧最多一个）
+var _needed_keys:Dictionary={}
 var _parts:Dictionary={}
 var _timer:=0.0
 var _focus_ring:MeshInstance3D
@@ -42,21 +44,39 @@ func configure(actor:Node3D,spatial:RefCounted,layout:Dictionary)->void:
 	_refresh()
 func _process(delta:float)->void:
 	if not is_visible_in_tree():return
+	# PERF-02：待建区块每帧最多建一个，把跨区传送的重建尖峰摊平。
+	if not _queue.is_empty():
+		var key:Vector2i=_queue.pop_front()
+		if _needed_keys.has(key) and not _chunks.has(key):_chunks[key]=_build_chunk(key)
 	_timer-=delta
 	if _timer>0 or not is_instance_valid(player):return
 	_timer=.4
 	_refresh()
-func _refresh()->void:
+func _refresh(force_all:bool=false)->void:
 	var sector:=Vector2i(floori(player.position.x/CHUNK),floori(player.position.z/CHUNK))
-	if sector==_sector:return
+	if sector==_sector and _queue.is_empty():return
 	_sector=sector
 	var needed:Dictionary={}
 	for z in range(-1,2):
 		for x in range(-1,2):needed[sector+Vector2i(x,z)]=true
 	for key:Vector2i in _chunks.keys():
 		if not needed.has(key):_free_chunk(key)
+	_needed_keys=needed
+	var missing:Array=[]
 	for key:Vector2i in needed:
-		if not _chunks.has(key):_chunks[key]=_build_chunk(key)
+		if not _chunks.has(key):missing.append(key)
+	missing.sort_custom(func(a:Vector2i,b:Vector2i)->bool:
+		var center:=Vector3((float(sector.x)+.5)*CHUNK,0,(float(sector.y)+.5)*CHUNK)
+		var da:Vector3=Vector3((a.x+.5)*CHUNK,0,(a.y+.5)*CHUNK)-center
+		var db:Vector3=Vector3((b.x+.5)*CHUNK,0,(b.y+.5)*CHUNK)-center
+		return da.length_squared()<db.length_squared())
+	_queue.clear()
+	# 无头测试与显式 force_all 保持同步整建；交互模式先建玩家所在块，其余排队。
+	if force_all or DisplayServer.get_name()=="headless":
+		for key:Vector2i in missing:_chunks[key]=_build_chunk(key)
+	elif not missing.is_empty():
+		_chunks[missing[0]]=_build_chunk(missing[0])
+		for index in range(1,missing.size()):_queue.append(missing[index])
 func _free_chunk(key:Vector2i)->void:
 	var chunk:Node3D=_chunks.get(key)
 	if chunk==null:return
@@ -124,8 +144,9 @@ func _register_tree(root:Node3D,collision:StaticBody3D,transforms:Dictionary,ids
 
 ## ---- 砍伐：注册表驱动，命中/破坏与 surface 资源同一套手感 ----
 
-func swing(tool:String,from:Vector3,facing:Vector3)->int:
+func swing(tool:String,from:Vector3,facing:Vector3,power:float=1.0)->int:
 	if tool!="axe":return 0
+	var dmg:=maxi(1,roundi(AXE_DAMAGE*power))
 	var best_id:=-1
 	var best:=REACH+0.01
 	for id:int in _registry:
@@ -136,8 +157,8 @@ func swing(tool:String,from:Vector3,facing:Vector3)->int:
 			best_id=id;best=length
 	if best_id<0:return 0
 	var entry:Dictionary=_registry[best_id]
-	entry["hp"]=int(entry.get("hp",TREE_HP))-AXE_DAMAGE
-	if entry["hp"]>0:return AXE_DAMAGE
+	entry["hp"]=int(entry.get("hp",TREE_HP))-dmg
+	if entry["hp"]>0:return dmg
 	var species:String=entry["species"]
 	var at:Vector3=Vector3(entry["position"].x,0,entry["position"].y)
 	removed[str(entry["stable"])]=true
@@ -148,7 +169,7 @@ func swing(tool:String,from:Vector3,facing:Vector3)->int:
 		_free_chunk(key)
 		_chunks[key]=_build_chunk(key)
 	tree_broken.emit(species,at)
-	return AXE_DAMAGE
+	return dmg
 
 func target_at(at:Vector3,tool:String)->Dictionary:
 	clear_focus()

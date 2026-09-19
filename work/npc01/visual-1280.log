@@ -1,0 +1,48 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.3.280 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 2060 SUPER
+
+WORLD_CACHE HIT 209 top nodes
+GAME_READY
+NPC four-npcs-spawned OK
+NPC model-built-pierre OK
+NPC no-collision-pierre OK
+NPC model-built-marnie OK
+NPC no-collision-marnie OK
+NPC model-built-clint OK
+NPC no-collision-clint OK
+NPC model-built-wang OK
+NPC no-collision-wang OK
+NPC roster-ids OK
+NPC shop-anchor-resolved OK
+NPC barn-anchor-resolved OK
+NPC npc-near-current-anchor OK
+NPC pierre-moves-to-square OK
+NPC pierre-returns-at-night OK
+NPC pierre-stands-beside-not-on-door OK
+NPC wang-at-lake-morning OK
+NPC wang-at-inn-evening OK
+NPC npcs-back-near-anchors OK
+NPC shop-opens-with-npc-nearby OK
+NPC focus-targets-npc OK
+NPC hint-names-npc OK
+NPC dialogue-opens OK
+NPC greet-line-shown OK
+NPC first-talk-friendship OK
+NPC hearts-shown OK
+NPC dialogue-closes OK
+NPC second-talk-chat-line OK
+NPC same-day-talk-no-gain OK
+NPC gift-list-offers-items OK
+NPC gift-charges-item OK
+NPC gift-loves-friendship OK
+NPC gift-reaction-line OK
+NPC second-gift-same-day-blocked OK
+NPC next-day-gift-allowed OK
+NPC save-keeps-friendship OK
+NPC save-keeps-gift-day OK
+NPC load-rebuilds-positions OK
+NPC load-restores-friendship OK
+NPC position-derived-not-saved OK
+NPC capture-saved OK
+NPC capture-gift-saved OK
+NPC_RESULT PASS 42 checks

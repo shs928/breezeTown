@@ -8,7 +8,91 @@ const Town:=preload("res://scripts/art/town_models.gd")
 const Ranch:=preload("res://scripts/ranch_models.gd")
 const Assets:=preload("res://scripts/art/authored_assets.gd")
 const StoneBridge := preload("res://scripts/art/stone_bridge.gd")
+
+## ---- PERF-02：世界缓存 ----
+## root 场景（地形/水系/建筑/装饰/静态合并）按指纹缓存；任何影响构建产物的
+## 源文件（脚本/蓝图/GLB/着色器）变化都会使指纹失效并触发重建。
+## 数据字典本身很便宜，与场景一起走 var_to_str 往返，保持读档路径一致。
+
+static func _cache_root()->String:
+	var override:=OS.get_environment("BREEZETOWN_CACHE_ROOT")
+	if not override.is_empty():return override.path_join("willow_creek_valley_v1")
+	return "user://cache/willow_creek_valley_v1"
+
+static func _scan_inputs(dir_path:String,exts:Array,out:Array)->void:
+	var dir:=DirAccess.open(dir_path)
+	if dir==null:return
+	dir.list_dir_begin()
+	var name:=dir.get_next()
+	while name!="":
+		var path:=dir_path+"/"+name
+		if dir.current_is_dir():
+			if not name.begins_with("."):_scan_inputs(path,exts,out)
+		else:
+			for ext:String in exts:
+				if name.ends_with(ext):out.append(path);break
+		name=dir.get_next()
+
+static func _fingerprint()->String:
+	var paths:=[]
+	_scan_inputs("res://scripts",[".gd",".gdshader"],paths)
+	_scan_inputs("res://resources/models",[".glb"],paths)
+	_scan_inputs("res://resources/maps",[".json"],paths)
+	paths.sort()
+	var lines:=PackedStringArray()
+	for path in paths:lines.append(path+":"+FileAccess.get_md5(path))
+	return "\n".join(lines).sha256_text().substr(0,32)
+
 static func build()->Dictionary:
+	var fingerprint:=_fingerprint()
+	var cached:=_load_cache(fingerprint)
+	if not cached.is_empty():
+		print("WORLD_CACHE HIT ",cached["root"].get_child_count()," top nodes")
+		return cached
+	print("WORLD_CACHE MISS")
+	var data:=_build_world()
+	_store_cache(fingerprint,data)
+	return data
+
+static func _load_cache(fingerprint:String)->Dictionary:
+	var cache:=_cache_root()
+	var mark:=FileAccess.open(cache+"/fingerprint.txt",FileAccess.READ)
+	if mark==null or mark.get_as_text().strip_edges()!=fingerprint:return {}
+	if not FileAccess.file_exists(cache+"/world.scn") or not FileAccess.file_exists(cache+"/data.var"):return {}
+	var scene:PackedScene=load(cache+"/world.scn")
+	if scene==null:return {}
+	var root:=scene.instantiate()
+	if root==null or not root is Node3D:
+		if root!=null:root.free()
+		return {}
+	var payload:Dictionary=str_to_var(FileAccess.open(cache+"/data.var",FileAccess.READ).get_as_text())
+	if payload==null or payload.is_empty() or not payload.has("sites"):
+		root.free()
+		return {}
+	payload["root"]=root
+	return payload
+
+static func _store_cache(fingerprint:String,data:Dictionary)->void:
+	var root:Node3D=data["root"]
+	_set_owners(root,root)  # pack() 只收录 owner 指向场景根的节点
+	var scene:=PackedScene.new()
+	if scene.pack(root)!=OK:return
+	var payload:={}
+	for key: String in data:
+		if key!="root":payload[key]=data[key]
+	var dir:=_cache_root()
+	DirAccess.make_dir_recursive_absolute(dir)
+	ResourceSaver.save(scene,dir+"/world.scn")
+	FileAccess.open(dir+"/data.var",FileAccess.WRITE).store_string(var_to_str(payload))
+	FileAccess.open(dir+"/fingerprint.txt",FileAccess.WRITE).store_string(fingerprint)
+	print("WORLD_CACHE STORED")
+
+static func _set_owners(node:Node,owner_root:Node)->void:
+	for child in node.get_children():
+		child.owner=owner_root
+		_set_owners(child,owner_root)
+
+static func _build_world()->Dictionary:
 	var definition:=D.create()
 	var root:=Node3D.new();root.name="WillowCreekValley"
 	var data:Dictionary={"root":root,"definition":definition,"obstacles":[],"sites":[],"roads":[],"lights":[],"resources":[],"blocked":{"rects":[],"circles":[],"paths":[],"polygons":[]},"reserved":definition["reserved"].duplicate(),"bounds":definition["bounds"],"landmarks":definition["landmarks"],"pasture":definition["pasture"]}
@@ -229,7 +313,8 @@ static func _build_farm_homestead(root:Node3D,data:Dictionary,definition:Diction
 		stone.position=Vector3(stone_spot.x,0.02,stone_spot.y)
 		root.add_child(stone)
 	# 背景树：庭院边缘的高大轮廓，避开森林分块遮罩以免重叠。
-	var grove:=[[Vector2(-36,-20),"pine",1.3],[Vector2(-29,-27),"oak",1.15],[Vector2(16,-18),"oak",1.0],[Vector2(25,-26),"pine",1.25],[Vector2(-58,4),"pine",1.35],[Vector2(-65,13),"oak",1.1],[Vector2(70,8),"pine",1.3],[Vector2(79,17),"oak",1.05],[Vector2(95,1),"pine",1.2],[Vector2(-50,55),"oak",1.2],[Vector2(34,53),"pine",1.15],[Vector2(-13,59),"oak",1.0],[Vector2(-88,40),"pine",1.2],[Vector2(88,42),"oak",1.1]]
+	# ART-02：农舍门前与井边补两株开花果树作近景点缀。
+	var grove:=[[Vector2(-12.5,7.0),"blossom",1.0],[Vector2(7,31),"blossom",1.05],[Vector2(-36,-20),"pine",1.3],[Vector2(-29,-27),"oak",1.15],[Vector2(16,-18),"oak",1.0],[Vector2(25,-26),"pine",1.25],[Vector2(-58,4),"pine",1.35],[Vector2(-65,13),"oak",1.1],[Vector2(70,8),"pine",1.3],[Vector2(79,17),"oak",1.05],[Vector2(95,1),"pine",1.2],[Vector2(-50,55),"oak",1.2],[Vector2(34,53),"pine",1.15],[Vector2(-13,59),"oak",1.0],[Vector2(-88,40),"pine",1.2],[Vector2(88,42),"oak",1.1]]
 	for index in range(grove.size()):
 		var entry:Array=grove[index]
 		var spot:Vector2=at+(entry[0] as Vector2)

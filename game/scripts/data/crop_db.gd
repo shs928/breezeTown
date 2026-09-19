@@ -22,3 +22,8 @@ static func label(kind: String) -> String:
 
 static func grow_days(kind: String) -> int:
 	return int(CROPS[kind]["grow_days"])
+
+
+static func allows_season(kind: String, season: String) -> bool:
+	## FARM-01：宜种季节裁决；数据里的 season 为单一季节字符串。
+	return CROPS[kind]["season"] == season

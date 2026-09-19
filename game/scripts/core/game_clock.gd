@@ -5,9 +5,11 @@ extends RefCounted
 const HOURS_PER_DAY := 20.0  # 每天 06:00 开始，26:00（次日 02:00）日切
 const DAY_START_HOUR := 6.0
 const SEASON_LENGTH := 28
+const SEASON_KEYS := ["spring", "summer", "autumn", "winter"]
 const SEASON_NAMES := ["春季", "夏季", "秋季", "冬季"]
 const WEEKDAY_NAMES := ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
 const WEATHERS := {"sunny": "晴", "cloudy": "多云", "rain": "雨", "storm": "暴风雨", "snow": "雪"}
+const WEATHER_CYCLE := ["sunny", "cloudy", "rain", "sunny", "sunny", "storm", "cloudy"]
 
 var day := 1
 var hours := 8.0  # 当日时刻，取值 [DAY_START_HOUR, DAY_START_HOUR + HOURS_PER_DAY)
@@ -16,10 +18,14 @@ var weather := "sunny"
 
 func advance(delta_hours: float) -> bool:
 	## 推进时间；返回 true 表示发生日切（调用方需完成日结算并发事件）。
+	if not is_finite(delta_hours) or delta_hours <= 0.0:
+		return false
 	hours += delta_hours
 	if hours >= DAY_START_HOUR + HOURS_PER_DAY:
-		hours -= HOURS_PER_DAY
-		day += 1
+		var crossed_days := floori((hours - DAY_START_HOUR) / HOURS_PER_DAY)
+		hours -= crossed_days * HOURS_PER_DAY
+		day += crossed_days
+		set_weather(weather_for_day(day))
 		return true
 	return false
 
@@ -27,6 +33,16 @@ func advance(delta_hours: float) -> bool:
 func sleep_to_next_day() -> void:
 	hours = DAY_START_HOUR
 	day += 1
+	set_weather(weather_for_day(day))
+
+
+static func weather_for_day(calendar_day: int) -> String:
+	var safe_day := maxi(1, calendar_day)
+	var kind: String = WEATHER_CYCLE[(safe_day - 1) % WEATHER_CYCLE.size()]
+	var season: int = ((safe_day - 1) / SEASON_LENGTH) % SEASON_KEYS.size()
+	if season == 3 and kind in ["rain", "storm"]:
+		return "snow"
+	return kind
 
 
 func season_index() -> int:
@@ -35,6 +51,11 @@ func season_index() -> int:
 
 func season() -> String:
 	return SEASON_NAMES[season_index()]
+
+
+func season_key() -> String:
+	## 数据层季节键（crop_db.gd 的 season 字段口径）；season() 是中文显示名。
+	return SEASON_KEYS[season_index()]
 
 
 func weekday() -> String:
@@ -46,7 +67,7 @@ func weather_label() -> String:
 
 
 func set_weather(kind: String) -> void:
-	if kind == weather:
+	if not WEATHERS.has(kind) or kind == weather:
 		return
 	weather = kind
 	EventBus.instance().weather_changed.emit(kind)
@@ -65,4 +86,5 @@ func to_dict() -> Dictionary:
 func from_dict(data: Dictionary) -> void:
 	day = int(data.get("day", 1))
 	hours = float(data.get("hours", DAY_START_HOUR + 2.0))
-	weather = data.get("weather", "sunny")
+	var saved_weather: String = str(data.get("weather", weather_for_day(day)))
+	weather = saved_weather if WEATHERS.has(saved_weather) else weather_for_day(day)

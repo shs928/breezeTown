@@ -6,6 +6,9 @@
 tools/engine/Godot-4.7.2-stable/
 work/engine-dl/
 
+# Local Python runtime for art tooling (embeddable + pip + pillow; see task-board)
+tools/python/
+
 # Export artifacts
 game/export/
 

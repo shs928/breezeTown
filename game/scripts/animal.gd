@@ -20,6 +20,7 @@ var _target := Vector2.ZERO
 var _idle := 0.0
 var _phase := 0.0
 var _clock := 0.0
+var _nav_wait := -1.0  # PERF-02：>0 时延迟首次寻路，避免开机时 7 只动物×全图寻路卡死启动。
 var _rng := RandomNumberGenerator.new()
 
 
@@ -46,6 +47,10 @@ var petted_today: bool:
 
 func _process(delta: float) -> void:
 	_clock += delta
+	if _nav_wait > 0.0:
+		_nav_wait -= delta
+		if _nav_wait <= 0.0:
+			_pick_target()
 	if _idle > 0.0:
 		_idle -= delta
 		_model.position.y = 0.0
@@ -77,7 +82,10 @@ func _process(delta: float) -> void:
 
 func set_navigation(service: RefCounted) -> void:
 	navigation = service
-	_pick_target()
+	# 启动时先直奔场内随机点（矩形内直线必然在场内，安全），
+	# 错峰延迟再做带寻路的目标挑选，把寻路成本摊出启动窗口。
+	_nav_wait = _rng.randf_range(0.6, 2.6)
+	_target = _random_spot()
 
 
 func _pick_target() -> void:

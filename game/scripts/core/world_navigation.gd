@@ -17,6 +17,7 @@ func configure(data: MapData) -> void:
 func _ensure_grid(from:Vector3 = Vector3.ZERO,to:Vector3 = Vector3.ZERO) -> void:
 	if map==null:return
 	var area:Rect2
+	var local_cell:=0.0
 	if map.bounds_half.x<=200:
 		area=Rect2(-map.bounds_half,map.bounds_half*2)
 	else:
@@ -26,25 +27,55 @@ func _ensure_grid(from:Vector3 = Vector3.ZERO,to:Vector3 = Vector3.ZERO) -> void
 		# Nearby animal routes share a stable local grid instead of rebuilding for
 		# each slightly different target. Keep long requests bounded as before.
 		if maxf(area.size.x,area.size.y)<120:
-			var anchor:Vector2=(a/64.0).floor()*64.0
+			# PERF-03：锚点量化到 160 米，动物在小牧场内游走不再频繁平移网格区域。
+			var anchor:Vector2=(a/160.0).floor()*160.0
 			var local_area:=Rect2(anchor-Vector2.ONE*48,Vector2.ONE*160)
 			if local_area.encloses(Rect2(a,Vector2.ZERO).expand(b).grow(8)):
 				area=local_area
+				# 2 米格让偶发的区域平移重建保持在半帧内；路径逐段经真实地图校验兜底。
+				local_cell=2.0
 		area=area.intersection(Rect2(-map.bounds_half,map.bounds_half*2))
 	var cell:=maxf(1.0,ceilf(maxf(area.size.x,area.size.y)/192.0))
+	if local_cell>0.0:
+		cell=local_cell
 	var first:=Vector2i((area.position/cell).floor())
 	var end:=Vector2i((area.end/cell).ceil())
 	var region:=Rect2i(first,end-first+Vector2i.ONE)
 	if _revision==map.navigation_revision and _grid.region==region and is_equal_approx(_cell,cell):return
-	_cell=cell
-	_grid.region=region
-	_grid.cell_size=Vector2.ONE*_cell
-	_grid.diagonal_mode=AStarGrid2D.DIAGONAL_MODE_NEVER
-	_grid.update()
-	for x in range(region.position.x,region.end.x):
-		for y in range(region.position.y,region.end.y):
-			_grid.set_point_solid(Vector2i(x,y),not map.is_walkable(Vector2(x,y)*_cell,RADIUS))
+	var same_grid:bool=_grid.region==region and is_equal_approx(_cell,cell)
+	if not same_grid or map.navigation_full_dirty:
+		# 网格区域/粒度变化或显式标记：全量重建。
+		_cell=cell
+		_grid.region=region
+		_grid.cell_size=Vector2.ONE*_cell
+		_grid.diagonal_mode=AStarGrid2D.DIAGONAL_MODE_NEVER
+		_grid.update()
+		for x in range(region.position.x,region.end.x):
+			for y in range(region.position.y,region.end.y):
+				_grid.set_point_solid(Vector2i(x,y),not map.is_walkable(Vector2(x,y)*_cell,RADIUS))
+		map.navigation_full_dirty=false
+		map.navigation_events.clear()
+		_revision=map.navigation_revision
+		return
+	# PERF-03：仅资源/围栏变化的常规失效——按事件位置增量刷新受影响格子。
+	for event: Vector3 in map.navigation_events:
+		_refresh_cells_around(Vector2(event.x, event.y), event.z)
+	map.navigation_events.clear()
 	_revision=map.navigation_revision
+
+
+func _refresh_cells_around(at: Vector2, radius: float) -> void:
+	var reach := radius + RADIUS + _cell
+	var lo := Vector2i(floori((at.x - reach) / _cell), floori((at.y - reach) / _cell))
+	var hi := Vector2i(floori((at.x + reach) / _cell), floori((at.y + reach) / _cell))
+	var x0 := maxi(lo.x, _grid.region.position.x)
+	var x1 := mini(hi.x + 1, _grid.region.end.x)
+	var y0 := maxi(lo.y, _grid.region.position.y)
+	var y1 := mini(hi.y + 1, _grid.region.end.y)
+	for x in range(x0, x1):
+		for y in range(y0, y1):
+			var key := Vector2i(x, y)
+			_grid.set_point_solid(key, not map.is_walkable(Vector2(key) * _cell, RADIUS))
 
 
 func nearest_open(at: Vector3, max_distance: float = 8.0) -> Vector3:

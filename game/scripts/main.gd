@@ -2,6 +2,12 @@ extends Node3D
 ## 微风山谷主控：地表经营、十层矿场、装备战斗、昼夜循环与地图切换。
 
 const GameState := preload("res://scripts/game_state.gd")
+const GameClock := preload("res://scripts/core/game_clock.gd")
+const AnimalDB := preload("res://scripts/data/animal_db.gd")
+const FishDB := preload("res://scripts/data/fish_db.gd")
+const FishingSession := preload("res://scripts/domain/fishing_session.gd")
+const ArtMesh := preload("res://scripts/art/art_mesh.gd")
+const WaterModels := preload("res://scripts/art/water_models.gd")
 const WorldBuilder := preload("res://scripts/world_builder.gd")
 const Tiles := preload("res://scripts/tiles.gd")
 const Pasture := preload("res://scripts/pasture.gd")
@@ -15,6 +21,15 @@ const MineFloor := preload("res://scripts/mine_floor.gd")
 const MineLayout := preload("res://scripts/mine_layout.gd")
 const Feedback := preload("res://scripts/combat_feedback.gd")
 const SurfaceResources := preload("res://scripts/surface_resources.gd")
+const ForageResources := preload("res://scripts/forage_resources.gd")
+const NpcDB := preload("res://scripts/data/npc_db.gd")
+const Npc := preload("res://scripts/npc.gd")
+const QuestDB := preload("res://scripts/data/quest_db.gd")
+const InteriorDB := preload("res://scripts/data/interior_db.gd")
+const InteriorRoom := preload("res://scripts/interior_room.gd")
+const RecipeDB := preload("res://scripts/data/recipe_db.gd")
+const MachineState := preload("res://scripts/domain/machine_state.gd")
+const WarehouseChests := preload("res://scripts/warehouse_chests.gd")
 const InteractionSystem := preload("res://scripts/core/interaction_system.gd")
 const SaveManager := preload("res://scripts/core/save_manager.gd")
 const WorldNavigation := preload("res://scripts/core/world_navigation.gd")
@@ -35,6 +50,7 @@ var player: CharacterBody3D
 var hud: CanvasLayer
 var tiles: Node3D
 var surface_resources: Node3D
+var forage: Node3D
 var pastures: Array = []
 var world_data: Dictionary = {}
 var navigation: RefCounted
@@ -42,11 +58,23 @@ var _fence_start: Variant = null
 var _fence_preview: MeshInstance3D
 var animals: Array = []
 var pickups: Array = []
+var npcs: Array = []  # NPC-01：村民（皮埃尔/玛尔妮/巴特/老王）
+var _dialogue_npc: Node3D  # 当前对话中的村民
+var _npc_rng := RandomNumberGenerator.new()
+var _quest_toast_done := {}  # QUEST-01：已提示"可交付"的委托，防重复 toast
 var trough: Node3D
 var landmarks: Dictionary = {}
 var tool_index := 0
 var selected_seed := "radish"
-var focus: Dictionary = {}  # tile / animal / pickup / trough / shop / cottage / fence
+var focus: Dictionary = {}  # tile / animal / pickup / trough / shop / cottage / fence / water
+var _fishing := FishingSession.new()
+var fishing_state: String:
+	get: return _fishing.phase
+var _pending_fish := ""
+var _bobber: Node3D
+var _splash: MeshInstance3D
+var _cast_origin := Vector3.ZERO
+var _cast_facing := Vector3.FORWARD
 
 var _camera: Camera3D
 var _sun: DirectionalLight3D
@@ -74,6 +102,15 @@ var _mine_map_timer := 0.0
 var _recovery_pending := false
 var _start_mine_depth := 0
 var _water_sector:=Vector2i(2147483647,2147483647)
+var _interior_root: Node3D
+var interior_id := ""  # INDOOR-01：""=室外；否则为 interior_db 房间 id
+var current_interior: Node3D
+var _interiors := {}
+var _indoor_return := Vector3.ZERO
+var _indoor_zoom := 3
+var _indoor_map_pos := Vector3.ZERO
+var _machines := {}  # INDOOR-02："房间id:机器kind" -> MachineState
+var chests: Node3D  # STORE-01：已放置宝箱（共享仓库存取点）
 
 # 昼夜关键帧：时刻 / 天空色 / 环境色 / 环境强度 / 阳光色 / 阳光强度
 const SKY_KEYS := [
@@ -88,6 +125,7 @@ const SKY_KEYS := [
 
 func _ready() -> void:
 	state = GameState.new()
+	_npc_rng.randomize()
 	_interaction = InteractionSystem.new()
 	_interaction.game = self
 	_outdoors = Node3D.new()
@@ -96,6 +134,13 @@ func _ready() -> void:
 	_mine_root = Node3D.new()
 	_mine_root.name = "MineFloors"
 	add_child(_mine_root)
+	_interior_root = Node3D.new()
+	_interior_root.name = "Interiors"
+	add_child(_interior_root)
+	for room_id: String in InteriorDB.ORDER:
+		for machine: Dictionary in InteriorDB.entry(room_id).get("machines", []):
+			var machine_state := MachineState.new()
+			_machines[room_id + ":" + String(machine["kind"])] = machine_state
 	world_data = WorldBuilder.build()
 	SaveManager.select_world(world_data["definition"]["id"])
 	landmarks = world_data["landmarks"]
@@ -105,11 +150,16 @@ func _ready() -> void:
 	tiles.name = "Farmland"
 	_outdoors.add_child(tiles)
 	tiles.map.load_from_world(world_data)
+	chests = WarehouseChests.new()
+	chests.name = "WarehouseChests"
+	chests.map = tiles.map
+	_outdoors.add_child(chests)
 	_add_water_obstacles()
 	navigation = WorldNavigation.new()
 	navigation.configure(tiles.map)
 	var enclosure := _create_pasture(world_data["pasture"])
 	trough = enclosure.trough
+	trough.set_filled(true)  # FARM-01：新游戏食槽预填，首夜即有产出
 	for index in range(ANIMAL_ROSTER.size()):
 		var animal: Node3D = Animal.new()
 		animal.name = "Animal_%d" % index
@@ -152,6 +202,10 @@ func _ready() -> void:
 	hud.panels_changed.connect(_sync_player_lock)
 	hud.map_toggled.connect(func(_open: bool): _sync_player_lock())
 	hud.travel_requested.connect(_on_travel_requested)
+	hud.warehouse_deposit_requested.connect(_on_warehouse_deposit)
+	hud.warehouse_withdraw_requested.connect(_on_warehouse_withdraw)
+	hud.warehouse_discard_requested.connect(_on_warehouse_discard)
+	hud.chest_pickup_requested.connect(pickup_chest)
 	hud.setup_navigation(world_data["navigation"])
 	hud.refresh()
 	hud.select_slot(0, selected_seed, state.seeds[selected_seed])
@@ -167,6 +221,15 @@ func _ready() -> void:
 	if "--smoke" in args:
 		surface_resources.rng.seed = 741829
 	surface_resources.populate()
+	forage = ForageResources.new()
+	forage.name = "ForageResources"
+	forage.tiles = tiles
+	forage.world = world_data
+	if "--smoke" in args:
+		forage.rng.seed = 741831
+	_outdoors.add_child(forage)
+	forage.populate(_forage_context())
+	_spawn_npcs()
 	for animal in animals:
 		animal.set_navigation(navigation)
 	_plant_initial_garden()
@@ -194,18 +257,19 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if is_instance_valid(player) and mine_depth==0 and world_data["bounds"]["half"].x>200:
+	if is_instance_valid(player) and mine_depth==0 and interior_id=="" and world_data["bounds"]["half"].x>200:
 		var sector:=Vector2i(floori(player.position.x/64),floori(player.position.z/64))
 		if sector!=_water_sector:
 			_water_sector=sector
 			_add_water_obstacles()
 	if not _smoke and _shot_path == "":
 		if not hud.modal_open() and not _transitioning:
-			var season_before: String = state.time.season()
-			var rolled: bool = state.advance_hour(delta * GameState.HOURS_PER_DAY / DAY_SECONDS)
-			if rolled:
-				_finish_natural_day(season_before)
+			var hours := delta * GameState.HOURS_PER_DAY / DAY_SECONDS
+			_advance_world_time(hours)
+			_tick_machines(hours)
+			_update_npc_schedules()
 		_update_targeting()
+		_tick_fishing(delta, Input.is_physical_key_pressed(KEY_E) or Input.is_physical_key_pressed(KEY_SPACE) or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT))
 		hud.update_clock()
 	if mine_depth > 0:
 		mine.paused = hud.modal_open() or _transitioning
@@ -213,7 +277,8 @@ func _process(delta: float) -> void:
 		if _mine_map_timer <= 0:
 			hud.set_navigation(mine.navigation())
 			_mine_map_timer = 0.25
-	hud.track_position(player.global_position)
+	# INDOOR-01：室内时地图标记钉在建筑门口，避免室内局部坐标画到山谷外。
+	hud.track_position(_indoor_map_pos if interior_id != "" else player.global_position)
 	_apply_daylight()
 
 
@@ -224,8 +289,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		if hud.modal_open() and event.keycode not in [KEY_M, KEY_ESCAPE, KEY_TAB]:
 			return
 		match event.keycode:
-			KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9:
-				_select_tool(event.keycode - KEY_1)
+			KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0:
+				_select_tool(9 if event.keycode == KEY_0 else event.keycode - KEY_1)
 			KEY_R:
 				var next := GameState.CROP_ORDER.find(selected_seed) + 1
 				selected_seed = GameState.CROP_ORDER[next % GameState.CROP_ORDER.size()]
@@ -251,6 +316,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_ESCAPE:
 				hud.dismiss_panels()
 				_cancel_fence()
+				_cancel_fishing("")
 	elif event is InputEventMouseButton and event.pressed and not hud.modal_open():
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
 			player.zoom_index = maxi(0, player.zoom_index - 1)
@@ -260,13 +326,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			var ray_from := _camera.project_ray_origin(event.position)
 			var ray_direction := _camera.project_ray_normal(event.position)
 			var point: Variant = Plane(Vector3.UP, 0.7).intersects_ray(ray_from, ray_direction)
-			if point != null and not player.acting:
+			if point != null and not player.acting and fishing_state == "idle":
 				player.face_point(point)
 			_use_tool()
 
 
 func _select_tool(index: int) -> void:
 	_cancel_fence()
+	_cancel_fishing("")
 	tool_index = clampi(index, 0, TOOLS.size() - 1)
 	player.set_tool(TOOLS[tool_index], selected_seed)
 	hud.select_slot(tool_index, selected_seed, state.seeds[selected_seed])
@@ -279,6 +346,135 @@ func _update_targeting() -> void:
 
 func _interact() -> void:
 	_interaction.interact()
+
+
+## 钓鱼规则由领域状态机推进；这里负责场景、输入与经济结算。
+
+func water_kind_nearby() -> String:
+	return _fishing_target().get("kind", "")
+
+
+func _fishing_target() -> Dictionary:
+	if mine_depth > 0 or interior_id != "":
+		return {}
+	var facing: Vector3 = player.facing()
+	for distance: float in [2.0, 2.6, 3.2, 3.8, 4.4]:
+		var probe: Vector3 = player.global_position + facing * distance
+		var at := Vector2(probe.x, probe.z)
+		if tiles.map.on_deck(at, 0.0):
+			continue
+		# Only the sampled water point is used for both fish selection and the float.
+		for kind: String in ["lake", "river"]:
+			for water: Dictionary in tiles.map.waters:
+				if water.get("kind", "") == kind and Geometry2D.is_point_in_polygon(at, water["polygon"]):
+					return {"kind": kind, "position": Vector3(at.x, WaterModels.WATER_Y + 0.04, at.y)}
+	return {}
+
+
+func _fishing_interrupted() -> bool:
+	return TOOLS[tool_index] != "rod" or mine_depth > 0 or hud.modal_open() or _transitioning or player.global_position.distance_to(_cast_origin) > 0.6 or player.facing().dot(_cast_facing) < 0.95
+
+
+func _tick_fishing(delta: float, reeling: bool = false) -> void:
+	if fishing_state == "idle":
+		return
+	if _fishing_interrupted():
+		_cancel_fishing("已收竿")
+		return
+	var previous: String = fishing_state
+	_fishing.tick(delta, reeling)
+	if fishing_state == "caught":
+		var kind := _pending_fish
+		var quality: String = state.fish_quality_for(_fishing.control_score())
+		_cancel_fishing("")
+		state.add_fish(kind, 1, quality)
+		var gained: int = state.gain_xp(4 * FishDB.difficulty(kind))
+		var fishing_gained: int = state.gain_fishing_xp(12 * FishDB.difficulty(kind))
+		var quality_label: String = {"normal": "", "silver": "（银）", "gold": "（金）"}[quality]
+		var message := "钓到 %s%s！" % [FishDB.label(kind), quality_label]
+		if fishing_gained > 0:
+			message += "  钓鱼 Lv.%d" % state.fishing_level
+		if gained > 0:
+			message += "  农场 Lv.%d" % state.level
+		hud.refresh()
+		hud.show_toast(message)
+		return
+	if fishing_state == "escaped":
+		_cancel_fishing("鱼儿溜走了")
+		return
+	if previous != "bite" and fishing_state == "bite":
+		hud.show_toast("咬钩了！")
+	if is_instance_valid(_bobber):
+		_bobber.position.y = WaterModels.WATER_Y + (0.01 if fishing_state == "bite" else 0.07) + sin(_fishing.elapsed * 8.0) * 0.025
+	if is_instance_valid(_splash):
+		_splash.scale = Vector3.ONE * (1.0 + sin(_fishing.elapsed * 6.0) * (0.3 if fishing_state in ["bite", "fight"] else 0.1))
+	hud.set_fishing_status(fishing_state, _fishing.tension, _fishing.progress, _fishing.remaining)
+
+
+func start_fishing() -> bool:
+	if TOOLS[tool_index] != "rod" or mine_depth > 0 or hud.modal_open() or _transitioning:
+		return false
+	if fishing_state != "idle":
+		return _reel_in()
+	var target := _fishing_target()
+	if target.is_empty():
+		hud.show_toast("这里没有可垂钓的淡水")
+		return false
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var context := {"season": state.time.season_key(), "weather": state.time.weather, "hour": state.time.hours}
+	var kind := FishDB.roll(target["kind"], rng, context)
+	if kind == "":
+		hud.show_toast("此时没有鱼群活动")
+		return false
+	if not spend_tool_energy("rod"):
+		return false
+	_pending_fish = kind
+	hud.refresh_health()
+	_cast_origin = player.global_position
+	_cast_facing = player.facing()
+	_fishing.start(FishDB.difficulty(kind), rng.randf_range(2.0, 5.0), FishDB.behavior(kind), state.fishing_level)
+	_spawn_bobber(target["position"])
+	hud.set_fishing_status(fishing_state, 0.0, 0.0, _fishing.remaining)
+	player.start_act()
+	return true
+
+
+func _reel_in() -> bool:
+	if fishing_state == "idle":
+		return false
+	if _fishing_interrupted():
+		_cancel_fishing("已收竿")
+		return false
+	var hooked := _fishing.reel()
+	hud.set_fishing_status(fishing_state, _fishing.tension, _fishing.progress, _fishing.remaining)
+	return hooked
+
+
+func _cancel_fishing(message: String) -> void:
+	_fishing.cancel()
+	_pending_fish = ""
+	if _bobber != null and is_instance_valid(_bobber):
+		_bobber.queue_free()
+	_bobber = null
+	if _splash != null and is_instance_valid(_splash):
+		_splash.queue_free()
+	_splash = null
+	hud.set_fishing_status("idle")
+	if message != "":
+		hud.show_toast(message)
+
+
+func _spawn_bobber(at: Vector3) -> void:
+	_bobber = Node3D.new()
+	_bobber.name = "FishingBobber"
+	_bobber.position = at
+	_outdoors.add_child(_bobber)
+	ArtMesh.ellipsoid(_bobber, Vector3(0, 0.055, 0), Vector3(0.13, 0.16, 0.13), "#e05a4e", "BobberTop", 12, 8)
+	ArtMesh.ellipsoid(_bobber, Vector3(0, -0.04, 0), Vector3(0.13, 0.07, 0.13), "#f2ede2", "BobberBase", 12, 8)
+	var line_start := _cast_origin + _cast_facing * 0.9 + Vector3.UP * 0.95 - at
+	ArtMesh.beam(_bobber, line_start, Vector3(0, 0.16, 0), 0.012, "#e8e4da", "FishingLine", -1, true)
+	_splash = ArtMesh.torus(_outdoors, Vector3(at.x, WaterModels.WATER_Y + 0.03, at.z), 0.32, 0.012, "#c0e8d8", "FishingRipple")
 
 
 func _create_pasture(rect: Rect2) -> Node3D:
@@ -357,6 +553,20 @@ func _do_sleep_and_greet() -> void:
 	hud.show_toast("第 %d 天的早晨" % state.day)
 
 
+func _advance_world_time(hours: float) -> void:
+	if not is_finite(hours) or hours <= 0.0:
+		return
+	# Settle each crossed morning so weather, crops and livestock share the same date.
+	var remaining := hours
+	while remaining > 0.0:
+		var to_morning: float = GameClock.DAY_START_HOUR + GameClock.HOURS_PER_DAY - state.time.hours
+		var step := minf(remaining, maxf(0.000001, to_morning))
+		var season_before: String = state.time.season()
+		if state.advance_hour(step):
+			_finish_natural_day(season_before)
+		remaining = maxf(0.0, remaining - step)
+
+
 func _finish_natural_day(season_before: String) -> void:
 	## 深夜 02:00 自然日切：结算但不触发睡眠恢复。
 	_pass_day(season_before, false)
@@ -364,12 +574,16 @@ func _finish_natural_day(season_before: String) -> void:
 
 func _pass_day(season_before: String, sleep_recovery: bool) -> void:
 	## 日切编排：广播 day_ended → 结算（生长/产出/资源）→ 季节/新一天事件。
+	_cancel_fishing("")
 	var bus := EventBus.instance()
 	bus.day_ended.emit(state.day)
 	if sleep_recovery:
 		state.sleep_to_next_day()
 	_apply_rollover()
 	if state.time.season() != season_before:
+		var withered: int = tiles.farm.wither_out_of_season(state.time.season_key())
+		if withered > 0:
+			hud.show_toast("换季了：%d 株不合季的作物枯萎了" % withered)
 		bus.season_changed.emit(state.time.season())
 	if sleep_recovery:
 		bus.player_slept.emit()
@@ -387,6 +601,13 @@ func _mine_state_payload() -> Dictionary:
 	for depth: int in _mine_floors:
 		floors[str(depth)] = _mine_floors[depth].to_dict()
 	return {"depth": mine_depth, "floors": floors}
+
+
+func _machines_payload() -> Dictionary:
+	var data := {}
+	for key: String in _machines:
+		data[key] = _machines[key].to_dict()
+	return data
 
 
 func _on_forest_tree_broken(species: String, at: Vector3) -> void:
@@ -419,8 +640,12 @@ func _save_payload() -> Dictionary:
 		"animals": animals_data,
 		"troughs": troughs,
 		"surface": surface_resources.to_dict(),
+		"forage": forage.to_dict() if forage != null else {"season": "spring", "nodes": []},
 		"forest": scenery.to_dict() if scenery != null else {"removed": []},
 		"mine": _mine_state_payload(),
+		"indoor": {"id": interior_id},
+		"interiors": _machines_payload(),
+		"chests": chests.to_dict(),
 	}
 
 
@@ -432,11 +657,15 @@ func _apply_load(saved: Dictionary) -> void:
 	if not restore.get("ok", false):
 		hud.show_toast(restore["error"])
 		return
+	_cancel_fishing("")
 	if mine_depth > 0:
 		_switch_map(0)
+	if interior_id != "":
+		_switch_outdoor()
 	state.time.from_dict(restore.get("clock", {}))
 	state.from_dict(restore.get("economy", {}))
 	tiles.farm.from_dict(restore.get("farm", {}))
+	_update_npc_schedules()
 	# 读档重建围栏和占地，避免重复读取时残留旧牧场及视图。
 	for enclosure in pastures:
 		_outdoors.remove_child(enclosure)
@@ -456,6 +685,8 @@ func _apply_load(saved: Dictionary) -> void:
 	if scenery != null and restore.has("forest"):
 		scenery.farm_tiles = tiles.farm
 		scenery.apply_state(restore["forest"])
+	if forage != null and restore.has("forage"):
+		forage.apply_state(restore["forage"], state.time.season_key())
 	_pending_mine_state = restore.get("mine", {})
 	for depth: int in _mine_floors:
 		if _pending_mine_state.get("floors", {}).has(str(depth)):
@@ -508,6 +739,23 @@ func _apply_load(saved: Dictionary) -> void:
 		_finish_transition()
 		if pos.size() == 2:
 			player.teleport(Vector3(float(pos[0]), 0.0, float(pos[1])))
+	# INDOOR-01：存档在室内时回到同一房间与原位置。
+	var indoor_id: String = str(restore.get("indoor", {}).get("id", ""))
+	if indoor_id != "" and InteriorDB.has(indoor_id):
+		_switch_indoor(indoor_id)
+		_finish_transition()
+		if pos.size() == 2:
+			player.teleport(Vector3(float(pos[0]), 0.0, float(pos[1])))
+	# INDOOR-02：加工机器进度按存档恢复（未知键/脏配方忽略）。
+	var saved_machines: Dictionary = restore.get("interiors", {})
+	if saved_machines is Dictionary:
+		for key: String in saved_machines:
+			if _machines.has(key) and saved_machines[key] is Dictionary:
+				_machines[key].from_dict(saved_machines[key])
+	# STORE-01：已放置宝箱按存档重建（含重新登记占地）。
+	var saved_chests: Dictionary = restore.get("chests", {})
+	if saved_chests is Dictionary and not saved_chests.is_empty():
+		chests.from_dict(saved_chests)
 	hud.refresh()
 	var notice := "已读取存档 · 第 %d 天 %s" % [state.day, state.time.season()]
 	if restore["relocated"] > 0:
@@ -520,23 +768,34 @@ func _apply_load(saved: Dictionary) -> void:
 func _apply_rollover() -> void:
 	tiles.rollover()
 	surface_resources.on_day_rollover(state.day)
+	if forage != null:
+		# GATHER-01：采集物日切补种；换季时先清理不合季物种并提示株数。
+		var forage_result: Dictionary = forage.on_day_rollover(state.day, state.time.season_key(), state.time.weather)
+		if int(forage_result.get("removed", 0)) > 0:
+			hud.show_toast("换季了：野外的 %d 处采集物凋零了" % int(forage_result["removed"]))
 	for animal in animals:
 		animal.on_new_day()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = state.day * 977 + 13
 	for enclosure in pastures:
 		if not enclosure.trough.filled:
+			# FARM-01：食槽空了——动物挨饿，好感下降且无产出。
+			for animal in enclosure.animals:
+				animal.data.on_starved()
 			continue
 		var pasture: Rect2 = enclosure.interior
 		for animal in enclosure.animals:
-			var pickup := Pickup.new()
-			pickup.setup(animal.product_kind())
-			pickup.position = Vector3(
-				rng.randf_range(pasture.position.x + 1.2, pasture.end.x - 1.2), 0,
-				rng.randf_range(pasture.position.y + 1.2, pasture.end.y - 2.2)
-			)
-			_outdoors.add_child(pickup)
-			pickups.append(pickup)
+			animal.data.on_fed()
+			var yield_count := 2 if animal.data.yields_double() else 1
+			for i in range(yield_count):
+				var pickup := Pickup.new()
+				pickup.setup(animal.product_kind())
+				pickup.position = Vector3(
+					rng.randf_range(pasture.position.x + 1.2, pasture.end.x - 1.2), 0,
+					rng.randf_range(pasture.position.y + 1.2, pasture.end.y - 2.2)
+				)
+				_outdoors.add_child(pickup)
+				pickups.append(pickup)
 		enclosure.trough.set_filled(false)
 	hud.refresh()
 
@@ -551,6 +810,186 @@ func _surface_actors() -> Array:
 	if mine_depth == 0:
 		result.append(player)
 	return result
+
+
+func _forage_context() -> Dictionary:
+	## GATHER-01：采集物生成上下文，与钓鱼鱼池共用季节/天气口径。
+	return {"season": state.time.season_key(), "weather": state.time.weather}
+
+
+## ---- NPC-01：村民生成、锚点、时间推进与对话/送礼 ----
+
+func _spawn_npcs() -> void:
+	for index in range(NpcDB.ORDER.size()):
+		var id: String = NpcDB.ORDER[index]
+		var npc := Npc.new()
+		npc.name = "Npc_" + id
+		npc.setup(id, _resolve_npc_anchors(id), 700 + index * 313)
+		npc.player = player
+		_outdoors.add_child(npc)
+		npcs.append(npc)
+		npc.update_hours(state.time.hours)
+	hud.dialogue_gift_requested.connect(_on_dialogue_gift)
+	hud.quest_accept_requested.connect(_on_quest_accept)
+	hud.quest_turnin_requested.connect(_on_quest_turnin)
+	EventBus.instance().item_added.connect(_on_item_added_for_quests)
+
+
+## NPC 日程锚点 → 世界坐标：landmarks 键优先，"site:建筑id" 取建筑门口。
+func _resolve_npc_anchors(id: String) -> Dictionary:
+	var result := {}
+	var keys: Array = []
+	for slot: Dictionary in NpcDB.entry(id)["schedule"]:
+		keys.append(slot["anchor"])
+	for key: String in keys:
+		if result.has(key):
+			continue
+		if landmarks.has(key):
+			result[key] = landmarks[key]
+			continue
+		var position := Vector3(landmarks["town_square"].x, 0, landmarks["town_square"].z)
+		if key.begins_with("site:"):
+			var site_id := key.trim_prefix("site:")
+			for site: Dictionary in world_data["sites"]:
+				if site["id"] == site_id:
+					var door: Vector2 = site["door"]
+					position = Vector3(door.x, 0, door.y)
+					break
+		result[key] = position
+	return result
+
+
+func _update_npc_schedules() -> void:
+	for npc in npcs:
+		if is_instance_valid(npc):
+			npc.update_hours(state.time.hours)
+
+
+func _open_dialogue(npc: Node3D) -> void:
+	## E 与村民交谈：初见问候/好感闲聊；QUEST-01 传话自动完成、可接/可交付时出委托按钮。
+	if hud.modal_open():
+		return
+	_dialogue_npc = npc
+	var id: String = npc.id
+	var first_met: bool = not state.npc_met(id)
+	state.npc_talk(id, state.day)
+	var text: String = NpcDB.entry(id)["greet"] if first_met else NpcDB.chat_line(id, int(state.npc_friendship[id]), _npc_rng)
+	# 传话委托：对话对象是目标 NPC 时自动完成，对方说答谢台词。
+	var visit_result: Dictionary = state.visit_quest_for(id, state.day)
+	if not visit_result.is_empty():
+		text = String(QuestDB.entry(visit_result["id"])["thanks"])
+		_finish_quest_toast(visit_result["id"], visit_result)
+	player.locked = true
+	hud.open_dialogue(npc.label(), npc.role(), state.npc_hearts(id), NpcDB.MAX_FRIENDSHIP / NpcDB.HEART_UNIT, text, _gift_entries(id), state.npc_gifted_today(id, state.day), _dialogue_quest_offer(id), _dialogue_quest_turnin(id))
+
+
+func _dialogue_quest_offer(npc_id: String) -> Dictionary:
+	## QUEST-01：该村民当前可接的第一个委托。
+	for offer_id in QuestDB.offers_for(npc_id, state.quests_completed):
+		if state.quest_available(offer_id):
+			return {"id": offer_id, "label": QuestDB.label(offer_id)}
+	return {}
+
+
+func _dialogue_quest_turnin(npc_id: String) -> Dictionary:
+	## QUEST-01：该村民名下进行中的收集委托（含进度与是否可交付）。
+	for quest_id in state.quests_accepted:
+		if not state.quest_active(quest_id):
+			continue
+		var quest: Dictionary = QuestDB.entry(quest_id)
+		if quest["giver"] != npc_id or quest["type"] != "collect":
+			continue
+		return {"id": quest_id, "label": QuestDB.label(quest_id), "progress": "%d/%d" % [state.quest_progress(quest_id), int(quest["count"])], "ready": state.quest_turnable(quest_id)}
+	return {}
+
+
+func _on_quest_accept(quest_id: String) -> void:
+	## 对话面板接受委托：校验 giver 一致后记录，展示任务说明。
+	if not hud.dialogue_open or not is_instance_valid(_dialogue_npc) or not QuestDB.QUESTS.has(quest_id):
+		return
+	var quest: Dictionary = QuestDB.entry(quest_id)
+	if quest["giver"] != _dialogue_npc.id or not state.accept_quest(quest_id, state.day):
+		return
+	_quest_toast_done.erase(quest_id)
+	hud.set_dialogue_text(String(quest["brief"]))
+	hud.set_dialogue_quest({}, _dialogue_quest_turnin(_dialogue_npc.id))
+	hud.show_toast("接受委托：%s" % quest["label"])
+	hud.refresh()
+
+
+func _on_quest_turnin(quest_id: String) -> void:
+	## 对话面板交付委托：扣货发奖，答谢台词与奖励 toast。
+	if not hud.dialogue_open or not is_instance_valid(_dialogue_npc) or not QuestDB.QUESTS.has(quest_id):
+		return
+	var quest: Dictionary = QuestDB.entry(quest_id)
+	if quest["giver"] != _dialogue_npc.id or not state.quest_turnable(quest_id):
+		return
+	var rewards: Dictionary = state.complete_quest(quest_id, state.day)
+	if rewards.is_empty():
+		return
+	_quest_toast_done.erase(quest_id)
+	hud.set_dialogue_text(String(quest["thanks"]))
+	hud.set_dialogue_quest(_dialogue_quest_offer(_dialogue_npc.id), {})
+	_finish_quest_toast(quest_id, rewards)
+	hud.refresh()
+
+
+func _finish_quest_toast(quest_id: String, rewards: Dictionary) -> void:
+	hud.show_toast("完成委托：%s · +%d 币 · 好感 +%d" % [QuestDB.label(quest_id), int(rewards["coins"]), int(rewards["friendship"])])
+	hud.update_quest_tracker()
+
+
+func _on_item_added_for_quests(_item: String, _count: int) -> void:
+	## QUEST-01：收集委托凑满时提示可交付（每委托只提示一次）。
+	if _smoke or not is_instance_valid(hud):
+		return
+	for quest_id in state.active_collect_quests():
+		if state.quest_turnable(quest_id) and not _quest_toast_done.has(quest_id):
+			_quest_toast_done[quest_id] = true
+			hud.show_toast("委托可交付：%s · 回去找 %s" % [QuestDB.label(quest_id), NpcDB.label(QuestDB.entry(quest_id)["giver"])])
+			hud.update_quest_tracker()
+
+
+func _gift_entries(id: String) -> Array:
+	## 对话面板的送礼列表（持有量 > 0 的六族物品）。
+	var result: Array = []
+	for item in state.giftable_items():
+		result.append({"id": item, "label": GameState.ItemDB.label(item), "count": _gift_item_count(item)})
+	return result
+
+
+func _gift_item_count(item: String) -> int:
+	if state.harvest.has(item):
+		return int(state.harvest[item])
+	if state.products.has(item):
+		return int(state.products[item])
+	if state.fish.has(item):
+		return int(state.fish[item])
+	if state.forage.has(item):
+		return int(state.forage[item])
+	if state.minerals.has(item):
+		return int(state.minerals[item])
+	if state.forestry.has(item):
+		return int(state.forestry[item])
+	return 0
+
+
+func _on_dialogue_gift(item: String) -> void:
+	## 对话面板送出礼物：扣一件、按喜好档加/减好感并展示反应台词。
+	if not hud.dialogue_open or not is_instance_valid(_dialogue_npc):
+		return
+	var id: String = _dialogue_npc.id
+	if state.npc_gifted_today(id, state.day):
+		hud.set_dialogue_text(NpcDB.entry(id)["gift_react"]["neutral"])
+		return
+	if not state.remove_gift_item(item):
+		return
+	var tier := NpcDB.gift_tier(id, item)
+	var delta: int = state.npc_gift(id, state.day, tier)
+	hud.set_dialogue_text("%s（%s）" % [NpcDB.gift_line(id, tier), GameState.ItemDB.label(item)])
+	hud.set_dialogue_hearts(state.npc_hearts(id), NpcDB.MAX_FRIENDSHIP / NpcDB.HEART_UNIT)
+	hud.show_toast("%s的好感 %s%d" % [NpcDB.label(id), "+" if delta >= 0 else "", delta])
+	hud.refresh()
 
 
 func _plant_sapling(at: Vector2) -> void:
@@ -582,16 +1021,113 @@ func _on_surface_loot(kind: String, amount: int) -> void:
 
 
 func _on_buy(kind: String, count: int) -> void:
-	if state.buy_seed(kind, count):
+	## FARM-01：购买路由——种子/饲料/口粮/动物/工具升级共用一个信号。
+	if kind.begins_with("animal:"):
+		var species: String = kind.trim_prefix("animal:")
+		if not _animal_capacity_ok(species):
+			var home: String = "鸡舍" if species == "chicken" else "谷仓"
+			hud.show_toast("%s 容量不足，先在商店扩容建筑" % home)
+			return
+		if state.buy_animal(species):
+			_spawn_animal(species)
+			hud.show_toast("新伙伴入驻牧场：\"%s\"" % AnimalDB.label(species))
+		else:
+			hud.show_toast("金币不足")
+	elif kind == "feed":
+		if state.buy_feed(count):
+			hud.show_toast("买入 饲料 ×%d（对食槽按 E 填充）" % count)
+		else:
+			hud.show_toast("金币不足")
+	elif kind == "ration":
+		if state.buy_ration(count):
+			hud.show_toast("买入 口粮 ×%d" % count)
+		else:
+			hud.show_toast("金币不足")
+	elif kind.begins_with("upgrade:"):
+		var tool_name: String = kind.trim_prefix("upgrade:")
+		if state.buy_tool_upgrade(tool_name):
+			hud.show_toast("%s 升到 %d 级：消耗体力更少" % [Equipment.TOOL_LABELS.get(tool_name, tool_name), state.tool_level(tool_name)])
+		else:
+			hud.show_toast("金币或矿物不足（升级还需铜/铁）")
+	elif kind.begins_with("building:"):
+		var building_kind: String = kind.trim_prefix("building:")
+		var building_name: String = "谷仓" if building_kind == "barn" else "鸡舍"
+		if state.buy_building_upgrade(building_kind):
+			hud.show_toast("%s 扩容到 %d 级" % [building_name, state.building_levels[building_kind]])
+		else:
+			hud.show_toast("金币或材料不足（扩容还需木材与石料）")
+	elif state.buy_seed(kind, count):
 		hud.show_toast("买入 %s 种子 ×%d" % [GameState.crop_label(kind), count])
 	else:
 		hud.show_toast("金币不足")
 	hud.refresh()
 
 
+func spend_tool_energy(tool: String) -> bool:
+	## FARM-01：工具动作的体力闸门；体力不足时拒绝并提示。
+	var cost: float = state.tool_energy_cost(tool)
+	if not state.spend_energy(cost):
+		hud.show_toast("太累了，吃口粮（Q）或睡觉休息后再来")
+		return false
+	return true
+
+
+func can_plant_now(kind: String) -> bool:
+	## 宜种季节裁决（FARM-01）：不合季的种子不许播种。
+	var season_key: String = state.time.season_key()
+	if GameState.CropDB.allows_season(kind, season_key):
+		return true
+	var index: int = GameClock.SEASON_KEYS.find(GameState.crop_field(kind, "season"))
+	hud.show_toast("%s 适合在%s种植，现在是%s" % [
+		GameState.crop_label(kind), GameClock.SEASON_NAMES[clampi(index, 0, 3)], state.season_label()])
+	return false
+
+
+func fill_trough(trough_node: Node3D) -> bool:
+	## 食槽填充（FARM-01）：消耗 1 份饲料填满一夜；满槽时提示。
+	if trough_node.filled:
+		hud.show_toast("食槽是满的，动物们明早会有产出")
+		return false
+	if state.feed <= 0:
+		hud.show_toast("没有饲料了，去商店买一些")
+		return false
+	state.feed -= 1
+	trough_node.set_filled(true)
+	player.start_act()
+	hud.show_toast("食槽已填好，动物们明早会有产出")
+	hud.refresh()
+	return true
+
+
+func _animal_capacity_ok(kind: String) -> bool:
+	## FARM-01 二轮：谷仓住牛羊（4×等级），鸡舍住鸡（6×等级）。
+	var large := 0
+	var chickens := 0
+	for animal in animals:
+		if animal.data.kind == "chicken":
+			chickens += 1
+		else:
+			large += 1
+	return chickens < state.building_capacity("coop") if kind == "chicken" else large < state.building_capacity("barn")
+
+
+func _spawn_animal(kind: String) -> void:
+	## 商店购入动物：进初始牧场，走与初始动物同一套存档/导航管线。
+	var enclosure: Node3D = pastures[0]
+	var animal: Node3D = Animal.new()
+	animal.name = "Animal_%d" % animals.size()
+	animal.setup(kind, enclosure.interior, randi())
+	animal.data.home_index = 0
+	_outdoors.add_child(animal)
+	animal.position = enclosure.random_point()
+	animals.append(animal)
+	enclosure.animals.append(animal)
+	animal.set_navigation(navigation)
+
+
 func _on_sell() -> void:
 	var earned: int = state.sell_all_harvest()
-	hud.show_toast("卖出收获与产品，+ %d 金币" % earned)
+	hud.show_toast("卖出收获、产品与鱼获，+ %d 金币" % earned)
 	hud.refresh()
 
 
@@ -716,6 +1252,7 @@ func _add_water_obstacles() -> void:
 func _sync_player_lock() -> void:
 	player.locked = hud.modal_open() or _transitioning
 	if player.locked:
+		_cancel_fishing("")
 		player.cancel_action()
 	if is_instance_valid(mine):
 		mine.paused = player.locked
@@ -766,17 +1303,26 @@ func _use_tool() -> void:
 	elif TOOLS[tool_index] == "sapling":
 		_update_targeting()
 		_interact()
+	elif TOOLS[tool_index] == "rod":
+		# 空格 / 左键与 E 等价：idle 抛竿，等待中尝试拉杆。
+		if fishing_state == "idle":
+			start_fishing()
+		else:
+			_reel_in()
 
 
 func _on_tool_hit(tool: String) -> void:
 	if _transitioning or hud.modal_open():
 		return
+	if tool in ["pickaxe", "axe", "sword"] and not spend_tool_energy(tool):
+		return
+	var power: float = state.tool_power(tool)
 	if mine_depth > 0:
-		mine.swing(tool, player.global_position, player.facing())
+		mine.swing(tool, player.global_position, player.facing(), power)
 	else:
-		var dealt: int = surface_resources.swing(tool, player.global_position, player.facing())
+		var dealt: int = surface_resources.swing(tool, player.global_position, player.facing(), power)
 		if dealt <= 0 and scenery != null:
-			scenery.swing(tool, player.global_position, player.facing())
+			scenery.swing(tool, player.global_position, player.facing(), power)
 
 
 func _eat_ration() -> void:
@@ -815,6 +1361,272 @@ func _on_travel_requested(depth: int) -> void:
 	_travel_to(depth)
 
 
+## ---- INDOOR-01：门点 → 场景切换 → 室内（PRD 第 26 节）。房间状态第一轮为空，不进存档。 ----
+
+func _site_door(id: String) -> Vector3:
+	for site: Dictionary in world_data["sites"]:
+		if site["id"] == id:
+			return Vector3(site["door"].x, 0, site["door"].y)
+	return landmarks["spawn"]
+
+
+func _enter_building(id: String) -> void:
+	if _transitioning or interior_id != "" or mine_depth > 0 or not InteriorDB.has(id):
+		return
+	_transitioning = true
+	hud.dismiss_panels()
+	_cancel_fence()
+	_cancel_fishing("")
+	_sync_player_lock()
+	if _smoke or _shot_path != "":
+		_switch_indoor(id)
+		_finish_transition()
+	else:
+		hud.fade_transition(func(): _switch_indoor(id), _finish_transition)
+
+
+func _exit_building() -> void:
+	if _transitioning or interior_id == "":
+		return
+	_transitioning = true
+	hud.dismiss_panels()
+	_sync_player_lock()
+	if _smoke or _shot_path != "":
+		_switch_outdoor()
+		_finish_transition()
+	else:
+		hud.fade_transition(_switch_outdoor, _finish_transition)
+
+
+func _switch_indoor(id: String) -> void:
+	_indoor_return = _site_door(id) + Vector3(0, 0, 1.2)
+	_indoor_map_pos = _site_door(id)
+	if not _interiors.has(id):
+		var room: Node3D = InteriorRoom.new()
+		room.name = "Interior_" + id
+		room.setup(id)
+		room.hint_provider = Callable(self, "_machine_hint")
+		# 房间放在远离地表的展示坐标，避免与室外物理/寻路/水面判定重叠。
+		room.position = Vector3(-5000.0 + InteriorDB.ORDER.find(id) * 90.0, 0.0, 9000.0)
+		_interior_root.add_child(room)
+		_interiors[id] = room
+	current_interior = _interiors[id]
+	current_interior.show()
+	_outdoors.visible = false
+	interior_id = id
+	_indoor_zoom = player.zoom_index
+	var half: Vector2 = current_interior.half_extents()
+	player.set_bounds(half * 0.92, 24, Vector2(current_interior.position.x, current_interior.position.z))
+	player.set_underground(false)
+	player.surface_map = null
+	player.zoom_index = 1
+	player.teleport(current_interior.to_global(current_interior.spawn_position()))
+	_station_staff()
+	focus = {}
+	hud.show_toast("进入 %s · Esc 或走门口可离开" % current_interior.label)
+	_apply_daylight()
+
+
+func _switch_outdoor() -> void:
+	if is_instance_valid(current_interior):
+		current_interior.hide()
+	current_interior = null
+	interior_id = ""
+	_outdoors.visible = true
+	_unstation_staff()
+	player.set_bounds(world_data["bounds"]["half"], world_data["bounds"]["pow"], Vector2.ZERO)
+	player.surface_map = tiles.map
+	player.zoom_index = _indoor_zoom
+	player.teleport(_indoor_return)
+	focus = {}
+	_apply_daylight()
+
+
+func _station_staff() -> void:
+	## INDOOR-02：日程锚点指向本建筑的村民进屋值守（皮埃尔守柜台、巴特守铁匠铺）。
+	## NPC 平时挂在 _outdoors 下，进屋需临时改挂 _interior_root 才不被隐藏。
+	if current_interior == null or not current_interior.has_npc_spot():
+		return
+	for npc in npcs:
+		if not is_instance_valid(npc):
+			continue
+		var anchor: String = String(NpcDB.schedule_at(npc.id, state.time.hours)["anchor"])
+		if anchor != "site:" + interior_id:
+			continue
+		var station: Vector3 = current_interior.npc_station_global()
+		if npc.get_parent() != _interior_root:
+			npc.get_parent().remove_child(npc)
+			_interior_root.add_child(npc)
+		npc.set_indoor_station(station)
+
+
+func _unstation_staff() -> void:
+	for npc in npcs:
+		if not is_instance_valid(npc):
+			continue
+		if npc.is_stationed():
+			if npc.get_parent() != _outdoors:
+				npc.get_parent().remove_child(npc)
+				_outdoors.add_child(npc)
+			npc.clear_indoor_station(state.time.hours)
+
+
+func _interior_service(kind: String) -> void:
+	match kind:
+		"bed":
+			_sleep()
+		"counter_shop":
+			player.locked = true
+			hud.open_shop()
+		"counter_meal":
+			if state.buy_meal():
+				hud.refresh()
+				hud.show_toast("一顿热餐下肚 · 体力回满 · 生命 +%d（-%d 币）" % [InteriorDB.MEAL_HEALTH, InteriorDB.MEAL_PRICE])
+			else:
+				hud.show_toast("金币不够了 · 套餐 %d 币" % InteriorDB.MEAL_PRICE)
+		"clinic_bed":
+			if state.health >= GameState.MAX_HEALTH:
+				hud.show_toast("你很健康，不需要治疗")
+			elif state.buy_treatment():
+				hud.refresh()
+				hud.show_toast("治疗完成 · 生命回满（-%d 币）" % InteriorDB.TREATMENT_PRICE)
+			else:
+				hud.show_toast("金币不够了 · 治疗 %d 币" % InteriorDB.TREATMENT_PRICE)
+
+
+## ---- INDOOR-02：加工机器（PRD 第 14 节）。投入→随世界时间加工→收取。 ----
+
+func _tick_machines(hours: float) -> void:
+	if hours <= 0.0:
+		return
+	for key: String in _machines:
+		var machine: MachineState = _machines[key]
+		var previous: String = machine.state()
+		machine.tick(hours)
+		if machine.just_finished(previous):
+			hud.show_toast("%s的%s加工完成了 · 回去收取" % [_machine_room_label(key), String(machine.recipe().get("label", "产物"))])
+	if current_interior != null:
+		current_interior.refresh_machines(_machines)
+
+
+func _machine_room_label(key: String) -> String:
+	var room_id: String = key.split(":")[0]
+	return String(InteriorDB.entry(room_id).get("label", room_id))
+
+
+func _machine_hint(room_id: String, kind: String) -> String:
+	var machine: MachineState = _machines.get(room_id + ":" + kind)
+	if machine == null:
+		return ""
+	match machine.state():
+		"FINISHED":
+			return "按 E 收取 %s" % String(machine.recipe().get("label", "产出"))
+		"PROCESSING":
+			return "%s 加工中 · 剩余约 %d 游戏时" % [String(machine.recipe().get("label", "")), ceili(machine.hours_remaining)]
+		_:
+			return "按 E 放入原料 · %s" % RecipeDB.requirements_text(kind)
+
+
+func _interior_machine(kind: String) -> void:
+	var key := interior_id + ":" + kind
+	var machine: MachineState = _machines.get(key)
+	if machine == null:
+		return
+	match machine.state():
+		"FINISHED":
+			var recipe: Dictionary = machine.recipe()
+			var outputs: Dictionary = machine.collect()
+			for item: String in outputs:
+				_grant_machine_output(item, int(outputs[item]))
+			hud.refresh()
+			hud.show_toast("收取 %s ×%d" % [String(recipe.get("label", "产物")), int(outputs.values()[0])])
+		"PROCESSING":
+			hud.show_toast("%s 还在加工 · 剩余约 %d 游戏时" % [String(machine.recipe().get("label", "")), ceili(machine.hours_remaining)])
+		_:
+			var recipe: Dictionary = machine.can_start(RecipeDB.recipes_for_station(kind), state.count_item)
+			if recipe.is_empty():
+				hud.show_toast("需要原料：%s" % RecipeDB.requirements_text(kind))
+			else:
+				for item: String in recipe["inputs"]:
+					state.remove_items(item, int(recipe["inputs"][item]))
+				machine.start(recipe)
+				hud.show_toast("开始加工 %s · 约 %d 游戏时后完成" % [String(recipe["label"]), int(float(recipe["time"]))])
+			hud.refresh()
+	if is_instance_valid(current_interior):
+		current_interior.refresh_machines(_machines)
+
+
+func _grant_machine_output(item: String, count: int) -> void:
+	if item == "chest":
+		# STORE-01：宝箱进入待放置计数，走空地放置流程。
+		state.chests_ready += count
+		EventBus.instance().item_added.emit(item, count)
+	elif item == "fertilizer":
+		state.fertilizer += count
+		EventBus.instance().item_added.emit(item, count)
+	elif item == "warehouse_expansion":
+		# STORE-02：仓库扩容为一次性消耗制作。
+		state.warehouse_capacity += 300
+		hud.show_toast("仓库扩容完成 · 容量上限 +300")
+	elif item in state.minerals:
+		state.add_mineral(item, count)
+	elif item in state.products:
+		state.add_product(item, count)
+	else:
+		push_warning("机器产出未知物品：" + item)
+
+
+## ---- STORE-01：宝箱放置与共享仓库 ----
+
+func place_chest(key: Vector2i) -> void:
+	if state.chests_ready <= 0 or mine_depth > 0 or interior_id != "":
+		return
+	chests.place(tiles.center_of(key))
+	state.chests_ready -= 1
+	player.start_act()
+	hud.refresh()
+	hud.show_toast("宝箱放置完成 · 按 E 打开农场共享仓库")
+
+
+func open_warehouse() -> void:
+	player.locked = true
+	hud.open_chest()
+
+
+func pickup_chest() -> void:
+	if chests.remove_nearest(player.global_position):
+		state.chests_ready += 1
+		hud.close_chest()
+		hud.refresh()
+		hud.show_toast("宝箱已收起 · 仓库内容不受影响 · 可重新放置")
+
+
+func _on_warehouse_deposit(item: String) -> void:
+	if state.warehouse_total() + state.count_item(item) > state.warehouse_capacity:
+		hud.show_toast("仓库放不下了 · 工作台可制作仓库扩容")
+		return
+	var moved: int = state.warehouse_deposit(item)
+	if moved > 0:
+		hud.refresh()
+		hud.refresh_chest()
+		hud.show_toast("%s ×%d 已入仓" % [GameState.ItemDB.label(item), moved])
+
+
+func _on_warehouse_discard(item: String) -> void:
+	var dropped: int = state.warehouse_discard(item)
+	if dropped > 0:
+		hud.refresh_chest()
+		hud.show_toast("已丢弃 %s ×%d" % [GameState.ItemDB.label(item), dropped])
+
+
+func _on_warehouse_withdraw(item: String) -> void:
+	var moved: int = state.warehouse_withdraw(item)
+	if moved > 0:
+		hud.refresh()
+		hud.refresh_chest()
+		hud.show_toast("%s ×%d 已取回背包" % [GameState.ItemDB.label(item), moved])
+
+
 func _travel_to(depth: int, arrival: String = "entry") -> void:
 	if _transitioning or depth < 0 or depth > MineLayout.FLOOR_COUNT or depth == mine_depth:
 		return
@@ -830,6 +1642,7 @@ func _travel_to(depth: int, arrival: String = "entry") -> void:
 
 
 func _switch_map(depth: int, arrival: String = "entry") -> void:
+	_cancel_fishing("")
 	if mine_depth == 0 and depth > 0:
 		_surface_tool = tool_index
 		_surface_zoom = player.zoom_index
@@ -971,11 +1784,25 @@ func _run_smoke() -> void:
 	await _frames(2)
 	_update_targeting()
 	_interact()
+	_check("shop-indoor-enter", interior_id == "shop" and current_interior != null)
+	player.global_position = current_interior.service_world_position("counter_shop") + Vector3(0, 0, 1.4)
+	await _frames(2)
+	_update_targeting()
+	_interact()
 	_check("shop-open", hud.shop_open)
+	# 施肥收获会按品质随机折价（银 ×1.5 / 金 ×2），期望值按实际品质计算避免 flake。
+	var radish_bonus := 0
+	if int(state.harvest_quality["gold"]["radish"]) > 0:
+		radish_bonus = 8
+	elif int(state.harvest_quality["silver"]["radish"]) > 0:
+		radish_bonus = 4
 	_on_sell()
-	_check("sell", state.coins == 28)
+	_check("sell", state.coins == 28 + radish_bonus)
 	hud.close_shop()
 	_check("shop-close", not hud.shop_open and not player.locked)
+	_exit_building()
+	await _frames(2)
+	_check("shop-indoor-exit", interior_id == "" and _outdoors.visible)
 	player.global_position = trough.global_position + Vector3(0, 0, 0.6)
 	await _frames(2)
 	_update_targeting()
@@ -1003,7 +1830,7 @@ func _run_smoke() -> void:
 		_interact()
 	_check("collect", state.products["milk"] == 1)
 	_on_sell()
-	_check("sell-ranch", state.coins == 42)
+	_check("sell-ranch", state.coins == 42 + radish_bonus)
 	hud.toggle_map()
 	_check("map-opens-locks-player", hud.map_open and player.locked)
 	hud.dismiss_panels()
@@ -1029,6 +1856,8 @@ func _run_shot() -> void:
 	var mine_overview := false
 	var combat_view := false
 	var equipment_view := false
+	var indoor_shot := ""
+	var place_chest_shot := false
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--at="):
 			var pair := argument.trim_prefix("--at=").split(",")
@@ -1036,6 +1865,10 @@ func _run_shot() -> void:
 				player.global_position = Vector3(pair[0].to_float(), 0, pair[1].to_float())
 		elif argument == "--clean":
 			hud.hide()
+		elif argument == "--place-chest":
+			place_chest_shot = true
+		elif argument.begins_with("--indoor="):
+			indoor_shot = argument.trim_prefix("--indoor=")
 		elif argument == "--view=overview":
 			overview = true
 		elif argument == "--view=map":
@@ -1057,6 +1890,11 @@ func _run_shot() -> void:
 					player.zoom_index = i
 		elif argument.begins_with("--hour="):
 			state.clock = argument.trim_prefix("--hour=").to_float()
+	if indoor_shot != "" and InteriorDB.has(indoor_shot):
+		_switch_indoor(indoor_shot)
+	if place_chest_shot:
+		state.chests_ready = 1
+		place_chest(tiles.key_of(player.global_position + Vector3(0, 0, 1.8)))
 	_update_targeting()
 	hud.refresh()
 	if mine_depth > 0 and (combat_view or equipment_view):
@@ -1103,7 +1941,11 @@ func _run_shot() -> void:
 	await RenderingServer.frame_post_draw
 	var picture := get_viewport().get_texture().get_image()
 	var result := picture.save_png(_shot_path)
-	print("SHOT_OK " + _shot_path + " " + error_string(result) + " " + str(picture.get_size()))
+	var stationed: Array[String] = []
+	for npc in npcs:
+		if is_instance_valid(npc) and npc.is_stationed():
+			stationed.append("%s@%s" % [npc.id, npc.global_position])
+	print("SHOT_OK " + _shot_path + " " + error_string(result) + " " + str(picture.get_size()) + " player_at=" + str(player.global_position) + " indoor=" + interior_id + " stationed=" + ",".join(stationed))
 	var active_batches: int = mine.get_node("CavernShell").get_meta("static_batches", 0) if mine_depth > 0 else world_data["root"].get_meta("static_batches", 0)
 	print("RENDER_INFO static_batches=%d draws=%d objects=%d primitives=%d sampled_fps=%.1f" % [active_batches, Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME), Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME), Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME), sample_fps])
 	get_tree().quit(0 if result == OK else 1)

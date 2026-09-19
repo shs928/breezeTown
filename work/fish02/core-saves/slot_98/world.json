@@ -1,0 +1,150 @@
+{
+  "animals": [
+    {
+      "friendship": 30,
+      "home_index": 1,
+      "kind": "sheep",
+      "petted_today": true
+    }
+  ],
+  "clock": {
+    "day": 5,
+    "hours": 12.5,
+    "season": "春季",
+    "weather": "sunny"
+  },
+  "economy": {
+    "building_levels": {
+      "barn": 1,
+      "coop": 1
+    },
+    "coins": 123,
+    "deepest_mine_floor": 4,
+    "energy": 100,
+    "feed": 4,
+    "fertilizer": 2,
+    "fish": {
+      "carp": 0,
+      "catfish": 0,
+      "koi": 0,
+      "perch": 0,
+      "rainbow_trout": 0,
+      "sardine": 0
+    },
+    "fish_quality": {
+      "gold": {
+        "carp": 0,
+        "catfish": 0,
+        "koi": 0,
+        "perch": 0,
+        "rainbow_trout": 0,
+        "sardine": 0
+      },
+      "silver": {
+        "carp": 0,
+        "catfish": 0,
+        "koi": 0,
+        "perch": 0,
+        "rainbow_trout": 0,
+        "sardine": 0
+      }
+    },
+    "fishing_level": 1,
+    "fishing_xp": 0,
+    "forestry": {
+      "sapling": 0,
+      "wood": 11
+    },
+    "harvest": {
+      "pumpkin": 0,
+      "radish": 0,
+      "strawberry": 0,
+      "wheat": 0
+    },
+    "harvest_quality": {
+      "gold": {
+        "pumpkin": 0,
+        "radish": 0,
+        "strawberry": 0,
+        "wheat": 0
+      },
+      "silver": {
+        "pumpkin": 0,
+        "radish": 0,
+        "strawberry": 0,
+        "wheat": 0
+      }
+    },
+    "health": 100,
+    "level": 1,
+    "mine_completed": false,
+    "minerals": {
+      "coal": 0,
+      "copper": 0,
+      "crystal": 0,
+      "iron": 7,
+      "slime": 0,
+      "stone": 0
+    },
+    "products": {
+      "egg": 0,
+      "milk": 0,
+      "wool": 0
+    },
+    "rations": 3,
+    "seeds": {
+      "pumpkin": 0,
+      "radish": 6,
+      "strawberry": 0,
+      "wheat": 0
+    },
+    "tool_levels": {
+      "axe": 1,
+      "can": 1,
+      "hoe": 1,
+      "pickaxe": 1
+    },
+    "xp": 0
+  },
+  "farm": {
+    "tiles": [
+      {
+        "crop": "",
+        "fertilized": false,
+        "key": [
+          1,
+          1
+        ],
+        "last_crop": "",
+        "stage": 0,
+        "state": "tilled",
+        "watered": false
+      },
+      {
+        "crop": "strawberry",
+        "fertilized": false,
+        "key": [
+          2,
+          2
+        ],
+        "last_crop": "",
+        "stage": 1,
+        "state": "planted",
+        "watered": false
+      }
+    ]
+  },
+  "pastures": {
+    "map_id": "breeze_valley",
+    "pastures": [
+      [
+        4.0,
+        4.0,
+        10.0,
+        8.0
+      ]
+    ],
+    "revision": 1
+  },
+  "version": 1
+}

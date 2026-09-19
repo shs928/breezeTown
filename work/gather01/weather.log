@@ -1,0 +1,34 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+WEATHER first-day-is-sunny OK
+WEATHER first-week-day-1 OK
+WEATHER first-week-day-2 OK
+WEATHER first-week-day-3 OK
+WEATHER first-week-day-4 OK
+WEATHER first-week-day-5 OK
+WEATHER first-week-day-6 OK
+WEATHER first-week-day-7 OK
+WEATHER calendar-produces-all-five-weathers OK
+WEATHER scheduled-weather-is-valid-and-repeatable OK
+WEATHER winter-replaces-rain-and-storm OK
+WEATHER natural-and-sleep-rollovers-advance-calendar OK
+WEATHER natural-and-sleep-rollovers-use-same-weather OK
+WEATHER weather-does-not-change-within-day OK
+WEATHER invalid-deltas-do-not-advance-time OK
+WEATHER manual-weather-persists-during-day OK
+WEATHER next-day-replaces-manual-weather OK
+WEATHER load-preserves-stored-weather-and-time OK
+WEATHER loaded-weather-persists-during-day OK
+WEATHER weather-survives-save-roundtrip OK
+WEATHER day-after-load-uses-calendar-weather OK
+WEATHER old-save-without-weather-uses-calendar OK
+WEATHER invalid-saved-weather-uses-calendar OK
+WEATHER unchanged-or-invalid-weather-emits-nothing OK
+WEATHER manual-change-emits-exactly-once OK
+WEATHER restore-does-not-reemit-weather-change OK
+WEATHER natural-change-emits-exactly-once OK
+WEATHER sleep-change-emits-exactly-once OK
+WEATHER same-weather-day-rollover-emits-nothing OK
+WEATHER multi-day-jump-uses-final-calendar-weather OK
+WEATHER multi-day-jump-emits-one-final-change OK
+WEATHER_RESULT PASS 31 checks

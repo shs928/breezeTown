@@ -166,7 +166,7 @@ func target_at(at: Vector3, tool: String) -> Dictionary:
 	return {"kind": "surface_resource", "node": closest, "hint": hint}
 
 
-func swing(tool: String, from: Vector3, facing: Vector3) -> int:
+func swing(tool: String, from: Vector3, facing: Vector3, power: float = 1.0) -> int:
 	if paused or tool not in ["axe", "pickaxe"]:
 		return 0
 	var closest: Node3D
@@ -179,7 +179,7 @@ func swing(tool: String, from: Vector3, facing: Vector3) -> int:
 			closest = resource
 			best = delta.length()
 	if closest != null:
-		return closest.hit(tool, 18, from)
+		return closest.hit(tool, maxi(1, roundi(18 * power)), from)
 	return 0
 
 

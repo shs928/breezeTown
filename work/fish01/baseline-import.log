@@ -1,0 +1,99 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+[   0% ] first_scan_filesystem | Started 项目初始化 (5 steps)
+[   0% ] first_scan_filesystem | 正在扫描文件结构……
+[  16% ] first_scan_filesystem | 正在加载全局类名……
+[  33% ] first_scan_filesystem | 正在校验 GDExtension……
+[  50% ] first_scan_filesystem | 正在创建自动加载脚本……
+[  66% ] first_scan_filesystem | 正在初始化插件……
+[  83% ] first_scan_filesystem | 正在启动文件扫描……
+[ DONE ] first_scan_filesystem
+
+[   0% ] update_scripts_classes | Started 正在注册全局类…… (22 steps)
+[   0% ] update_scripts_classes | 
+[   4% ] update_scripts_classes | 
+[   8% ] update_scripts_classes | 
+[  13% ] update_scripts_classes | 
+[  17% ] update_scripts_classes | 
+[  21% ] update_scripts_classes | 
+[  26% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  34% ] update_scripts_classes | 
+[  39% ] update_scripts_classes | 
+[  43% ] update_scripts_classes | 
+[  47% ] update_scripts_classes | 
+[  52% ] update_scripts_classes | 
+[  56% ] update_scripts_classes | 
+[  60% ] update_scripts_classes | 
+[  65% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  73% ] update_scripts_classes | 
+[  78% ] update_scripts_classes | 
+[  82% ] update_scripts_classes | 
+[  86% ] update_scripts_classes | 
+[  91% ] update_scripts_classes | 
+[ DONE ] update_scripts_classes
+
+[   0% ] _update_scan_actions | Started 正在扫描动作…… (18 steps)
+[   0% ] _update_scan_actions | axe.png
+[   5% ] _update_scan_actions | can.png
+[  10% ] _update_scan_actions | coin.png
+[  15% ] _update_scan_actions | fence.png
+[  21% ] _update_scan_actions | hand.png
+[  26% ] _update_scan_actions | hoe.png
+[  31% ] _update_scan_actions | money.png
+[  36% ] _update_scan_actions | paper.png
+[  42% ] _update_scan_actions | pickaxe.png
+[  47% ] _update_scan_actions | portrait.png
+[  52% ] _update_scan_actions | ration.png
+[  57% ] _update_scan_actions | rod.png
+[  63% ] _update_scan_actions | sapling.png
+[  68% ] _update_scan_actions | seed.png
+[  73% ] _update_scan_actions | slot.png
+[  78% ] _update_scan_actions | status.png
+[  84% ] _update_scan_actions | sword.png
+[  89% ] _update_scan_actions | wood.png
+[ DONE ] _update_scan_actions
+
+[   0% ] reimport | Started 正在导入或重新导入资产 (7 steps)
+[   0% ] reimport | 正在准备重新导入文件……
+[  12% ] reimport | 正在准备重新导入文件……
+[  25% ] reimport | 正在准备重新导入文件……
+[  37% ] reimport | 正在准备重新导入文件……
+[  50% ] reimport | 正在准备重新导入文件……
+[  62% ] reimport | 正在准备重新导入文件……
+[  75% ] reimport | 正在准备重新导入文件……
+[   0% ] reimport | 正在执行重新导入的前置操作……
+[   0% ] reimport | fence.png
+[  12% ] reimport | hand.png
+[  25% ] reimport | pickaxe.png
+[  37% ] reimport | ration.png
+[  50% ] reimport | rod.png
+[  62% ] reimport | sapling.png
+[  75% ] reimport | sword.png
+[  87% ] reimport | 正在结束资产导入……
+[ DONE ] reimport
+
+[   0% ] reimport | Started 正在导入或重新导入资产 (7 steps)
+[   0% ] reimport | 正在执行重新导入的后置操作……
+[ DONE ] reimport
+
+[   0% ] loading_editor_layout | Started 正在加载编辑器 (5 steps)
+[   0% ] loading_editor_layout | 正在加载编辑器布局……
+[  16% ] loading_editor_layout | 正在加载停靠面板……
+[ DONE ] loading_editor_layout
+
+SCRIPT ERROR: Parse Error: Cannot infer the type of "probe" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://scripts/main.gd:299)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "at" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://scripts/main.gd:301)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "facing" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://scripts/main.gd:308)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "probe" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://scripts/main.gd:392)
+SCRIPT ERROR: Parse Error: Identifier "M" not declared in the current scope.
+   at: GDScript::reload (res://scripts/main.gd:397)
+SCRIPT ERROR: Parse Error: Identifier "M" not declared in the current scope.
+   at: GDScript::reload (res://scripts/main.gd:398)
+ERROR: Failed to load script "res://scripts/main.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)

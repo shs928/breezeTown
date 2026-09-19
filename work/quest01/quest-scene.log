@@ -1,0 +1,37 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+WORLD_CACHE MISS
+WORLD_CACHE STORED
+GAME_READY
+QUEST focus-npc-pierre OK
+QUEST offer-button-shown OK
+QUEST offer-is-first-quest OK
+QUEST dialogue-locks-player OK
+QUEST accept-records OK
+QUEST brief-shown OK
+QUEST turnin-shown-not-ready OK
+QUEST turnin-progress-text OK
+QUEST tracker-visible-after-accept OK
+QUEST turnable-after-collect OK
+QUEST tracker-shows-progress OK
+QUEST collect-toast-shown OK
+QUEST focus-npc-pierre OK
+QUEST turnin-ready-on-reopen OK
+QUEST turnin-pays OK
+QUEST turnin-consumes OK
+QUEST thanks-shown OK
+QUEST completed-recorded OK
+QUEST chain-unlocked-in-dialogue OK
+QUEST tracker-hidden-after-chain-end OK
+QUEST cross-giver-turnin-rejected OK
+QUEST focus-npc-wang OK
+QUEST wang-offers-message OK
+QUEST visit-accepted OK
+QUEST focus-npc-marnie OK
+QUEST visit-auto-completes OK
+QUEST visit-thanks-from-target OK
+QUEST visit-pays-wang-friendship OK
+QUEST payload-has-quests OK
+QUEST load-restores-active OK
+QUEST load-restores-completed OK
+QUEST_RESULT PASS 31 checks

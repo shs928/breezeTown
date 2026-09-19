@@ -2,7 +2,7 @@ extends RefCounted
 ## A self-contained, exportable, unskinned 3D farmer. Metres; Y up; +Z forward.
 ## All decoration is geometry. No external textures, plugins or imported assets.
 
-const BODY_HEIGHT := 0.655
+const BODY_HEIGHT := 0.59  # 腿枢轴 Y 缩至 0.90 后脚底正好落地；Q 版头身比同步抬高头顶。
 const JOINT_PATHS := [
 	"Body/HeadPivot", "Body/Arm_L", "Body/Arm_R",
 	"Body/Arm_L/Elbow_L", "Body/Arm_R/Elbow_R",
@@ -127,6 +127,7 @@ static func _make_torso(body: Node3D, p: Dictionary) -> void:
 static func _make_leg(body: Node3D, side: int, p: Dictionary) -> void:
 	var suffix: String = "L" if side < 0 else "R"
 	var leg := _pivot(body, "Leg_" + suffix, Vector3(side * 0.126, 0, 0))
+	leg.scale = Vector3(1.0, 0.90, 1.0)  # 短腿+大头是参考图的 Q 版比例。
 	_loft(leg, "TrouserThigh", [
 		Vector4(0.093, -0.237, 0.111, 0), Vector4(0.109, -0.198, 0.119, 0),
 		Vector4(0.119, -0.098, 0.130, 0), Vector4(0.118, 0.023, 0.125, 0),
@@ -201,6 +202,7 @@ static func _make_arm(body: Node3D, side: int, p: Dictionary) -> void:
 
 static func _make_head(body: Node3D, alternate: bool, p: Dictionary) -> void:
 	var head := _pivot(body, "HeadPivot", Vector3(0, 0.522, 0))
+	head.scale = Vector3.ONE * 1.2  # 头（含发与草帽）整体放大，头身比向参考图靠拢。
 	var face := _pivot(head, "Face", Vector3(0, 0.167, 0))
 	_loft(face, "SculptedHead", HEAD_PROFILE, p.skin, 48, 4)
 	for side: int in [-1, 1]:

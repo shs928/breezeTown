@@ -1,0 +1,24 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+FISHING_CATCH difficulty=1 seconds=5.50
+FISHING_CATCH difficulty=2 seconds=7.58
+FISHING_CATCH difficulty=3 seconds=9.78
+FISHING_BEHAVIOR behavior=steady difficulty=1 level=1 seconds=5.50 score=1.000
+FISHING_BEHAVIOR behavior=steady difficulty=1 level=10 seconds=4.25 score=1.000
+FISHING_BEHAVIOR behavior=steady difficulty=2 level=1 seconds=7.58 score=1.000
+FISHING_BEHAVIOR behavior=steady difficulty=2 level=10 seconds=5.35 score=1.000
+FISHING_BEHAVIOR behavior=steady difficulty=3 level=1 seconds=9.78 score=1.000
+FISHING_BEHAVIOR behavior=steady difficulty=3 level=10 seconds=7.40 score=1.000
+FISHING_BEHAVIOR behavior=dart difficulty=1 level=1 seconds=5.58 score=1.000
+FISHING_BEHAVIOR behavior=dart difficulty=1 level=10 seconds=4.30 score=1.000
+FISHING_BEHAVIOR behavior=dart difficulty=2 level=1 seconds=7.48 score=1.000
+FISHING_BEHAVIOR behavior=dart difficulty=2 level=10 seconds=5.35 score=1.000
+FISHING_BEHAVIOR behavior=dart difficulty=3 level=1 seconds=10.63 score=1.000
+FISHING_BEHAVIOR behavior=dart difficulty=3 level=10 seconds=7.43 score=1.000
+FISHING_BEHAVIOR behavior=surge difficulty=1 level=1 seconds=5.53 score=1.000
+FISHING_BEHAVIOR behavior=surge difficulty=1 level=10 seconds=4.25 score=1.000
+FISHING_BEHAVIOR behavior=surge difficulty=2 level=1 seconds=7.55 score=1.000
+FISHING_BEHAVIOR behavior=surge difficulty=2 level=10 seconds=5.38 score=1.000
+FISHING_BEHAVIOR behavior=surge difficulty=3 level=1 seconds=10.63 score=1.000
+FISHING_BEHAVIOR behavior=surge difficulty=3 level=10 seconds=7.40 score=1.000
+FISHING_DOMAIN_RESULT PASS 275 checks

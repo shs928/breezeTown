@@ -4,8 +4,9 @@ extends RefCounted
 const M = preload("res://scripts/art/art_mesh.gd")
 const StaticGeometry = preload("res://scripts/art/static_geometry.gd")
 const Forestry = preload("res://scripts/art/forestry_models.gd")
-const TOOLS := ["hand", "hoe", "can", "seed", "fence", "pickaxe", "sword", "axe", "sapling"]
-const LABELS := ["空手", "锄头", "水壶", "种子", "围栏", "镐子", "短剑", "斧头", "树苗"]
+const TOOLS := ["hand", "hoe", "can", "seed", "fence", "pickaxe", "sword", "axe", "sapling", "rod"]
+const LABELS := ["空手", "锄头", "水壶", "种子", "围栏", "镐子", "短剑", "斧头", "树苗", "鱼竿"]
+const TOOL_LABELS := {"hand": "空手", "hoe": "锄头", "can": "水壶", "seed": "种子", "fence": "围栏", "pickaxe": "镐子", "sword": "短剑", "axe": "斧头", "sapling": "树苗", "rod": "鱼竿"}
 const SEED_COLORS := {"radish": "#ce797e", "strawberry": "#c7555a", "wheat": "#ddb655", "pumpkin": "#da8b47"}
 
 
@@ -58,6 +59,17 @@ static func build(kind: String, seed_kind: String = "radish") -> Node3D:
 			M.box(root, Vector3(x, 0, 0.17), Vector3(0.10, 0.57, 0.10), "#c89e62", "FenceStake", 0.018)
 		for y in [-0.10, 0.10]:
 			M.box(root, Vector3(0, y, 0.11), Vector3(0.48, 0.075, 0.065), "#a37b48", "FenceRail", 0.013)
+	elif kind == "rod":
+		# 钓鱼竿（LIFE-01）：竹节长杆 + 缠线轮 + 导线环，竿尖前倾。
+		M.beam(root, Vector3(0, -0.10, -0.30), Vector3(0, 0.16, 1.05), 0.042, "#a9834f", "RodBamboo", -1, true)
+		M.beam(root, Vector3(0, 0.16, 1.05), Vector3(0, 0.30, 1.55), 0.022, "#bd9560", "RodTip", -1, true)
+		for z in [0.10, 0.55]:
+			M.torus(root, Vector3(0, 0.05 + z * 0.24, z), 0.055, 0.012, "#6d5233", "RodBinding")
+		M.cylinder(root, Vector3(0.0, -0.02, 0.16), 0.055, 0.05, 0.13, "#5f4a33", "ReelSeat", 10)
+		var reel := M.cylinder(root, Vector3(0.075, -0.05, 0.18), 0.075, 0.075, 0.045, "#8a6f4a", "ReelDrum", 14)
+		reel.rotation.z = PI * 0.5
+		M.torus(root, Vector3(0.075, -0.05, 0.205), 0.030, 0.008, "#c9c2b4", "ReelKnob")
+		M.beam(root, Vector3(0, 0.295, 1.52), Vector3(0, 0.22, 1.45), 0.006, "#e8e4da", "RodLine", -1, true)
 	if kind != "hand":
 		StaticGeometry.bake(root)
 	return root

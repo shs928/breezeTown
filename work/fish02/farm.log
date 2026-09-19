@@ -1,0 +1,59 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+WORLD_CACHE HIT 209 top nodes
+GAME_READY
+FARM new-game-trough-prefilled OK
+FARM new-game-energy-full OK
+FARM new-game-feed-stocked OK
+FARM tillage-works-on-open-grass OK
+FARM plant-in-season OK
+FARM plant-out-of-season-rejected OK
+FARM crop-alive-before-season-change OK
+FARM season-change-withers-crop OK
+FARM rotation-first-crop-matures OK
+FARM rotation-harvest-records-last-crop OK
+FARM rotation-replant-marked OK
+FARM rotation-delays-growth OK
+FARM rotation-growth-resumes OK
+FARM rotation-recovers-next-night OK
+FARM hoe-energy-cost-base OK
+FARM spend-energy-deducts OK
+FARM spend-energy-blocks-when-tired OK
+FARM ration-restores-energy OK
+FARM buy-upgrade-succeeds OK
+FARM tool-level-raised OK
+FARM upgrade-costs-deducted OK
+FARM upgraded-tool-cheaper OK
+FARM buy-upgrade-without-funds-fails OK
+FARM buy-upgrade-to-max OK
+FARM buy-upgrade-at-max-fails OK
+FARM max-tool-cheapest OK
+FARM fertilized-flag-set OK
+FARM fertilizer-speeds-growth OK
+FARM quality-sell-math OK
+FARM quality-cleared-on-sell OK
+FARM quality-roll-returns-tier OK
+FARM xp-levels-up OK
+FARM level-raises-energy-cap OK
+FARM buy-building-upgrade OK
+FARM building-level-and-costs OK
+FARM barn-capacity-raised OK
+FARM building-upgrade-without-funds-fails OK
+FARM tool-power-base OK
+FARM tool-power-scaled OK
+FARM buy-animal-adds-to-pasture OK
+FARM bought-animal-is-chicken-in-home OK
+FARM fill-trough-consumes-feed OK
+FARM fed-night-produces OK
+FARM fed-night-raises-friendship OK
+FARM trough-cleared-after-night OK
+FARM starved-night-produces-nothing OK
+FARM starved-night-lowers-friendship OK
+FARM high-friendship-doubles-output OK
+FARM save-writes-ok OK
+FARM load-restores-economy OK
+FARM load-restores-round-two OK
+FARM load-restores-tool-levels OK
+FARM load-restores-animals OK
+FARM npc-land-still-protected OK
+FARM_RESULT PASS 54 checks

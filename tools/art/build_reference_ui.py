@@ -147,47 +147,86 @@ for name, box in {
     save(name, isolate_icon(box, silhouette, name == "can"))
 
 # Tools absent from the reference get distinct silhouettes; no reused seed bag or hoe.
-for name in ("sword", "hand", "pickaxe", "sapling", "fence", "ration"):
-    image = Image.new("RGBA", (136, 128))
-    draw = ImageDraw.Draw(image)
-    if name == "sword":
-        draw.polygon([(46, 92), (58, 102), (114, 20), (106, 8), (92, 14)], fill="#7d9aa7", outline="#514d43", width=3)
-        draw.polygon([(58, 92), (106, 16), (96, 18), (50, 84)], fill="#c4d5d8")
-        draw.line([(34, 74), (72, 104)], fill="#775138", width=14)
-        draw.line([(32, 110), (52, 86)], fill="#9c6a3d", width=16)
-        draw.ellipse((22, 102, 40, 120), fill="#d5ad51", outline="#67503b", width=3)
+# Drawn at 2x then downscaled for clean edges; shared warm ink outline keeps the row coherent.
+INK = "#4d4337"
+
+
+def start_icon():
+    image = Image.new("RGBA", (272, 256))
+    return image, ImageDraw.Draw(image)
+
+
+def finish_icon(image):
+    return image.resize((68, 64), Image.Resampling.LANCZOS)
+
+
+for name in ("sword", "hand", "pickaxe", "sapling", "fence", "ration", "rod"):
+    image, draw = start_icon()
+    if name == "rod":
+        # 钓鱼竿（LIFE-01）：斜置竹竿 + 线轮 + 垂线与鱼钩。
+        draw.line([(52, 214), (232, 44)], fill="#a9834f", width=18)
+        draw.line([(70, 216), (226, 58)], fill="#c8a369", width=7)
+        draw.ellipse((96, 150, 150, 196), fill="#8a6f4a", outline="#5f4a33", width=7)
+        draw.ellipse((114, 162, 132, 180), fill="#c9c2b4")
+        draw.line([(226, 50), (218, 96), (224, 150)], fill="#e8e4da", width=5, joint="curve")
+        draw.arc((208, 140, 240, 168), 90, 300, fill="#c9c2b4", width=5)
+        draw.line([(196, 128), (232, 92)], fill="#a9834f", width=8)
+    elif name == "sword":
+        # 握柄与缠绳
+        draw.line([(108, 214), (152, 166)], fill="#775138", width=32, joint="curve")
+        for t in range(3):
+            f = 0.25 + t * 0.25
+            x = 108 + (152 - 108) * f
+            y = 214 + (166 - 214) * f
+            draw.line([(x - 12, y + 12), (x + 12, y - 12)], fill="#9c6a3d", width=6)
+        draw.ellipse((84, 210, 132, 252), fill="#d5ad51", outline="#67503b", width=7)
+        draw.ellipse((96, 222, 110, 234), fill="#f0d68a")
+        draw.polygon([(118, 198), (150, 168), (214, 224), (182, 252)], fill="#d5ad51", outline="#67503b", width=7)
+        # 剑身：深边 + 亮面 + 高光
+        draw.polygon([(148, 192), (184, 224), (236, 60), (206, 32)], fill="#7d9aa7", outline=INK, width=7)
+        draw.polygon([(158, 194), (192, 220), (226, 70), (208, 46)], fill="#c4d5d8")
+        draw.line([(168, 198), (218, 62)], fill="#eef5f5", width=8)
     elif name == "pickaxe":
-        draw.line([(33, 110), (83, 40)], fill="#705039", width=17)
-        draw.line([(33, 107), (80, 43)], fill="#c8975a", width=10)
-        draw.polygon([(27, 37), (61, 24), (82, 24), (106, 39), (122, 62), (96, 48), (78, 44), (53, 44), (19, 60)], fill="#69828c", outline="#485458", width=4)
-        draw.line([(29, 39), (65, 29), (81, 29), (104, 42)], fill="#c1d0cf", width=5)
-        draw.polygon([(69, 24), (86, 28), (85, 50), (66, 45)], fill="#8d724d", outline="#584733", width=3)
+        draw.line([(66, 220), (166, 80)], fill="#705039", width=34, joint="curve")
+        draw.line([(66, 214), (162, 84)], fill="#c8975a", width=20, joint="curve")
+        draw.line([(70, 204), (154, 92)], fill="#e2bc7f", width=7, joint="curve")
+        draw.polygon([(54, 74), (122, 48), (164, 48), (212, 78), (244, 124), (192, 96), (156, 88), (106, 88), (38, 120)], fill="#69828c", outline="#485458", width=8)
+        draw.line([(60, 80), (130, 58), (164, 58), (206, 84)], fill="#c1d0cf", width=10, joint="curve")
+        draw.polygon([(138, 48), (172, 56), (170, 100), (132, 90)], fill="#8d724d", outline="#584733", width=6)
     elif name == "sapling":
-        draw.ellipse((28, 93, 111, 114), fill="#aa7542", outline="#775333", width=3)
-        draw.line([(67, 99), (66, 46), (89, 26)], fill="#75834d", width=7)
-        draw.ellipse((22, 33, 68, 63), fill="#7eaf54", outline="#557744", width=3)
-        draw.ellipse((68, 19, 113, 45), fill="#8fbd5b", outline="#587b41", width=3)
-        draw.line([(31, 43), (64, 55)], fill="#b4d37e", width=3)
-        draw.line([(75, 37), (102, 27)], fill="#c3dc91", width=3)
-        draw.ellipse((32, 97, 59, 105), fill="#c28d4e")
+        draw.ellipse((56, 186, 222, 230), fill="#aa7542", outline="#775333", width=6)
+        draw.ellipse((72, 194, 128, 212), fill="#c28d4e")
+        draw.line([(134, 200), (132, 92), (178, 54)], fill="#75834d", width=14, joint="curve")
+        draw.line([(138, 192), (136, 100)], fill="#9db06a", width=5, joint="curve")
+        draw.ellipse((44, 66, 136, 126), fill="#7eaf54", outline="#557744", width=6)
+        draw.line([(56, 88), (122, 108)], fill="#b4d37e", width=5)
+        draw.ellipse((136, 38, 226, 90), fill="#8fbd5b", outline="#587b41", width=6)
+        draw.line([(148, 60), (208, 46)], fill="#c3dc91", width=5)
+        draw.ellipse((152, 18, 194, 54), fill="#a5cd74", outline="#587b41", width=5)
     elif name == "fence":
-        for x in (22, 91):
-            draw.polygon([(x, 27), (x + 7, 17), (x + 20, 22), (x + 20, 110), (x, 113)], fill="#bb8a51", outline="#755233", width=3)
-            draw.line([(x + 5, 29), (x + 5, 102)], fill="#dcb479", width=3)
-        for y in (42, 77):
-            draw.polygon([(16, y), (117, y - 4), (117, y + 13), (16, y + 17)], fill="#c99a61", outline="#785635", width=3)
-            draw.line([(24, y + 3), (108, y)], fill="#e5bf84", width=3)
+        for x in (44, 182):
+            draw.polygon([(x, 54), (x + 14, 34), (x + 40, 44), (x + 40, 220), (x, 226)], fill="#bb8a51", outline="#755233", width=7)
+            draw.line([(x + 10, 58), (x + 10, 204)], fill="#dcb479", width=6)
+        for y in (84, 154):
+            draw.polygon([(32, y), (234, y - 8), (234, y + 26), (32, y + 34)], fill="#c99a61", outline="#785635", width=7)
+            draw.line([(48, y + 6), (216, y - 2)], fill="#e5bf84", width=6)
     elif name == "ration":
-        draw.rounded_rectangle((24, 35, 116, 100), radius=26, fill="#c48b45", outline="#78512e", width=4)
-        draw.ellipse((25, 29, 113, 88), fill="#deb773", outline="#986c3c", width=3)
-        for x in (47, 68, 88):
-            draw.line([(x, 45), (x - 8, 66)], fill="#f3d797", width=7)
+        draw.rounded_rectangle((48, 74, 232, 202), radius=52, fill="#c48b45", outline="#78512e", width=8)
+        draw.ellipse((52, 56, 226, 172), fill="#deb773", outline="#986c3c", width=6)
+        for x in (94, 136, 176):
+            draw.line([(x, 90), (x - 16, 132)], fill="#f3d797", width=14, joint="curve")
+        draw.arc((74, 72, 150, 128), 200, 300, fill="#f6e3ae", width=8)
     else:
-        draw.rounded_rectangle((46, 48, 94, 102), radius=16, fill="#deb780", outline="#806147", width=4)
+        # 拳头：四指圆段 + 掌 + 侧向拇指 + 绿袖口。
         for i in range(4):
-            draw.rounded_rectangle((42 + i * 14, 20 + (i % 2) * 6, 60 + i * 14, 76), radius=10, fill="#efd3a0", outline="#806147", width=4)
-        draw.rounded_rectangle((26, 64, 54, 94), radius=10, fill="#efd3a0", outline="#806147", width=4)
-        draw.rounded_rectangle((46, 96, 90, 118), radius=6, fill="#839b6e", outline="#5d684a", width=4)
-    save(name, image.resize((68, 64), Image.Resampling.LANCZOS))
+            x0 = 84 + i * 28
+            top = 40 + (i % 2) * 12
+            draw.rounded_rectangle((x0, top, x0 + 28, 152), radius=13, fill="#f0d6a2", outline="#806147", width=6)
+            draw.arc((x0 + 5, top + 4, x0 + 23, top + 22), 180, 330, fill="#f9e7c0", width=4)
+        draw.rounded_rectangle((76, 122, 208, 198), radius=24, fill="#e6c78e", outline="#806147", width=7)
+        draw.ellipse((48, 140, 104, 204), fill="#f0d6a2", outline="#806147", width=6)
+        draw.rounded_rectangle((92, 192, 180, 238), radius=20, fill="#839b6e", outline="#5d684a", width=7)
+        draw.line([(102, 204), (166, 204)], fill="#a7bb90", width=6)
+    save(name, finish_icon(image))
 
 print(f"UI textures written: {OUT}")

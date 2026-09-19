@@ -57,14 +57,16 @@ static func load_game(slot: int) -> Dictionary:
 	var file := FileAccess.open(world_path, FileAccess.READ)
 	if file == null:
 		return {"ok": false, "error": "无法读取 %s" % world_path}
-	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	# POLISH-04：get_as_text 在 release 导出模板（4.7.1/4.7.2 Windows）会触发退出
+	# 时堆损坏段错误，统一改用 get_buffer + get_string_from_utf8。
+	var parsed: Variant = JSON.parse_string(_read_text(file))
 	file.close()
 	if typeof(parsed) != TYPE_DICTIONARY:
 		# 主档损坏时尝试上一次备份。
 		var backup_path := slot_dir(slot) + "/backup/world.prev.json"
 		if FileAccess.file_exists(backup_path):
 			var backup_file := FileAccess.open(backup_path, FileAccess.READ)
-			parsed = JSON.parse_string(backup_file.get_as_text())
+			parsed = JSON.parse_string(_read_text(backup_file))
 			backup_file.close()
 	if typeof(parsed) != TYPE_DICTIONARY:
 		return {"ok": false, "error": "存档已损坏"}
@@ -74,3 +76,9 @@ static func load_game(slot: int) -> Dictionary:
 
 static func has_save(slot: int) -> bool:
 	return FileAccess.file_exists(slot_dir(slot) + "/world.json")
+
+
+static func _read_text(file: FileAccess) -> String:
+	## POLISH-04：get_as_text() 在 release 导出模板（Godot 4.7.1/4.7.2 Windows）
+	## 会在进程退出时触发堆损坏段错误；get_buffer + get_string_from_utf8 无此问题。
+	return file.get_buffer(file.get_length()).get_string_from_utf8()

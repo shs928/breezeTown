@@ -1,6 +1,17 @@
 # V2 接续记录（历史日志）
 
-更新：2026-09-18。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近批次：BUILD-01 构建导出（单文件 exe + 内置烘焙世界）；此前 SETTINGS-01 设置面板、POLISH-02 输入动作层与手柄、POLISH-01 第一轮（天气）、STORE-02、STORE-01、INDOOR-02+PROCESS-01、INDOOR-01、PERF-03、QUEST-01、NPC-01、GATHER-01、FISH-01 两轮、ART-02、PERF-02、PLAY-01、FARM-01 两轮。画风终验与交通方案待用户确认。
+更新：2026-09-18。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近批次：POLISH-04 退出堆损坏排查与发布形态定型；此前 BUILD-01 构建导出、SETTINGS-01 设置面板、POLISH-02 输入动作层与手柄、POLISH-01 第一轮（天气）、STORE-02、STORE-01、INDOOR-02+PROCESS-01、INDOOR-01、PERF-03、QUEST-01、NPC-01、GATHER-01、FISH-01 两轮、ART-02、PERF-02、PLAY-01、FARM-01 两轮。画风终验与交通方案待用户确认。
+
+## 2026-09-18 · POLISH-04 退出段错误排查与发布形态定型（debug 模板导出）
+
+改动范围：`core/save_manager.gd`（_read_text 辅助 + 存档读取 2 处）、`first_map_builder.gd`（_read_text + 指纹/缓存读取 3 处）、`tools/build_windows.sh`（--export-release → --export-debug）。临时探针（exit_bisect/split_payload/leak_probe、main.gd 阶段门、clean-probe 工程）诊断后全部清理。
+
+- **症状**：release 模板导出包（4.7.1/4.7.2 双版本）退出确定性堆损坏（0xC0000374，WER：ntdll）；debug 模板与 dev 引擎全程正常；headless（Dummy 渲染器）也崩 → 非渲染侧。
+- **定位过程（大量二分）**：子树预释放（HUD/天气/灯光/玩家/OutdoorMap 全试）无效；静态资源缓存清空无效；脚本导出三模式、TAA/MSAA/SSAO/粒子、4.7.1 模板均排除；在纯净工程复刻 load+instantiate 游戏 world.scn 即崩（最小复现），进一步二分到 **`FileAccess.get_as_text()` 单 API 即可触发**（10 行探针 3/3 复现；`get_buffer+get_string_from_utf8`/`get_as_utf8_string`/`get_line` 全部干净）。修复全部生产调用点后 stage2a（世界加载）恢复干净退出，但完整启动仍有布局敏感的退出崩溃（同一处代码加两条 if 即翻转）→ 判定为引擎原生缺陷，代码侧无法根治。
+- **上报素材**：clean-probe 最小复现工程（Node3D._ready + FileAccess.get_as_text → release 导出包退出段错误；4.7.1/4.7.2 复现，debug 模板正常）留存于 work/clean-probe/。
+- **发布决策**：构建链改 `--export-debug`。依据：退出 5/5 exit 0、headless smoke PASS + exit 0、实机渲染 128.7 fps（与 release 同级；debug 模板不降低 GDScript 速度）。release 模板待引擎修复后切回。
+- **验证证据**：最终包 quit 3/3 干净、debug smoke PASS、窗口渲染截图 `work/art01/build01-debug-perf.png`；开发回归 13 套 + smoke 全 PASS（core/first_map 154/indoor 160+187/settings 13/npc 159+42/quest 135+31/farm 54/forage 138/fishing 77/weather 40）。**教训**：sed/perl 批量插代码两次搞坏文件（吞行/重复行），阶段门类临时插桩必须用行号 sed 且插完立即 grep 验证；"修好又坏"的波动首先要怀疑二进制布局敏感性而非回退。
+- **剩余范围**：引擎 issue 上报（附最小复现）、退出泄漏告警（资源缓存持有，进程正常退出）、季节地表变化、音效、长时间回归。
 
 ## 2026-09-18 · BUILD-01 构建导出（Windows 单文件 exe + 内置烘焙世界）
 

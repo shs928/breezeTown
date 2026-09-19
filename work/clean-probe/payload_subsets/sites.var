@@ -1,0 +1,199 @@
+[{
+"at": [321.0, 718.0],
+"door": Vector2(-661.4683, 244.74147),
+"factor": 2.6,
+"id": "cottage",
+"kind": "cottage",
+"label": "玩家农舍",
+"position": Vector2(-663.36633, 234.65347),
+"size": Vector2(10.65, 9.61)
+}, {
+"at": [365.0, 729.0],
+"door": Vector2(-576.2376, 264.28064),
+"factor": 2.2,
+"id": "player_barn",
+"kind": "barn",
+"label": "农场谷仓",
+"position": Vector2(-576.2376, 256.43564),
+"size": Vector2(14.77, 11.69)
+}, {
+"at": [279.0, 733.0],
+"door": Vector2(-746.53467, 268.35144),
+"factor": 1.7,
+"id": "player_coop",
+"kind": "coop",
+"label": "农场鸡舍",
+"position": Vector2(-746.53467, 264.35645),
+"size": Vector2(4.67, 3.9900002)
+}, {
+"at": [894.0, 139.0],
+"door": Vector2(471.28714, -905.35614),
+"factor": 2.0,
+"id": "npc_farmhouse",
+"kind": "home_b",
+"label": "北岭农庄",
+"position": Vector2(471.28714, -911.88116),
+"size": Vector2(10.65, 9.05)
+}, {
+"at": [1019.0, 124.0],
+"door": Vector2(718.8119, -932.95917),
+"factor": 2.5,
+"id": "npc_barn",
+"kind": "barn",
+"label": "北岭谷仓",
+"position": Vector2(718.8119, -941.58417),
+"size": Vector2(16.75, 13.25)
+}, {
+"at": [844.0, 247.0],
+"door": Vector2(372.27722, -694.0248),
+"factor": 1.7,
+"id": "npc_coop",
+"kind": "coop",
+"label": "北岭鸡舍",
+"position": Vector2(372.27722, -698.0198),
+"size": Vector2(4.67, 3.9900002)
+}, {
+"at": [421.0, 391.0],
+"door": Vector2(-465.34653, -402.34628),
+"factor": 3.5,
+"id": "clinic",
+"kind": "clinic",
+"label": "医院",
+"position": Vector2(-465.34653, -412.87128),
+"size": Vector2(21.25, 17.050001)
+}, {
+"at": [612.0, 392.0],
+"door": Vector2(-90.753716, -402.89108),
+"factor": 2.5,
+"id": "shop",
+"kind": "shop",
+"label": "皮埃尔杂货店",
+"position": Vector2(-87.128716, -410.89108),
+"size": Vector2(11.25, 9.25)
+}, {
+"at": [757.0, 391.0],
+"door": Vector2(200, -403.49628),
+"factor": 2.5,
+"id": "inn",
+"kind": "inn",
+"label": "酒馆",
+"position": Vector2(200, -412.87128),
+"size": Vector2(19.75, 14.75)
+}, {
+"at": [1065.0, 405.0],
+"door": Vector2(809.901, -374.02353),
+"factor": 3.0,
+"id": "hall",
+"kind": "hall",
+"label": "社区中心",
+"position": Vector2(809.901, -385.14853),
+"size": Vector2(27.25, 18.25)
+}, {
+"at": [550.0, 612.0],
+"door": Vector2(-209.90099, 34.977478),
+"factor": 3.0,
+"id": "library",
+"kind": "library",
+"label": "图书馆",
+"position": Vector2(-209.90099, 24.752476),
+"size": Vector2(21.849998, 16.45)
+}, {
+"at": [768.0, 610.0],
+"door": Vector2(221.78218, 32.48708),
+"factor": 3.3,
+"id": "school",
+"kind": "school",
+"label": "学校",
+"position": Vector2(221.78218, 20.79208),
+"size": Vector2(26.65, 19.390001)
+}, {
+"at": [232.0, 502.0],
+"door": Vector2(-839.60394, -186.74431),
+"factor": 2.0,
+"id": "home_west_1",
+"kind": "home_a",
+"label": "橡树小屋",
+"position": Vector2(-839.60394, -193.0693),
+"size": Vector2(9.85, 8.65)
+}, {
+"at": [382.0, 531.0],
+"door": Vector2(-542.5743, -129.11858),
+"factor": 2.0,
+"id": "home_west_2",
+"kind": "home_b",
+"label": "花篱小屋",
+"position": Vector2(-542.5743, -135.64357),
+"size": Vector2(10.65, 9.05)
+}, {
+"at": [222.0, 593.0],
+"door": Vector2(-859.40594, -6.7462873),
+"factor": 2.0,
+"id": "home_west_3",
+"kind": "home_c",
+"label": "薄荷小屋",
+"position": Vector2(-859.40594, -12.871287),
+"size": Vector2(9.45, 8.25)
+}, {
+"at": [309.0, 612.0],
+"door": Vector2(-687.1287, 31.277475),
+"factor": 2.0,
+"id": "home_west_4",
+"kind": "home_b",
+"label": "溪畔住宅",
+"position": Vector2(-687.1287, 24.752476),
+"size": Vector2(10.65, 9.05)
+}, {
+"at": [382.0, 611.0],
+"door": Vector2(-542.5743, 29.097279),
+"factor": 2.0,
+"id": "home_west_5",
+"kind": "home_a",
+"label": "林荫小屋",
+"position": Vector2(-542.5743, 22.772278),
+"size": Vector2(9.85, 8.65)
+}, {
+"at": [569.0, 493.0],
+"door": Vector2(-172.27722, -204.14609),
+"factor": 2.2,
+"id": "home_town",
+"kind": "home_a",
+"label": "广场住宅",
+"position": Vector2(-172.27722, -210.89108),
+"size": Vector2(10.81, 9.49)
+}, {
+"at": [847.0, 501.0],
+"door": Vector2(378.21783, -187.6345),
+"factor": 2.3,
+"id": "bakery",
+"kind": "bakery",
+"label": "面包房",
+"position": Vector2(378.21783, -195.0495),
+"size": Vector2(13.59, 10.83)
+}, {
+"at": [486.0, 521.0],
+"door": Vector2(-336.63367, -148.12054),
+"factor": 2.0,
+"id": "carpenter",
+"kind": "carpenter",
+"label": "木工坊",
+"position": Vector2(-336.63367, -155.44554),
+"size": Vector2(13.85, 10.65)
+}, {
+"at": [847.0, 407.0],
+"door": Vector2(378.21783, -374.26312),
+"factor": 2.0,
+"id": "smith",
+"kind": "smith",
+"label": "铁匠铺",
+"position": Vector2(378.21783, -381.1881),
+"size": Vector2(13.05, 9.85)
+}, {
+"at": [706.0, 1021.0],
+"door": Vector2(99.0099, 844.02844),
+"factor": 2.5,
+"id": "harbor_house",
+"kind": "inn",
+"label": "港务小屋",
+"position": Vector2(99.0099, 834.65344),
+"size": Vector2(19.75, 14.75)
+}]

@@ -33,6 +33,11 @@ static func _scan_inputs(dir_path:String,exts:Array,out:Array)->void:
 				if name.ends_with(ext):out.append(path);break
 		name=dir.get_next()
 
+## POLISH-04：get_as_text() 在 release 导出模板（Godot 4.7.1/4.7.2 Windows）
+## 会在进程退出时触发堆损坏段错误；统一走 get_buffer + get_string_from_utf8。
+static func _read_text(file:FileAccess)->String:
+	return file.get_buffer(file.get_length()).get_string_from_utf8()
+
 static func _fingerprint()->String:
 	var paths:=[]
 	_scan_inputs("res://scripts",[".gd",".gdshader"],paths)
@@ -75,7 +80,10 @@ static func _load_prebuilt()->Dictionary:
 	if not FileAccess.file_exists(dir+"/world.scn") or not FileAccess.file_exists(dir+"/data.var"):
 		print("WORLD_PREBUILT FAIL missing-artifact")
 		return {}
-	var scene:PackedScene=load(dir+"/world.scn")
+	# BUILD-01：CACHE_MODE_IGNORE 绕过资源缓存——缓存的 GLB 外部依赖链在退出
+	# 拆除时触发堆损坏（release 模板确定性崩溃）；世界场景每进程只加载一次，
+	# 不依赖跨实例共享，绕过缓存无代价。
+	var scene:PackedScene=ResourceLoader.load(dir+"/world.scn","",ResourceLoader.CACHE_MODE_IGNORE)
 	if scene==null:
 		print("WORLD_PREBUILT FAIL load-scn")
 		return {}
@@ -85,7 +93,7 @@ static func _load_prebuilt()->Dictionary:
 		print("WORLD_PREBUILT FAIL instantiate")
 		return {}
 	var data_file:=FileAccess.open(dir+"/data.var",FileAccess.READ)
-	var payload:Dictionary=str_to_var(data_file.get_as_text())
+	var payload:Dictionary=str_to_var(_read_text(data_file))
 	if payload==null or payload.is_empty() or not payload.has("sites"):
 		root.free()
 		print("WORLD_PREBUILT FAIL payload")
@@ -96,15 +104,15 @@ static func _load_prebuilt()->Dictionary:
 static func _load_cache(fingerprint:String)->Dictionary:
 	var cache:=_cache_root()
 	var mark:=FileAccess.open(cache+"/fingerprint.txt",FileAccess.READ)
-	if mark==null or mark.get_as_text().strip_edges()!=fingerprint:return {}
+	if mark==null or _read_text(mark).strip_edges()!=fingerprint:return {}
 	if not FileAccess.file_exists(cache+"/world.scn") or not FileAccess.file_exists(cache+"/data.var"):return {}
-	var scene:PackedScene=load(cache+"/world.scn")
+	var scene:PackedScene=ResourceLoader.load(cache+"/world.scn","",ResourceLoader.CACHE_MODE_IGNORE)
 	if scene==null:return {}
 	var root:=scene.instantiate()
 	if root==null or not root is Node3D:
 		if root!=null:root.free()
 		return {}
-	var payload:Dictionary=str_to_var(FileAccess.open(cache+"/data.var",FileAccess.READ).get_as_text())
+	var payload:Dictionary=str_to_var(_read_text(FileAccess.open(cache+"/data.var",FileAccess.READ)))
 	if payload==null or payload.is_empty() or not payload.has("sites"):
 		root.free()
 		return {}

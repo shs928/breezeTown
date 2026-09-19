@@ -1,0 +1,61 @@
+[{
+"category": "tree",
+"position": Vector2(-693.36633, 218.65347),
+"species": "oak",
+"variant": 0
+}, {
+"category": "tree",
+"position": Vector2(-675.36633, 218.65347),
+"species": "pine",
+"variant": 1
+}, {
+"category": "tree",
+"position": Vector2(-657.36633, 218.65347),
+"species": "oak",
+"variant": 0
+}, {
+"category": "tree",
+"position": Vector2(-693.36633, 211.65347),
+"species": "pine",
+"variant": 1
+}, {
+"category": "tree",
+"position": Vector2(-675.36633, 211.65347),
+"species": "oak",
+"variant": 0
+}, {
+"category": "tree",
+"position": Vector2(-657.36633, 211.65347),
+"species": "pine",
+"variant": 1
+}, {
+"category": "tree",
+"position": Vector2(-693.36633, 204.65347),
+"species": "oak",
+"variant": 0
+}, {
+"category": "tree",
+"position": Vector2(-675.36633, 204.65347),
+"species": "pine",
+"variant": 1
+}, {
+"category": "tree",
+"position": Vector2(-657.36633, 204.65347),
+"species": "oak",
+"variant": 0
+}, {
+"category": "tree",
+"position": Vector2(-694.36633, 247.65347),
+"species": "pine",
+"variant": 1
+}, {
+"category": "tree",
+"position": Vector2(-694.36633, 260.65347),
+"species": "oak",
+"variant": 0
+}, {
+"category": "tree",
+"position": Vector2(-694.36633, 273.65347),
+"species": "pine",
+"variant": 1
+}]

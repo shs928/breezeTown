@@ -1,0 +1,216 @@
+[{
+"id": "town_north",
+"paved": true,
+"points": [Vector2(-275.24753, -620.79205), Vector2(-247.52475, -529.70294), Vector2(-245.54456, -307.9208), Vector2(-247.52475, -96.039604), Vector2(-13.861386, -84.15842), Vector2(231.68317, -72.27723), Vector2(510.89108, -80.19802), Vector2(639.60394, -84.15842), Vector2(744.55444, -50.49505)],
+"width": 17.821782178217823
+}, {
+"id": "clinic_loop",
+"paved": true,
+"points": [Vector2(-243.56436, -521.78217), Vector2(-419.80197, -531.68317), Vector2(-607.9208, -505.94058), Vector2(-790.099, -444.55444), Vector2(-813.8614, -321.78217), Vector2(-716.83167, -260.39603), Vector2(-465.34653, -254.45544), Vector2(-247.52475, -254.45544)],
+"width": 15.84158415841584
+}, {
+"id": "town_east",
+"paved": true,
+"points": [Vector2(491.0891, -545.54456), Vector2(499.0099, -402.9703), Vector2(499.0099, -250.49506), Vector2(502.9703, -82.178215), Vector2(500.9901, 103.960396)],
+"width": 17.821782178217823
+}, {
+"id": "town_middle",
+"paved": true,
+"points": [Vector2(-241.58415, -309.901), Vector2(-27.722773, -305.94058), Vector2(227.72278, -305.94058), Vector2(499.0099, -305.94058)],
+"width": 15.84158415841584
+}, {
+"id": "town_south",
+"paved": true,
+"points": [Vector2(-421.78217, -254.45544), Vector2(-421.78217, -62.376236), Vector2(-411.8812, 115.84158), Vector2(-219.80199, 149.50494), Vector2(-11.881188, 131.68317), Vector2(41.58416, -8.910892), Vector2(37.623764, -301.9802)],
+"width": 17.821782178217823
+}, {
+"id": "residential_loop",
+"paved": true,
+"points": [Vector2(-813.8614, -321.78217), Vector2(-928.7129, -248.51485), Vector2(-984.15845, -98.019806), Vector2(-1011.88116, 94.0594), Vector2(-720.79205, 101.9802), Vector2(-421.78217, 96.039604)],
+"width": 15.84158415841584
+}, {
+"id": "residential_cross",
+"paved": true,
+"points": [Vector2(-974.25745, -98.019806), Vector2(-744.55444, -94.0594), Vector2(-427.72278, -96.039604)],
+"width": 13.86138613861386
+}, {
+"id": "school_entry",
+"paved": true,
+"points": [Vector2(235.64357, -72.27723), Vector2(235.64357, 145.54456), Vector2(372.27722, 153.46535), Vector2(500.9901, 103.960396)],
+"width": 13.86138613861386
+}, {
+"id": "community_entry",
+"paved": true,
+"points": [Vector2(744.55444, -50.49505), Vector2(758.41583, -234.65347), Vector2(794.0594, -296.0396)],
+"width": 13.86138613861386
+}, {
+"id": "west_path",
+"paved": false,
+"points": [Vector2(-1299.0099, 230.69307), Vector2(-1051.4851, 228.71288), Vector2(-1005.9406, 90.09901)],
+"width": 13.86138613861386
+}, {
+"id": "mine_path",
+"paved": false,
+"points": [Vector2(-873.26733, -848.51483), Vector2(-819.802, -729.703), Vector2(-730.69305, -636.63367), Vector2(-572.2772, -614.8515), Vector2(-400, -608.9109), Vector2(-285.14853, -606.9307)],
+"width": 13.86138613861386
+}, {
+"id": "north_forest",
+"paved": false,
+"points": [Vector2(-257.42575, -640.59406), Vector2(-200, -705.9406), Vector2(-152.47525, -757.4257), Vector2(-51.48515, -749.50494), Vector2(67.32674, -700), Vector2(247.52475, -690.099), Vector2(287.12872, -612.8713), Vector2(491.0891, -573.26733)],
+"width": 11.88118811881188
+}, {
+"id": "npc_farm_loop",
+"paved": false,
+"points": [Vector2(495.0495, -545.54456), Vector2(267.32672, -599.0099), Vector2(243.56436, -713.8614), Vector2(267.32672, -937.6238), Vector2(255.44554, -1020.79205), Vector2(310.89108, -1068.3169), Vector2(609.901, -1066.3367), Vector2(851.48517, -1054.4554), Vector2(900.9901, -919.802), Vector2(893.06934, -690.099), Vector2(813.8614, -606.9307), Vector2(495.0495, -545.54456)],
+"width": 13.86138613861386
+}, {
+"id": "npc_farm_entry",
+"paved": false,
+"points": [Vector2(592.0792, -591.0891), Vector2(596.0396, -755.44556), Vector2(582.1782, -820.79205)],
+"width": 11.88118811881188
+}, {
+"id": "mountain_trail",
+"paved": false,
+"points": [Vector2(899.0099, -636.63367), Vector2(1025.7426, -595.0495), Vector2(1114.8514, -646.53467), Vector2(1235.6436, -713.8614), Vector2(1299.0099, -725.74255)],
+"width": 11.88118811881188
+}, {
+"id": "player_farm_loop",
+"paved": false,
+"points": [Vector2(-1039.604, 228.71288), Vector2(-1037.6238, 406.9307), Vector2(-1000, 527.7228), Vector2(-910.8911, 595.0495), Vector2(-669.30695, 630.69305), Vector2(-401.9802, 600.9901), Vector2(-172.27722, 559.40594), Vector2(-55.445545, 490.099), Vector2(-39.603962, 286.1386), Vector2(9.9009905, 167.32674), Vector2(-7.920792, 129.70297), Vector2(-229.70297, 135.64357), Vector2(-423.7624, 119.80198), Vector2(-746.53467, 115.84158), Vector2(-970.29706, 135.64357), Vector2(-1039.604, 228.71288)],
+"width": 13.86138613861386
+}, {
+"id": "player_farm_entry",
+"paved": false,
+"points": [Vector2(-663.36633, 626.73267), Vector2(-657.4257, 412.87128), Vector2(-657.4257, 303.9604)],
+"width": 9.9009900990099
+}, {
+"id": "harbor_path",
+"paved": false,
+"points": [Vector2(-51.48515, 490.099), Vector2(7.920792, 557.4257), Vector2(104.95049, 602.9703), Vector2(190.09901, 624.7525), Vector2(289.10892, 743.56433), Vector2(421.78217, 844.55444), Vector2(598.0198, 878.21783), Vector2(861.38617, 905.9406), Vector2(1140.5941, 802.9703), Vector2(1299.0099, 812.8713)],
+"width": 13.86138613861386
+}, {
+"id": "lake_orchard",
+"paved": false,
+"points": [Vector2(744.55444, -50.49505), Vector2(766.3366, 48.51485), Vector2(837.6238, 155.44554), Vector2(964.35645, 232.67326), Vector2(1065.3466, 303.9604), Vector2(1132.6732, 440.59406), Vector2(1164.3564, 595.0495), Vector2(1140.5941, 802.9703)],
+"width": 13.86138613861386
+}, {
+"id": "orchard_loop",
+"paved": false,
+"points": [Vector2(766.3366, 48.51485), Vector2(891.0891, 24.752476), Vector2(1045.5446, 14.851485), Vector2(1209.901, 38.61386), Vector2(1198.0198, 212.87129), Vector2(1011.88116, 228.71288), Vector2(849.50494, 169.30693)],
+"width": 9.9009900990099
+}, {
+"id": "wilderness_west",
+"paved": false,
+"points": [Vector2(-1229.703, 541.58417), Vector2(-1061.3861, 521.78217), Vector2(-1000, 527.7228)],
+"width": 11.88118811881188
+}, {
+"id": "entry_cottage",
+"paved": false,
+"points": [Vector2(-661.4683, 244.74147), Vector2(-657.4257, 303.9604)],
+"width": 2.5
+}, {
+"id": "entry_player_barn",
+"paved": false,
+"points": [Vector2(-576.2376, 264.28064), Vector2(-657.4257, 303.9604)],
+"width": 2.5
+}, {
+"id": "entry_player_coop",
+"paved": false,
+"points": [Vector2(-746.53467, 268.35144), Vector2(-657.4257, 303.9604)],
+"width": 2.5
+}, {
+"id": "entry_npc_farmhouse",
+"paved": false,
+"points": [Vector2(471.28714, -905.35614), Vector2(582.1782, -820.79205)],
+"width": 2.5
+}, {
+"id": "entry_npc_barn",
+"paved": false,
+"points": [Vector2(718.8119, -932.95917), Vector2(725.09283, -1060.6715)],
+"width": 2.5
+}, {
+"id": "entry_npc_coop",
+"paved": false,
+"points": [Vector2(372.27722, -694.0248), Vector2(353.99805, -599.88696)],
+"width": 2.5
+}, {
+"id": "entry_clinic",
+"paved": true,
+"points": [Vector2(-465.34653, -402.34628), Vector2(-481.88275, -523.18787)],
+"width": 2.5
+}, {
+"id": "entry_shop",
+"paved": false,
+"points": [Vector2(-90.753716, -402.89108), Vector2(-92.526855, -307.14066)],
+"width": 2.5
+}, {
+"id": "entry_inn",
+"paved": false,
+"points": [Vector2(200, -403.49628), Vector2(200, -305.94058)],
+"width": 2.5
+}, {
+"id": "entry_hall",
+"paved": true,
+"points": [Vector2(809.901, -374.02353), Vector2(794.0594, -296.0396)],
+"width": 2.5
+}, {
+"id": "entry_library",
+"paved": true,
+"points": [Vector2(-209.90099, 34.977478), Vector2(-207.2207, 135.04137)],
+"width": 2.5
+}, {
+"id": "entry_school",
+"paved": false,
+"points": [Vector2(221.78218, 32.48708), Vector2(235.64357, 32.487083)],
+"width": 2.5
+}, {
+"id": "entry_home_west_1",
+"paved": false,
+"points": [Vector2(-839.60394, -186.74431), Vector2(-841.1732, -95.72525)],
+"width": 2.5
+}, {
+"id": "entry_home_west_2",
+"paved": false,
+"points": [Vector2(-542.5743, -129.11858), Vector2(-542.36304, -95.323105)],
+"width": 2.5
+}, {
+"id": "entry_home_west_3",
+"paved": false,
+"points": [Vector2(-859.40594, -6.7462873), Vector2(-857.8669, -96.01307)],
+"width": 2.5
+}, {
+"id": "entry_home_west_4",
+"paved": false,
+"points": [Vector2(-687.1287, 31.277475), Vector2(-685.73785, 101.28376)],
+"width": 2.5
+}, {
+"id": "entry_home_west_5",
+"paved": false,
+"points": [Vector2(-542.5743, 29.097279), Vector2(-541.19714, 98.41209)],
+"width": 2.5
+}, {
+"id": "entry_home_town",
+"paved": false,
+"points": [Vector2(-172.27722, -204.14609), Vector2(-246.50793, -204.83983)],
+"width": 2.5
+}, {
+"id": "entry_bakery",
+"paved": false,
+"points": [Vector2(378.21783, -187.6345), Vector2(381.36993, -76.52366)],
+"width": 2.5
+}, {
+"id": "entry_carpenter",
+"paved": false,
+"points": [Vector2(-336.63367, -148.12054), Vector2(-421.78217, -148.12054)],
+"width": 2.5
+}, {
+"id": "entry_smith",
+"paved": false,
+"points": [Vector2(378.21783, -374.26312), Vector2(378.21783, -305.94058)],
+"width": 2.5
+}, {
+"id": "entry_harbor_house",
+"paved": false,
+"points": [Vector2(99.0099, 844.02844), Vector2(260.60803, 709.3633)],
+"width": 2.5
+}]

@@ -1,0 +1,11 @@
+{
+"cottage_door": Vector3(-661.4683, 0, 244.74147),
+"lake_view": Vector3(516.83167, 0, 547.5248),
+"lighthouse": Vector3(-770.29706, 0, 959.40594),
+"mine_door": Vector3(-871.2871, 0, -856.43567),
+"shop_door": Vector3(-90.753716, 0, -402.89108),
+"spawn": Vector3(-661.4683, 0, 248.74147),
+"town_square": Vector3(79.207924, 0, -199.0099),
+"trough": Vector3(-629.86633, 0, 267.65347),
+"waterfall": Vector3(-340.59406, 0, -731.68317)
+}

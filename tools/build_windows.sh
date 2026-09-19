@@ -13,6 +13,6 @@ echo "[1/2] 烘焙世界 → game/prebuilt/（指纹不变时跳过）"
 timeout 600 "$GODOT" --headless --path "$REPO_ROOT/game" --script res://scripts/bake_world.gd
 
 echo "[2/2] 导出 Windows Desktop → build/BreezeTown.exe"
-timeout 900 "$GODOT" --headless --path "$REPO_ROOT/game" --export-release "Windows Desktop" "$OUT"
+timeout 900 "$GODOT" --headless --path "$REPO_ROOT/game" --export-debug "Windows Desktop" "$OUT"
 
 echo "BUILD OK → $OUT"

@@ -111,6 +111,15 @@ func update_targeting() -> Dictionary:
 			tiles.set_highlight(tiles.center_of(place_key))
 			hud.set_hint("按 E 放置宝箱 · 连通农场共享仓库")
 			return focus
+	# TRANSPORT-02：驿站马车（走到站旁自动解锁；E 呼叫选线）。
+	if game.carriages != null:
+		var carriage_focus: Dictionary = game.carriages.target_at(player_pos)
+		if not carriage_focus.is_empty():
+			if game.carriages.unlock(String(carriage_focus["id"])):
+				hud.show_toast("驿站解锁：%s" % carriage_focus["hint"].trim_prefix("首次抵达 · 解锁驿站："))
+			focus = carriage_focus
+			hud.set_hint(String(focus["hint"]))
+			return focus
 	# NPC-01：村民交谈，低于门点/工具/采集目标（锚点带门侧偏移，不与进店冲突）。
 	for npc in game.npcs:
 		if not is_instance_valid(npc):
@@ -215,6 +224,8 @@ func interact() -> void:
 			game.open_warehouse()
 		"chest_place":
 			game.place_chest(focus["key"])
+		"carriage_station":
+			game.open_carriage(String(focus["id"]))
 		"pickup":
 			var pickup: Node3D = focus["node"]
 			state.add_product(pickup.kind)

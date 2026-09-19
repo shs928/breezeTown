@@ -15,6 +15,7 @@ const GameState := preload("res://scripts/game_state.gd")
 const AnimalDB := preload("res://scripts/data/animal_db.gd")
 const ItemDB := preload("res://scripts/data/item_db.gd")
 const GameSettings := preload("res://scripts/core/game_settings.gd")
+const CarriageDB := preload("res://scripts/data/carriage_db.gd")
 const FishDB := preload("res://scripts/data/fish_db.gd")
 const ForageDB := preload("res://scripts/data/forage_db.gd")
 const QuestDB := preload("res://scripts/data/quest_db.gd")
@@ -44,6 +45,8 @@ var inventory_open := false
 var dialogue_open := false  # NPC-01：对话面板
 var chest_open := false  # STORE-01：共享仓库面板
 var settings_open := false  # SETTINGS-01：设置面板
+var carriage_open := false  # TRANSPORT-02：马车线路面板
+var carriage_from_id := ""  # 当前发车站
 var _rebind_action := ""  # 当前等待按键的重绑动作（空 = 未监听）
 var _rebind_button: Button
 var _map: Control
@@ -126,6 +129,7 @@ func _ready() -> void:
 	_build_dialogue()
 	_build_chest_panel()
 	_build_settings_panel()
+	_build_carriage_panel()
 	_build_mine_status()
 	_build_travel_panel()
 	_fade = ColorRect.new()
@@ -1129,6 +1133,88 @@ func _cancel_rebind() -> void:
 	refresh_settings()
 
 
+## ---- TRANSPORT-02：驿站马车线路面板 ----
+
+var _carriage_panel: PanelContainer
+var _carriage_rows: VBoxContainer
+var carriage_unlock_provider: Callable  # main 注入：func(id) -> bool
+
+
+func _build_carriage_panel() -> void:
+	_carriage_panel = _framed_panel()
+	_carriage_panel.set_anchors_preset(Control.PRESET_CENTER)
+	_carriage_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_carriage_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_carriage_panel.visible = false
+	add_child(_carriage_panel)
+	var layout := VBoxContainer.new()
+	layout.add_theme_constant_override("separation", 8)
+	_carriage_panel.add_child(layout)
+	layout.add_child(_label("驿站马车", 24))
+	layout.add_child(_label("乘坐消耗游戏时长 · 农场—镇区教学线路免费", 13, INK_SOFT))
+	_carriage_rows = VBoxContainer.new()
+	_carriage_rows.add_theme_constant_override("separation", 6)
+	layout.add_child(_carriage_rows)
+	layout.add_child(HSeparator.new())
+	var close := _button("留在原地（Esc）")
+	close.pressed.connect(close_carriage)
+	layout.add_child(close)
+	get_viewport().size_changed.connect(_layout_carriage)
+
+
+func _layout_carriage() -> void:
+	var available := get_viewport().get_visible_rect().size
+	var panel_width := minf(maxf(540.0, _carriage_panel.get_combined_minimum_size().x), available.x - 48.0)
+	_carriage_panel.size = Vector2(panel_width, minf(640.0, available.y - 64.0))
+	_carriage_panel.position = (available - _carriage_panel.size) * 0.5
+
+
+func open_carriage_travel(from_id: String) -> void:
+	carriage_open = true
+	carriage_from_id = from_id
+	refresh_carriage()
+	_carriage_panel.visible = true
+	call_deferred("_layout_carriage")
+	_focus_first_button.call_deferred(_carriage_panel)
+	panels_changed.emit()
+
+
+func close_carriage() -> void:
+	if not carriage_open:
+		return
+	carriage_open = false
+	carriage_from_id = ""
+	_carriage_panel.visible = false
+	panels_changed.emit()
+
+
+func refresh_carriage() -> void:
+	for child in _carriage_rows.get_children():
+		child.queue_free()
+	for dest: String in CarriageDB.ORDER:
+		if dest == carriage_from_id:
+			continue
+		var unlocked: bool = carriage_unlock_provider.is_valid() and bool(carriage_unlock_provider.call(dest))
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 10)
+		var hours: int = CarriageDB.hours_between(carriage_from_id, dest)
+		var fee: int = CarriageDB.fee_between(carriage_from_id, dest)
+		var info := _label("", 16)
+		info.custom_minimum_size.x = 300.0
+		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var ride := _button("乘车")
+		if unlocked:
+			info.text = "%s · %d 游戏时%s" % [CarriageDB.label(dest), hours, " · 免费" if fee == 0 else " · %d 币" % fee]
+			var dest_id: String = dest
+			ride.pressed.connect(func(): carriage_travel_requested.emit(dest_id))
+		else:
+			info.text = "？？？（抵达该站点后解锁）"
+			ride.disabled = true
+		row.add_child(info)
+		row.add_child(ride)
+		_carriage_rows.add_child(row)
+
+
 func capture_rebind(event: InputEvent) -> bool:
 	## SETTINGS-01：重绑监听中吞掉输入，首个按键生效（Esc 取消）。
 	if _rebind_action == "":
@@ -1348,6 +1434,7 @@ signal warehouse_deposit_requested(item: String)  # STORE-01：共享仓库存�
 signal warehouse_withdraw_requested(item: String)  # STORE-01：共享仓库取出
 signal warehouse_discard_requested(item: String)  # STORE-02：丢弃仓库存量（UI 两步确认）
 signal chest_pickup_requested  # STORE-01：收起宝箱
+signal carriage_travel_requested(dest_id: String)  # TRANSPORT-02：马车乘车
 signal sell_requested
 
 
@@ -1535,6 +1622,7 @@ func dismiss_panels() -> void:
 	close_dialogue()
 	close_chest()
 	close_settings()
+	close_carriage()
 	if map_open:
 		toggle_map()
 	if _inventory_panel.visible:
@@ -1544,7 +1632,7 @@ func dismiss_panels() -> void:
 
 
 func modal_open() -> bool:
-	return shop_open or map_open or travel_open or inventory_open or dialogue_open or chest_open or settings_open
+	return shop_open or map_open or travel_open or inventory_open or dialogue_open or chest_open or settings_open or carriage_open
 
 
 func open_mine_travel(current_depth: int) -> void:

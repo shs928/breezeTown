@@ -1,6 +1,16 @@
 # V2 接续记录（历史日志）
 
-更新：2026-09-18。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近批次：SOAK-01 长时间运行回归（整年模拟）；此前 POLISH-05 二轮（树冠/森林季色）、POLISH-05 第一轮（冬雪/秋黄/环境层）、POLISH-04 退出堆损坏排查与发布形态定型、BUILD-01 构建导出、SETTINGS-01、POLISH-02、POLISH-01 第一轮、STORE-02、STORE-01、INDOOR-02+PROCESS-01、INDOOR-01、PERF-03、QUEST-01、NPC-01、GATHER-01、FISH-01 两轮、ART-02、PERF-02、PLAY-01、FARM-01 两轮。画风终验与交通方案待用户确认。
+
+更新：2026-09-18。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近批次：TRANSPORT-02 驿站马车（PLAY-01 方案 A 实施）；此前 SOAK-01 长时回归、POLISH-05 两轮（季节视觉）、POLISH-04 退出崩溃排查、BUILD-01 构建导出、SETTINGS-01、POLISH-02、POLISH-01 第一轮、STORE-02、STORE-01、INDOOR-02+PROCESS-01、INDOOR-01、PERF-03、QUEST-01、NPC-01、GATHER-01、FISH-01 两轮、ART-02、PERF-02、PLAY-01、FARM-01 两轮。画风终验待用户确认。
+
+## 2026-09-18 · TRANSPORT-02 驿站马车（PLAY-01 方案 A，用户选定）
+
+改动范围：新增 `data/carriage_db.gd`（站点/矩阵/票价唯一数据源）与 `carriage_station.gd`（六站表现+解锁+焦点+存档）；改动 `core/interaction_system.gd`（carriage_station 焦点+踩点解锁）、`hud.gd`（马车线路面板+carriage_travel_requested 信号）、`main.gd`（创建/解析锚点/乘车传送/`travel` 存档键）、`docs/product/02-transport-pacing-plan.md`（状态更新+已实施参数）、新增 `tests/carriage_checks.gd`（25 项）。
+
+- **玩法**：六站（农场口/镇广场/矿口/港务码头/北岭农庄/月湾湖畔），农场↔镇区开局解锁（免费教学线路），其余走到站旁自动解锁；站旁 E 呼叫面板选已解锁目的地，乘车扣矩阵时长（2–4 游戏时）+10 币（教学线免费），淡出淡入抵达站旁并 toast（新站解锁提示）。矩阵按 PLAY-01 实测距离标定，对称性有领域断言。
+- **排错记录**：①湖畔站偏移与老王日程锚点几乎重合、农庄站与玛尔妮相距 2.5 米——驿站 2.4 米焦点半径抢在 NPC 对话之前，quest_checks 传话链 7 项连锁失败暴露；两站偏移移出 NPC 日程半径（湖 +7.5/+4.0、农庄 +6/+6）后恢复。教训：**新场景焦点类型的落点必须对照所有既有焦点源的站位半径**。②测试轮询"乘车完成"不能用 `carriage_from_id==""`（close_carriage 在淡出前就清了），必须轮询玩家实际坐标。③本机 Git Bash 的 sed 多行插入（\ 续行）会粘连/丢行——多次踩坑后一律改用临时文件拼接。
+- **验证证据**：`work/art01/transport02-station.png`（农场站实景）；carriage 25 项 PASS（六站定位/默认解锁/踩点解锁/面板/计费计时长/免费线路/穷旅客拒载/矩阵对称/存读档解锁恢复）；回归 indoor 199 / first_map 154 / npc 42 / quest 31 / smoke 全 PASS。
+- **剩余范围**：C1（快跑时间消耗减半）未实施（可作后续节奏微调项）；马车仅停驻表现无行驶动画（氛围增强留 ART 批次）；用户实机手感验收。
 
 ## 2026-09-18 · SOAK-01 长时间运行回归（整年模拟浸泡测试）
 

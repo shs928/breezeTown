@@ -37,6 +37,8 @@ const MapRestore := preload("res://scripts/core/map_restore.gd")
 const InputActions := preload("res://scripts/core/input_actions.gd")
 const GameSettings := preload("res://scripts/core/game_settings.gd")
 const SeasonVisuals := preload("res://scripts/art/season_visuals.gd")
+const CarriageDB := preload("res://scripts/data/carriage_db.gd")
+const CarriageStation := preload("res://scripts/carriage_station.gd")
 
 const DAY_SECONDS := 150.0  # 现实秒 / 游戏日
 const SHOP_RANGE := 2.4
@@ -114,6 +116,8 @@ var _indoor_zoom := 3
 var _indoor_map_pos := Vector3.ZERO
 var _machines := {}  # INDOOR-02："房间id:机器kind" -> MachineState
 var chests: Node3D  # STORE-01：已放置宝箱（共享仓库存取点）
+var carriages: Node3D  # TRANSPORT-02：驿站马车管理器
+var _carriage_from := ""  # 当前乘车发车站
 var _weather_rig: Node3D  # POLISH-01：雨雪粒子挂架（跟随玩家）
 var _weather_rain: GPUParticles3D
 var _weather_snow: GPUParticles3D
@@ -165,6 +169,10 @@ func _ready() -> void:
 	chests.name = "WarehouseChests"
 	chests.map = tiles.map
 	_outdoors.add_child(chests)
+	carriages = CarriageStation.new()
+	carriages.name = "CarriageStations"
+	carriages.setup(_resolve_carriage_anchor)
+	_outdoors.add_child(carriages)
 	_add_water_obstacles()
 	navigation = WorldNavigation.new()
 	navigation.configure(tiles.map)
@@ -217,6 +225,8 @@ func _ready() -> void:
 	hud.warehouse_withdraw_requested.connect(_on_warehouse_withdraw)
 	hud.warehouse_discard_requested.connect(_on_warehouse_discard)
 	hud.chest_pickup_requested.connect(pickup_chest)
+	hud.carriage_travel_requested.connect(_on_carriage_travel)
+	hud.carriage_unlock_provider = func(id: String): return carriages != null and carriages.is_unlocked(id)
 	hud.setup_navigation(world_data["navigation"])
 	hud.refresh()
 	hud.select_slot(0, selected_seed, state.seeds[selected_seed])
@@ -691,6 +701,7 @@ func _save_payload() -> Dictionary:
 		"indoor": {"id": interior_id},
 		"interiors": _machines_payload(),
 		"chests": chests.to_dict(),
+		"travel": carriages.to_dict(),
 	}
 
 
@@ -801,6 +812,10 @@ func _apply_load(saved: Dictionary) -> void:
 	var saved_chests: Dictionary = restore.get("chests", {})
 	if saved_chests is Dictionary and not saved_chests.is_empty():
 		chests.from_dict(saved_chests)
+	# TRANSPORT-02：驿站解锁状态恢复。
+	var saved_travel: Dictionary = restore.get("travel", {})
+	if saved_travel is Dictionary and not saved_travel.is_empty():
+		carriages.from_dict(saved_travel)
 	hud.refresh()
 	var notice := "已读取存档 · 第 %d 天 %s" % [state.day, state.time.season()]
 	if restore["relocated"] > 0:
@@ -1764,6 +1779,46 @@ func _on_warehouse_discard(item: String) -> void:
 		hud.show_toast("已丢弃 %s ×%d" % [GameState.ItemDB.label(item), dropped])
 
 
+## ---- TRANSPORT-02：驿站马车（PLAY-01 方案 A）----
+
+func _resolve_carriage_anchor(anchor: String) -> Vector3:
+	if anchor.begins_with("site:"):
+		return _site_door(anchor.trim_prefix("site:"))
+	return landmarks.get(anchor, landmarks["spawn"])
+
+
+func open_carriage(id: String) -> void:
+	_carriage_from = id
+	player.locked = true
+	hud.open_carriage_travel(id)
+
+
+func _on_carriage_travel(dest: String) -> void:
+	var from: String = _carriage_from
+	if from == "" or dest == from or not CarriageDB.has(dest) or not carriages.is_unlocked(dest):
+		return
+	var fee: int = CarriageDB.fee_between(from, dest)
+	if state.coins < fee:
+		hud.show_toast("车费不够了 · %s需要 %d 币" % [CarriageDB.label(dest), fee])
+		return
+	var hours: int = CarriageDB.hours_between(from, dest)
+	if fee > 0:
+		state.add_coins(-fee)
+	hud.close_carriage()
+	player.locked = false
+	_sync_player_lock()
+	hud.fade_transition(func():
+		_advance_world_time(float(hours))
+		var newly: bool = carriages.unlock(dest)
+		player.teleport(carriages.position_of(dest))
+		hud.refresh()
+		var note := "抵达 %s · 车程 %d 游戏时" % [CarriageDB.label(dest), hours]
+		if fee > 0:
+			note += " · 车费 %d 币" % fee
+		if newly:
+			note += " · 新驿站已解锁！"
+		hud.show_toast(note)
+	, _finish_transition)
 func _on_warehouse_withdraw(item: String) -> void:
 	var moved: int = state.warehouse_withdraw(item)
 	if moved > 0:

@@ -36,12 +36,20 @@ static func _scan_inputs(dir_path:String,exts:Array,out:Array)->void:
 static func _fingerprint()->String:
 	var paths:=[]
 	_scan_inputs("res://scripts",[".gd",".gdshader"],paths)
-	_scan_inputs("res://resources/models",[".glb"],paths)
 	_scan_inputs("res://resources/maps",[".json"],paths)
 	paths.sort()
+	# BUILD-01：指纹 = 路径 + 文件字节长度（.gd/.json 在源树与导出 PCK 中逐字节
+	# 一致）。GLB 不进指纹：导出 PCK 只含导入产物不含 .glb 源，扫它必然失配；
+	# GLB 变化的时效性由构建链每次全量烘焙（bake_world.gd 不做跳过）保证。
 	var lines:=PackedStringArray()
-	for path in paths:lines.append(path+":"+FileAccess.get_md5(path))
-	return "\n".join(lines).sha256_text().substr(0,32)
+	for path in paths:
+		var f:=FileAccess.open(path,FileAccess.READ)
+		var stamp:="missing"
+		if f!=null:
+			stamp=str(f.get_length())
+			f.close()
+		lines.append(path+":"+stamp)
+	return "\n".join(lines).md5_text().substr(0,32)
 
 static func build()->Dictionary:
 	var fingerprint:=_fingerprint()
@@ -49,10 +57,41 @@ static func build()->Dictionary:
 	if not cached.is_empty():
 		print("WORLD_CACHE HIT ",cached["root"].get_child_count()," top nodes")
 		return cached
+	if OS.has_feature("template"):
+		# BUILD-01：导出包内置烘焙世界（只读），首启免 27 秒重建。
+		# 不做运行时指纹校验：PCK 由构建链（tools/build_windows.sh）保证在每次
+		# 导出前全量重烘；而 PCK 内 .gd 字节形态与源树有差异，指纹比对必失配。
+		var prebuilt:=_load_prebuilt()
+		if not prebuilt.is_empty():
+			print("WORLD_PREBUILT HIT ",prebuilt["root"].get_child_count()," top nodes")
+			return prebuilt
 	print("WORLD_CACHE MISS")
 	var data:=_build_world()
 	_store_cache(fingerprint,data)
 	return data
+
+static func _load_prebuilt()->Dictionary:
+	var dir:="res://prebuilt/willow_creek_valley_v1"
+	if not FileAccess.file_exists(dir+"/world.scn") or not FileAccess.file_exists(dir+"/data.var"):
+		print("WORLD_PREBUILT FAIL missing-artifact")
+		return {}
+	var scene:PackedScene=load(dir+"/world.scn")
+	if scene==null:
+		print("WORLD_PREBUILT FAIL load-scn")
+		return {}
+	var root:=scene.instantiate()
+	if root==null or not root is Node3D:
+		if root!=null:root.free()
+		print("WORLD_PREBUILT FAIL instantiate")
+		return {}
+	var data_file:=FileAccess.open(dir+"/data.var",FileAccess.READ)
+	var payload:Dictionary=str_to_var(data_file.get_as_text())
+	if payload==null or payload.is_empty() or not payload.has("sites"):
+		root.free()
+		print("WORLD_PREBUILT FAIL payload")
+		return {}
+	payload["root"]=root
+	return payload
 
 static func _load_cache(fingerprint:String)->Dictionary:
 	var cache:=_cache_root()

@@ -1,6 +1,17 @@
 # V2 接续记录（历史日志）
 
-更新：2026-09-18。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近批次：SETTINGS-01 设置面板（显示/音量/键位重绑）；此前 POLISH-02 输入动作层与手柄、POLISH-01 第一轮（天气）、STORE-02、STORE-01、INDOOR-02+PROCESS-01、INDOOR-01、PERF-03、QUEST-01、NPC-01、GATHER-01、FISH-01 两轮、ART-02、PERF-02、PLAY-01、FARM-01 两轮。画风终验与交通方案待用户确认。
+更新：2026-09-18。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近批次：BUILD-01 构建导出（单文件 exe + 内置烘焙世界）；此前 SETTINGS-01 设置面板、POLISH-02 输入动作层与手柄、POLISH-01 第一轮（天气）、STORE-02、STORE-01、INDOOR-02+PROCESS-01、INDOOR-01、PERF-03、QUEST-01、NPC-01、GATHER-01、FISH-01 两轮、ART-02、PERF-02、PLAY-01、FARM-01 两轮。画风终验与交通方案待用户确认。
+
+## 2026-09-18 · BUILD-01 构建导出（Windows 单文件 exe + 内置烘焙世界）
+
+改动范围：新增 `export_presets.cfg`、`tools/build_windows.sh`、`scripts/bake_world.gd`、`scripts/tools/make_icon.gd`、`game/icon.png`；改动 `first_map_builder.gd`（长度指纹 + 导出包预置世界）、`.gitignore`（prebuilt/ 与 icon_raw.png）。
+
+- **构建链**：`tools/build_windows.sh` 两步——①全量烘焙世界进 `game/prebuilt/`（约 11 秒，每次构建重烘不做跳过）；②`--export-release "Windows Desktop"` 出 `build/BreezeTown.exe`（171MB 单文件，内嵌 PCK，S3TC/BPTC）。产品名/图标/描述已进 exe 资源。
+- **首启加速**：导出包运行时 `OS.has_feature("template")` 命中即加载 `res://prebuilt/` 只读世界（`WORLD_PREBUILT HIT`），清空用户缓存首启也无 27 秒重建、不写 `user://cache/`。
+- **指纹方案的三次迭代（重要教训）**：①`FileAccess.get_md5` 对 PCK 内嵌文件行为与源树不同；②此引擎构建无字节级哈希 API（PackedByteArray 无 md5/sha256/hex_encode，无 HashContext，String 无 utf32_to_string——全部实测排除）；③导出 PCK 根本不含 .glb 源文件（只有导入产物），且 headless 导出时脚本的编译形态与源树长度不同——**任何跨环境内容指纹都会误拒**。最终：开发缓存用"路径+文件长度"指纹（.gd/.json 两环境逐字节一致），导出包预置世界不做运行时校验（完整性由构建链保证）。
+- **其他排错**：导出路径必须绝对路径且父目录须先存在；`OS.has_feature("export")` 是错误特性名（正确为 `"template"`）；bake 脚本解析失败时 Godot 不退出（协程悬挂）导致后台任务空转 35 分钟——构建链所有 Godot 调用加 `timeout`。
+- **验证证据**：导出包清空用户缓存后 headless smoke 全 PASS 且 `WORLD_PREBUILT HIT`、无缓存写入；窗口模式启动画面完整（`work/art01/build01-windowed.png`）；开发环境回归 first_map 154 / core / indoor 187 / settings 13 / smoke 全 PASS。
+- **剩余范围**：退出时段错误（既有 ObjectDB/资源泄漏的终态表现，POLISH-01 备查项）、Steam 管道部署与 depot 打包、macOS/Linux 导出、版本号与自动更新策略。
 
 ## 2026-09-18 · SETTINGS-01 设置面板（显示/音量/键位重绑，ConfigFile 持久化）
 

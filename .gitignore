@@ -38,3 +38,5 @@ runtime.lock
 work/game-3d-*.log
 work/game-3d-*.png
 work/art-2_5d/
+game/prebuilt/
+game/icon_raw.png

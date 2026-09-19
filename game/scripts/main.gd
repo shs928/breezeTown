@@ -1226,7 +1226,7 @@ func _setup_environment() -> void:
 
 
 func _apply_season_visuals(season_key: String) -> void:
-	## POLISH-05：季节变化时重设地面雪量；材质首次使用时从世界地形节点取。
+	## POLISH-05：季节变化时重设地面雪量与树叶季色；材质首次使用时从世界取。
 	_season_visual_applied = season_key
 	if _ground_material == null and world_data.has("root"):
 		var terrain: Node = (world_data["root"] as Node).find_child("MetricTerrain", true, false)
@@ -1235,6 +1235,17 @@ func _apply_season_visuals(season_key: String) -> void:
 	if _ground_material != null:
 		_ground_material.set_shader_parameter("snow_amount", SeasonVisuals.snow_amount_for(season_key))
 		_ground_material.set_shader_parameter("season_tint", SeasonVisuals.ground_tint_for(season_key))
+	# POLISH-05 二轮：树冠季色。代码构建树（樱花/幼树）走 "Leaves" 覆盖材质；
+	# GLB 树（森林/成树）按材质名前缀原地变异 albedo（共享资源一次生效）。
+	# _outdoors 一棵树涵盖世界子树与森林分块；_parts 实例被记录后，后续新分块自动生效。
+	SeasonVisuals.apply_foliage_tint(season_key)
+	var foliage := SeasonVisuals.foliage_material()
+	if _outdoors != null:
+		for node: Node in _outdoors.find_children("Leaves", "MeshInstance3D", true, false):
+			(node as MeshInstance3D).material_override = foliage
+		SeasonVisuals.apply_glb_foliage(_outdoors, season_key)
+	if scenery != null:
+		SeasonVisuals.apply_parts_foliage(scenery._parts, season_key)
 
 
 func _setup_weather_fx() -> void:

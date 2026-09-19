@@ -50,6 +50,7 @@ func _run() -> void:
 	await _joy_flow()
 	await _settings_flow()
 	await _season_visual_flow()
+	await _foliage_season_flow()
 	await _capture()
 	var verdict := "PASS %d" % count if failures.is_empty() else "FAIL %s" % ",".join(failures)
 	print("INDOOR_SCENE_RESULT " + verdict)
@@ -545,3 +546,40 @@ func _season_visual_flow() -> void:
 	game._apply_season_visuals("autumn")
 	_check("autumn-clears-snow", float(game._ground_material.get_shader_parameter("snow_amount")) == 0.0)
 	game._apply_season_visuals("spring")  # 还原，避免影响后续检查
+
+
+func _foliage_season_flow() -> void:
+	## POLISH-05 二轮：树冠季色覆盖——Leaves 网格与森林 FoliageMulti 均接季色材质。
+	await _until(func(): return game._season_visual_applied != "")
+	game._apply_season_visuals("winter")
+	var leaves: Array = game._outdoors.find_children("Leaves", "MeshInstance3D", true, false)
+	_check("leaves-nodes-exist", leaves.size() > 0)
+	if not leaves.is_empty():
+		var override: Material = (leaves[0] as MeshInstance3D).material_override
+		_check("leaves-winter-override", override != null and is_equal_approx((override as StandardMaterial3D).albedo_color.r, 0.58))
+	var foliage_singleton: StandardMaterial3D = SeasonVisuals.foliage_singleton()
+	_check("foliage-singleton-tinted", is_equal_approx(foliage_singleton.albedo_color.r, 0.58))
+	# GLB 树冠材质原地变异：冬季 PineLeaf 变暗（B>R），秋季 R 通道超原色。
+	var pine_leaf: StandardMaterial3D = null
+	for part: Dictionary in game.scenery._parts["pine"]:
+		var mesh: Mesh = part["mesh"]
+		for s in range(mesh.get_surface_count()):
+			var mat: Material = mesh.surface_get_material(s)
+			if mat is StandardMaterial3D and (mat as StandardMaterial3D).resource_name.begins_with("PineLeaf"):
+				pine_leaf = mat
+				break
+		if pine_leaf != null:
+			break
+	_check("pine-leaf-material-found", pine_leaf != null)
+	game._apply_season_visuals("winter")
+	if pine_leaf != null:
+		var original: Color = SeasonVisuals.original_color_of(pine_leaf)
+		_check("pine-winter-darkened", pine_leaf.albedo_color.r < original.r and pine_leaf.albedo_color.b > pine_leaf.albedo_color.r)
+	game._apply_season_visuals("autumn")
+	if not leaves.is_empty():
+		var autumn_override: Material = (leaves[0] as MeshInstance3D).material_override
+		_check("leaves-autumn-override", autumn_override != null and (autumn_override as StandardMaterial3D).albedo_color.r > 1.3)
+	if pine_leaf != null:
+		var original: Color = SeasonVisuals.original_color_of(pine_leaf)
+		_check("pine-autumn-reddened", pine_leaf.albedo_color.r > original.r)
+	game._apply_season_visuals("spring")

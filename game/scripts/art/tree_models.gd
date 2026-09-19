@@ -43,7 +43,7 @@ static func build(species: String = "oak", variant: int = 0, stage: int = 3) -> 
 	crown.name = "Crown"
 	crown.position.y = [0.18, 0.4, 0.8, 1.7][stage]
 	root.add_child(crown)
-	M.mesh_node(crown, _meshes[key][1], -crown.position, M.paint("#ffffff"), "Leaves")
+	M.mesh_node(crown, _meshes[key][1], -crown.position, M.paint("#fffffe"), "Leaves")
 	return root
 
 

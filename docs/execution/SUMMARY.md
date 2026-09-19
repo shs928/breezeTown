@@ -1,6 +1,15 @@
 # V2 接续记录（历史日志）
 
-更新：2026-09-18。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近批次：POLISH-05 季节地表视觉第一轮；此前 POLISH-04 退出堆损坏排查与发布形态定型、BUILD-01 构建导出、SETTINGS-01、POLISH-02、POLISH-01 第一轮、STORE-02、STORE-01、INDOOR-02+PROCESS-01、INDOOR-01、PERF-03、QUEST-01、NPC-01、GATHER-01、FISH-01 两轮、ART-02、PERF-02、PLAY-01、FARM-01 两轮。画风终验与交通方案待用户确认。
+更新：2026-09-18。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近批次：POLISH-05 二轮（树冠/森林季色）；此前 POLISH-05 第一轮（冬雪/秋黄/环境层）、POLISH-04 退出堆损坏排查与发布形态定型、BUILD-01 构建导出、SETTINGS-01、POLISH-02、POLISH-01 第一轮、STORE-02、STORE-01、INDOOR-02+PROCESS-01、INDOOR-01、PERF-03、QUEST-01、NPC-01、GATHER-01、FISH-01 两轮、ART-02、PERF-02、PLAY-01、FARM-01 两轮。画风终验与交通方案待用户确认。
+
+## 2026-09-18 · POLISH-05 二轮：树冠/森林季色（樱花冬季穿帮修复 + 秋季金林）
+
+改动范围：`art/season_visuals.gd`（叶季色表、共享季色材质、GLB 材质原地变异 + 字符串键原色表、_parts 通道）、`art/tree_models.gd`（Leaves 材质改专属 `#fffffe` 单例）、`main.gd`（_apply_season_visuals 扩展三通道）、`tests/indoor_checks.gd`（树冠季色 7 项）。
+
+- **三条通道对应三类载体**：①森林/成树 GLB——材质名前缀（PineLeaf/Broadleaf）识别树冠，albedo 原地变异（共享导入资源一次生效全场景）；②代码树冠（樱花/幼树）——合并进 StaticGeometry 批次，树叶改挂 `#fffffe` 专属材质使其自成独立批次，季切只改共享材质 albedo；③世界内嵌 GLB 树——MeshInstance 遍历覆盖。树干（WarmBark）与果实（AppleVermilion）排除。
+- **排错记录**：①首版给 MultiMesh 设 material_override——会整体替换 GLB 材质丢纹理，靠"森林无 FoliageMulti 命名"的测试失败暴露，改材质变异方案后撤销；②原色表用 Object 键在存读档后失效（材质实例释放）——改"材质名@路径"字符串键；③GLB 遍历只扫 MeshInstance3D 漏掉 MultiMesh——补 _parts 通道；④"Leaves 命名节点"只在代码构建树存在，世界树全是 GLB 或已合并——按载体分流是本批核心设计。
+- **验证证据**：`work/art01/polish05b-{winter-trees,autumn-forest,winter-forest}.png`（秋橡金黄/松橄榄金、冬樱霜紫）、四季 `polish05-season-{1,29,57,85}.png`；season 18 + indoor 199 全 PASS；回归 14 套 + smoke 全 PASS；导出包重建后退出 0 + smoke PASS。
+- **剩余范围**：灌木季色（材质色非顶点色，需单独方案）、雪天细节、音效、长时间回归、引擎 issue 上报。
 
 ## 2026-09-18 · POLISH-05 季节地表视觉第一轮（冬雪盖、秋草黄、环境色调层）
 

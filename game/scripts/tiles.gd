@@ -160,6 +160,16 @@ func harvest(key: Vector2i) -> String:
 	return kind
 
 
+func water_all() -> int:
+	## POLISH-01：雨天自动浇灌——所有可浇的已种植耕地，返回浇灌格数。
+	var count := 0
+	for key: Vector2i in farm.tiles:
+		if farm.water(key):
+			_sync_view(key)
+			count += 1
+	return count
+
+
 func rollover() -> void:
 	farm.rollover()
 	for key: Vector2i in farm.tiles:

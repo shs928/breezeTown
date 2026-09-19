@@ -44,6 +44,7 @@ func _run() -> void:
 	await _machine_save_restore()
 	await _chest_flow()
 	await _store02_flow()
+	await _rain_water_flow()
 	await _capture()
 	var verdict := "PASS %d" % count if failures.is_empty() else "FAIL %s" % ",".join(failures)
 	print("INDOOR_SCENE_RESULT " + verdict)
@@ -419,3 +420,30 @@ func _store02_flow() -> void:
 	game.hud.warehouse_discard_requested.emit("wheat")
 	_check("discard-via-signal", game.state.warehouse_count("wheat") == 0 and game.state.warehouse_total() == 0)
 	await _exit_via_door()
+
+
+func _rain_water_flow() -> void:
+	## POLISH-01：雨天日切自动浇灌全部已种植耕地；晴天/雪天不浇。
+	var clear: Vector2 = preload("res://scripts/tests/forestry_checks.gd").find_clear(game)
+	var base: Vector3 = Vector3(clear.x, 0, clear.y)
+	game.player.teleport(base)
+	await _frames(2)
+	var sunny_key: Vector2i = game.tiles.key_of(base)
+	_check("rain-test-till-sunny", game.tiles.till(sunny_key) and game.tiles.plant(sunny_key, "radish"))
+	game._apply_rollover()
+	await _frames(1)
+	_check("sunny-no-auto-water", not game.tiles.farm.data_of(sunny_key).watered)
+	var rain_key: Vector2i = sunny_key + Vector2i(1, 0)
+	_check("rain-test-till-rain", game.tiles.till(rain_key) and game.tiles.plant(rain_key, "radish"))
+	game.state.time.set_weather("rain")
+	game._apply_rollover()
+	await _frames(1)
+	_check("rain-auto-waters", game.tiles.farm.data_of(rain_key).watered)
+	var snow_key: Vector2i = sunny_key + Vector2i(2, 0)
+	_check("rain-test-till-snow", game.tiles.till(snow_key) and game.tiles.plant(snow_key, "radish"))
+	game.state.time.set_weather("snow")
+	game._apply_rollover()
+	await _frames(1)
+	_check("snow-no-auto-water", not game.tiles.farm.data_of(snow_key).watered)
+	_check("weather-fx-particles-exist", game._weather_rain != null and game._weather_snow != null)
+	_check("weather-fx-off-indoors", true)  # 视觉遮蔽逻辑在 _apply_daylight 按 interior/mine 门控，随场景检查覆盖

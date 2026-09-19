@@ -45,6 +45,11 @@ static func weather_for_day(calendar_day: int) -> String:
 	return kind
 
 
+static func is_rainy(kind: String) -> bool:
+	## POLISH-01：该天气是否浇灌耕地（雪不浇——冬季作物枯萎，规则无歧义）。
+	return kind == "rain" or kind == "storm"
+
+
 func season_index() -> int:
 	return (day - 1) / SEASON_LENGTH % SEASON_NAMES.size()
 

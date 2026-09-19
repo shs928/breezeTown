@@ -11,6 +11,7 @@ func _initialize() -> void:
 	_day_progression()
 	_overrides_and_load()
 	_events()
+	_rain_water_rule()
 	print("WEATHER_RESULT %s %d checks" % ["PASS" if failures.is_empty() else "FAIL " + ",".join(failures), count])
 	quit(0 if failures.is_empty() else 1)
 
@@ -122,3 +123,15 @@ func _check(label: String, result: bool) -> void:
 	print("WEATHER %s %s" % [label, "OK" if result else "FAIL"])
 	if not result:
 		failures.append(label)
+
+
+func _rain_water_rule() -> void:
+	## POLISH-01：雨天/暴风雨浇灌耕地；雪、晴、多云不浇。
+	_check("rainy-rain", GameClock.is_rainy("rain"))
+	_check("rainy-storm", GameClock.is_rainy("storm"))
+	for kind in ["sunny", "cloudy", "snow"]:
+		_check("not-rainy-%s" % kind, not GameClock.is_rainy(kind))
+	_check("cycle-day3-rain-waters", GameClock.is_rainy(GameClock.weather_for_day(3)))
+	_check("cycle-day6-storm-waters", GameClock.is_rainy(GameClock.weather_for_day(6)))
+	_check("cycle-day1-sunny-not", not GameClock.is_rainy(GameClock.weather_for_day(1)))
+	_check("winter-snow-not-rainy", not GameClock.is_rainy(GameClock.weather_for_day(85)))

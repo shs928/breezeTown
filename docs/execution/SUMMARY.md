@@ -1,6 +1,17 @@
 # V2 接续记录（历史日志）
 
-更新：2026-09-18。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近批次：STORE-02 仓库扩容/丢弃/分类+加工第二辈配方；此前 STORE-01 工作台与仓库、INDOOR-02+PROCESS-01、INDOOR-01、PERF-03、QUEST-01、NPC-01、GATHER-01、FISH-01 两轮、ART-02、PERF-02、PLAY-01、FARM-01 两轮。画风终验与交通方案待用户确认。
+更新：2026-09-18。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近批次：POLISH-01 第一轮（天气视觉与降雨浇地）；此前 STORE-02 仓库扩容/丢弃/分类+加工第二辈配方、STORE-01 工作台与仓库、INDOOR-02+PROCESS-01、INDOOR-01、PERF-03、QUEST-01、NPC-01、GATHER-01、FISH-01 两轮、ART-02、PERF-02、PLAY-01、FARM-01 两轮。画风终验与交通方案待用户确认。
+
+## 2026-09-18 · POLISH-01 第一轮（天气视觉与降雨浇地）
+
+改动范围：`tiles.gd`（`water_all()`）、`core/game_clock.gd`（`is_rainy()` 静态规则）、`main.gd`（`_setup_weather_fx` 雨雪粒子、`_apply_daylight` 门控与雨天压暗、`_apply_rollover` 降雨浇地、`--weather=` 截图参数）。
+
+- **雨雪粒子**：GPUParticles3D 挂架跟随玩家（y+9），排放盒 ±22 米；雨 900 条细长丝（18–22 m/s + 微风斜落），雪 420 片慢速 billboard 白片（生命周期 6 秒覆盖全程下落）。发射与可见性在 `_apply_daylight` 顶部统一门控：仅室外 + 对应天气；矿场/室内自动关闭。
+- **雨天氛围**：天空色向灰蓝 lerp 45%、环境光 ×0.82、阳光 ×0.45、补光 0.14——与粒子同帧生效，无切换跳变（每帧插值本身就是连续的）。
+- **降雨自动浇地**：`_apply_rollover` 日切结算时按 `GameClock.is_rainy(天气)`（rain/storm；雪不浇——冬季作物枯萎，规则无歧义）调用 `tiles.water_all()`，toast 浇灌株数；睡觉与自然日切一致生效，雨天早上一睁眼全农场已浇好。
+- **排错记录**：无新坑；`_apply_daylight` 顶部门控设计让矿场分支 early-return 不会漏关粒子。
+- **验证证据**：`work/art01/polish01-rain-1600.png`（雨天农田实机：雨丝+压暗+天气芯片"雨"）；weather 31→40、indoor 场景 168→176（晴不浇/雨浇/雪不浇三段日切+粒子存在性）；回归 core/npc 159+42/quest 135+31/farm 54/forage 138/fishing 77/first_map 154/smoke 全 PASS，0 脚本错误。
+- **剩余范围**：季节地表变化（冬雪盖/秋色调）、雨声音效、设置/键位/手柄、构建产物、长时间回归。
 
 ## 2026-09-18 · STORE-02 仓库扩容/丢弃/分类 + 加工第二辈配方
 

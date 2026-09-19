@@ -111,6 +111,9 @@ var _indoor_zoom := 3
 var _indoor_map_pos := Vector3.ZERO
 var _machines := {}  # INDOOR-02："房间id:机器kind" -> MachineState
 var chests: Node3D  # STORE-01：已放置宝箱（共享仓库存取点）
+var _weather_rig: Node3D  # POLISH-01：雨雪粒子挂架（跟随玩家）
+var _weather_rain: GPUParticles3D
+var _weather_snow: GPUParticles3D
 
 # 昼夜关键帧：时刻 / 天空色 / 环境色 / 环境强度 / 阳光色 / 阳光强度
 const SKY_KEYS := [
@@ -279,6 +282,9 @@ func _process(delta: float) -> void:
 			_mine_map_timer = 0.25
 	# INDOOR-01：室内时地图标记钉在建筑门口，避免室内局部坐标画到山谷外。
 	hud.track_position(_indoor_map_pos if interior_id != "" else player.global_position)
+	# POLISH-01：雨雪挂架跟随玩家。
+	if _weather_rig != null and is_instance_valid(player):
+		_weather_rig.global_position = player.global_position + Vector3(0, 9, 0)
 	_apply_daylight()
 
 
@@ -767,6 +773,11 @@ func _apply_load(saved: Dictionary) -> void:
 
 func _apply_rollover() -> void:
 	tiles.rollover()
+	if GameClock.is_rainy(state.time.weather):
+		# POLISH-01：雨天/暴风雨自动浇灌全部已种植耕地（雪不浇）。
+		var watered: int = tiles.water_all()
+		if watered > 0:
+			hud.show_toast("降雨浇灌了 %d 格耕地" % watered)
 	surface_resources.on_day_rollover(state.day)
 	if forage != null:
 		# GATHER-01：采集物日切补种；换季时先清理不合季物种并提示株数。
@@ -1172,9 +1183,65 @@ func _setup_environment() -> void:
 		lamp.light_size = 0.22
 		_outdoors.add_child(lamp)
 		_night_lights.append(lamp)
+	_setup_weather_fx()
+
+
+func _setup_weather_fx() -> void:
+	## POLISH-01：雨雪粒子挂架跟随玩家，仅室外对应天气时发射。
+	_weather_rig = Node3D.new()
+	_weather_rig.name = "WeatherFx"
+	_weather_rig.position = Vector3(0, 9, 0)
+	_weather_rig.visible = false
+	add_child(_weather_rig)
+	_weather_rain = _make_precipitation(true)
+	_weather_snow = _make_precipitation(false)
+	_weather_rig.add_child(_weather_rain)
+	_weather_rig.add_child(_weather_snow)
+
+
+func _make_precipitation(rain: bool) -> GPUParticles3D:
+	var particles := GPUParticles3D.new()
+	particles.name = "Rain" if rain else "Snow"
+	particles.amount = 900 if rain else 420
+	particles.lifetime = 0.9 if rain else 6.0
+	particles.visibility_aabb = AABB(Vector3(-24, -14, -24), Vector3(48, 30, 48))
+	var material := ParticleProcessMaterial.new()
+	material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	material.emission_box_extents = Vector3(22, 1.5, 22)
+	material.direction = Vector3(0.1, -1, 0)
+	material.spread = 2.0
+	material.initial_velocity_min = 18.0 if rain else 1.4
+	material.initial_velocity_max = 22.0 if rain else 2.4
+	material.gravity = Vector3(1.5, -6.0, 0) if rain else Vector3(0.5, -1.2, 0)
+	material.scale_min = 0.75
+	material.scale_max = 1.3
+	particles.process_material = material
+	var mesh := QuadMesh.new()
+	var mesh_material := StandardMaterial3D.new()
+	mesh_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mesh_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mesh_material.vertex_color_use_as_albedo = true
+	mesh_material.billboard_mode = BaseMaterial3D.BILLBOARD_DISABLED if rain else BaseMaterial3D.BILLBOARD_PARTICLES
+	if rain:
+		mesh.size = Vector2(0.035, 0.75)
+		mesh_material.albedo_color = Color(0.62, 0.74, 0.86, 0.5)
+	else:
+		mesh.size = Vector2(0.11, 0.11)
+		mesh_material.albedo_color = Color(0.97, 0.98, 1.0, 0.85)
+	mesh.material = mesh_material
+	particles.draw_pass_1 = mesh
+	return particles
 
 
 func _apply_daylight() -> void:
+	# POLISH-01：雨雪粒子仅室外对应天气发射；矿场/室内一律关闭。
+	var outdoors: bool = mine_depth == 0 and interior_id == ""
+	var rainy: bool = outdoors and GameClock.is_rainy(state.time.weather)
+	var snowing: bool = outdoors and state.time.weather == "snow"
+	if _weather_rig != null:
+		_weather_rig.visible = rainy or snowing
+		_weather_rain.emitting = rainy
+		_weather_snow.emitting = snowing
 	if mine_depth > 0:
 		var palette: Dictionary = MineLayout.theme(mine_depth)
 		_environment.background_color = Color("#262b36")
@@ -1211,6 +1278,12 @@ func _apply_daylight() -> void:
 	_environment.glow_enabled = night > 0.4
 	for lamp in _night_lights:
 		lamp.light_energy = night * 1.85
+	if GameClock.is_rainy(state.time.weather):
+		# POLISH-01：雨天压暗天空与阳光，雨天氛围与粒子一致。
+		_environment.background_color = _environment.background_color.lerp(Color("#7a8391"), 0.45)
+		_environment.ambient_light_energy *= 0.82
+		_sun.light_energy *= 0.45
+		_fill.light_energy = 0.14
 
 
 func _add_obstacles(obstacles: Array) -> void:
@@ -1858,6 +1931,7 @@ func _run_shot() -> void:
 	var equipment_view := false
 	var indoor_shot := ""
 	var place_chest_shot := false
+	var shot_weather := ""
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--at="):
 			var pair := argument.trim_prefix("--at=").split(",")
@@ -1867,6 +1941,8 @@ func _run_shot() -> void:
 			hud.hide()
 		elif argument == "--place-chest":
 			place_chest_shot = true
+		elif argument.begins_with("--weather="):
+			shot_weather = argument.trim_prefix("--weather=")
 		elif argument.begins_with("--indoor="):
 			indoor_shot = argument.trim_prefix("--indoor=")
 		elif argument == "--view=overview":
@@ -1892,6 +1968,8 @@ func _run_shot() -> void:
 			state.clock = argument.trim_prefix("--hour=").to_float()
 	if indoor_shot != "" and InteriorDB.has(indoor_shot):
 		_switch_indoor(indoor_shot)
+	if shot_weather != "":
+		state.time.set_weather(shot_weather)
 	if place_chest_shot:
 		state.chests_ready = 1
 		place_chest(tiles.key_of(player.global_position + Vector3(0, 0, 1.8)))

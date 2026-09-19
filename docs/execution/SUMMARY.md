@@ -1,6 +1,16 @@
 # V2 接续记录（历史日志）
 
-更新：2026-09-18。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近批次：POLISH-04 退出堆损坏排查与发布形态定型；此前 BUILD-01 构建导出、SETTINGS-01 设置面板、POLISH-02 输入动作层与手柄、POLISH-01 第一轮（天气）、STORE-02、STORE-01、INDOOR-02+PROCESS-01、INDOOR-01、PERF-03、QUEST-01、NPC-01、GATHER-01、FISH-01 两轮、ART-02、PERF-02、PLAY-01、FARM-01 两轮。画风终验与交通方案待用户确认。
+更新：2026-09-18。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近批次：POLISH-05 季节地表视觉第一轮；此前 POLISH-04 退出堆损坏排查与发布形态定型、BUILD-01 构建导出、SETTINGS-01、POLISH-02、POLISH-01 第一轮、STORE-02、STORE-01、INDOOR-02+PROCESS-01、INDOOR-01、PERF-03、QUEST-01、NPC-01、GATHER-01、FISH-01 两轮、ART-02、PERF-02、PLAY-01、FARM-01 两轮。画风终验与交通方案待用户确认。
+
+## 2026-09-18 · POLISH-05 季节地表视觉第一轮（冬雪盖、秋草黄、环境色调层）
+
+改动范围：`art/cozy_landscape.gd`（地面着色器 +snow_amount/+season_tint）、新增 `art/season_visuals.gd`（纯函数调色表）、`main.gd`（_apply_daylight 季节层叠加 + _apply_season_visuals + `--day=` 截图参数）、`tests/season_checks.gd`（18 项）、`tests/indoor_checks.gd`（季节联动 5 项）。
+
+- **实现选型**：不加大覆盖面（会盖住道路交互感），改为**地面着色器 uniform**——snow_amount 噪声化混雪（0.82~1.0 随噪声起伏，避免"贴纸感"），season_tint 乘子调草色。世界场景走缓存/预置时同样生效（材质实例运行时取自 MetricTerrain 节点）。环境色调层叠在日光关键帧与雨天压暗之间（顺序：日光插值→季节乘子→雨天压暗）。
+- **视觉结果**：冬季地面全雪盖、作物穿雪、道路如扫过、环境冷蓝；秋季草转干黄+暖金光线；夏季深绿；春季微鲜。树冠/灌木重着色（foliage_tint 已备接口）留下一批——本季樱花树在冬天仍是粉色，是当前最显眼的季节穿帮。
+- **排错记录**：色相方向断言写反（冬 b 通道应更高）；sed 批量编辑 shader 后必须 grep 验证落点。`--day=` 截图参数同步联动 weather_for_day。
+- **验证证据**：`work/art01/polish05-season-{1,29,57,85}.png` 同机位四季对比；season 18 / indoor 192 全 PASS；回归 13 套 + smoke 全 PASS；世界重建+导出后 PREBUILT 命中、退出 0。
+- **剩余范围**：树冠/灌木季节重着色、雪天积水/脚印细节、音效、长时间回归、引擎 issue 上报。
 
 ## 2026-09-18 · POLISH-04 退出段错误排查与发布形态定型（debug 模板导出）
 

@@ -4,6 +4,7 @@ extends SceneTree
 
 const SaveManager := preload("res://scripts/core/save_manager.gd")
 const GameSettings := preload("res://scripts/core/game_settings.gd")
+const SeasonVisuals := preload("res://scripts/art/season_visuals.gd")
 const RecipeDB := preload("res://scripts/data/recipe_db.gd")
 const InteriorDB := preload("res://scripts/data/interior_db.gd")
 const GameState := preload("res://scripts/game_state.gd")
@@ -48,6 +49,7 @@ func _run() -> void:
 	await _rain_water_flow()
 	await _joy_flow()
 	await _settings_flow()
+	await _season_visual_flow()
 	await _capture()
 	var verdict := "PASS %d" % count if failures.is_empty() else "FAIL %s" % ",".join(failures)
 	print("INDOOR_SCENE_RESULT " + verdict)
@@ -528,3 +530,18 @@ func _settings_flow() -> void:
 	game.hud.toggle_inventory()
 	await _frames(1)
 	_check("inventory-closed-final", not game.hud.inventory_open)
+
+
+func _season_visual_flow() -> void:
+	## POLISH-05：季节切换联动地面雪量与色调层（默认春→切冬→切回）。
+	game._apply_season_visuals("spring")
+	_check("spring-no-snow-param", float(game._ground_material.get_shader_parameter("snow_amount")) == 0.0)
+	game.state.time.day = 85  # 冬季首日
+	game._apply_season_visuals("winter")
+	_check("winter-snow-param", float(game._ground_material.get_shader_parameter("snow_amount")) == 1.0)
+	_check("winter-mark-applied", game._season_visual_applied == "winter")
+	var tint: Dictionary = SeasonVisuals.env_tint_for("winter")
+	_check("winter-tint-reachable", tint.has("bg"))
+	game._apply_season_visuals("autumn")
+	_check("autumn-clears-snow", float(game._ground_material.get_shader_parameter("snow_amount")) == 0.0)
+	game._apply_season_visuals("spring")  # 还原，避免影响后续检查

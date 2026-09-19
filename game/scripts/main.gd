@@ -36,6 +36,7 @@ const WorldNavigation := preload("res://scripts/core/world_navigation.gd")
 const MapRestore := preload("res://scripts/core/map_restore.gd")
 const InputActions := preload("res://scripts/core/input_actions.gd")
 const GameSettings := preload("res://scripts/core/game_settings.gd")
+const SeasonVisuals := preload("res://scripts/art/season_visuals.gd")
 
 const DAY_SECONDS := 150.0  # 现实秒 / 游戏日
 const SHOP_RANGE := 2.4
@@ -116,6 +117,8 @@ var chests: Node3D  # STORE-01：已放置宝箱（共享仓库存取点）
 var _weather_rig: Node3D  # POLISH-01：雨雪粒子挂架（跟随玩家）
 var _weather_rain: GPUParticles3D
 var _weather_snow: GPUParticles3D
+var _season_visual_applied := ""  # POLISH-05：已应用季节视觉的季节键（变化时才重设地面雪）
+var _ground_material: ShaderMaterial
 
 # 昼夜关键帧：时刻 / 天空色 / 环境色 / 环境强度 / 阳光色 / 阳光强度
 const SKY_KEYS := [
@@ -1222,6 +1225,18 @@ func _setup_environment() -> void:
 	_setup_weather_fx()
 
 
+func _apply_season_visuals(season_key: String) -> void:
+	## POLISH-05：季节变化时重设地面雪量；材质首次使用时从世界地形节点取。
+	_season_visual_applied = season_key
+	if _ground_material == null and world_data.has("root"):
+		var terrain: Node = (world_data["root"] as Node).find_child("MetricTerrain", true, false)
+		if terrain is MeshInstance3D and (terrain as MeshInstance3D).material_override is ShaderMaterial:
+			_ground_material = (terrain as MeshInstance3D).material_override as ShaderMaterial
+	if _ground_material != null:
+		_ground_material.set_shader_parameter("snow_amount", SeasonVisuals.snow_amount_for(season_key))
+		_ground_material.set_shader_parameter("season_tint", SeasonVisuals.ground_tint_for(season_key))
+
+
 func _setup_weather_fx() -> void:
 	## POLISH-01：雨雪粒子挂架跟随玩家，仅室外对应天气时发射。
 	_weather_rig = Node3D.new()
@@ -1314,6 +1329,16 @@ func _apply_daylight() -> void:
 	_environment.glow_enabled = night > 0.4
 	for lamp in _night_lights:
 		lamp.light_energy = night * 1.85
+	# POLISH-05：季节色调层（冬冷/秋暖/春鲜/夏中性），叠在日光插值与雨天压暗之间。
+	var season_key: String = state.time.season_key()
+	if season_key != _season_visual_applied:
+		_apply_season_visuals(season_key)
+	var tint: Dictionary = SeasonVisuals.env_tint_for(season_key)
+	_environment.background_color = _environment.background_color.lerp(tint["bg"], tint["bg_strength"])
+	_environment.ambient_light_color = _environment.ambient_light_color.lerp(tint["amb"], tint["amb_strength"])
+	_sun.light_color = _sun.light_color.lerp(tint["sun"], tint["sun_strength"])
+	_environment.ambient_light_energy *= tint["energy"]
+	_sun.light_energy *= tint["energy"]
 	if GameClock.is_rainy(state.time.weather):
 		# POLISH-01：雨天压暗天空与阳光，雨天氛围与粒子一致。
 		_environment.background_color = _environment.background_color.lerp(Color("#7a8391"), 0.45)
@@ -1968,6 +1993,7 @@ func _run_shot() -> void:
 	var indoor_shot := ""
 	var place_chest_shot := false
 	var shot_weather := ""
+	var shot_day := 0
 	var open_settings_shot := false
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--at="):
@@ -1982,6 +2008,8 @@ func _run_shot() -> void:
 			open_settings_shot = true
 		elif argument.begins_with("--weather="):
 			shot_weather = argument.trim_prefix("--weather=")
+		elif argument.begins_with("--day="):
+			shot_day = maxi(1, argument.trim_prefix("--day=").to_int())
 		elif argument.begins_with("--indoor="):
 			indoor_shot = argument.trim_prefix("--indoor=")
 		elif argument == "--view=overview":
@@ -2007,6 +2035,9 @@ func _run_shot() -> void:
 			state.clock = argument.trim_prefix("--hour=").to_float()
 	if indoor_shot != "" and InteriorDB.has(indoor_shot):
 		_switch_indoor(indoor_shot)
+	if shot_day > 0:
+		state.time.day = shot_day
+		state.time.set_weather(GameClock.weather_for_day(shot_day))
 	if shot_weather != "":
 		state.time.set_weather(shot_weather)
 	if open_settings_shot:

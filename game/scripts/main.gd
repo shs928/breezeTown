@@ -35,6 +35,7 @@ const SaveManager := preload("res://scripts/core/save_manager.gd")
 const WorldNavigation := preload("res://scripts/core/world_navigation.gd")
 const MapRestore := preload("res://scripts/core/map_restore.gd")
 const InputActions := preload("res://scripts/core/input_actions.gd")
+const GameSettings := preload("res://scripts/core/game_settings.gd")
 
 const DAY_SECONDS := 150.0  # 现实秒 / 游戏日
 const SHOP_RANGE := 2.4
@@ -129,6 +130,8 @@ const SKY_KEYS := [
 
 func _ready() -> void:
 	InputActions.register()  # POLISH-02：先注册输入动作，键盘行为与旧直查一致，手柄可用
+	GameSettings.load_settings()  # SETTINGS-01：显示/音量/键位（测试环境不应用键位）
+	GameSettings.apply_all()
 	state = GameState.new()
 	_npc_rng.randomize()
 	_interaction = InteractionSystem.new()
@@ -293,6 +296,9 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _smoke or _shot_path != "" or _transitioning:
 		return
+	# SETTINGS-01：键位重绑监听中吞掉全部输入，首个按键生效（Esc 取消）。
+	if hud.capture_rebind(event):
+		return
 	var key_event: bool = event is InputEventKey and event.pressed and not event.echo
 	var joy_event: bool = event is InputEventJoypadButton and event.pressed
 	if not (key_event or joy_event):
@@ -303,6 +309,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				player.zoom_index = mini(player.zoom_levels.size() - 1, player.zoom_index + 1)
 			elif event.button_index == MOUSE_BUTTON_LEFT:
 				_on_world_click(event)
+		return
+	if event.is_action_pressed("settings") and not hud.modal_open():
+		hud.open_settings()
 		return
 	# POLISH-02：模态开启时仅 地图/关闭/背包 三项可用（与旧按键白名单一致）。
 	if hud.modal_open():
@@ -1959,6 +1968,7 @@ func _run_shot() -> void:
 	var indoor_shot := ""
 	var place_chest_shot := false
 	var shot_weather := ""
+	var open_settings_shot := false
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--at="):
 			var pair := argument.trim_prefix("--at=").split(",")
@@ -1968,6 +1978,8 @@ func _run_shot() -> void:
 			hud.hide()
 		elif argument == "--place-chest":
 			place_chest_shot = true
+		elif argument == "--open-settings":
+			open_settings_shot = true
 		elif argument.begins_with("--weather="):
 			shot_weather = argument.trim_prefix("--weather=")
 		elif argument.begins_with("--indoor="):
@@ -1997,6 +2009,8 @@ func _run_shot() -> void:
 		_switch_indoor(indoor_shot)
 	if shot_weather != "":
 		state.time.set_weather(shot_weather)
+	if open_settings_shot:
+		hud.open_settings()
 	if place_chest_shot:
 		state.chests_ready = 1
 		place_chest(tiles.key_of(player.global_position + Vector3(0, 0, 1.8)))

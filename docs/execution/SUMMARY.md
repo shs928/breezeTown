@@ -1,6 +1,16 @@
 # V2 接续记录（历史日志）
 
-更新：2026-09-18。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近批次：POLISH-02 输入动作层与手柄支持；此前 POLISH-01 第一轮（天气视觉与降雨浇地）、STORE-02 仓库扩容/丢弃/分类+加工第二辈配方、STORE-01 工作台与仓库、INDOOR-02+PROCESS-01、INDOOR-01、PERF-03、QUEST-01、NPC-01、GATHER-01、FISH-01 两轮、ART-02、PERF-02、PLAY-01、FARM-01 两轮。画风终验与交通方案待用户确认。
+更新：2026-09-18。本文件只留各轮改动与验证的过程记录；**当前状态、下一批任务与运行命令以 [任务板](task-board.md) 为准**（续作入口）。最近批次：SETTINGS-01 设置面板（显示/音量/键位重绑）；此前 POLISH-02 输入动作层与手柄、POLISH-01 第一轮（天气）、STORE-02、STORE-01、INDOOR-02+PROCESS-01、INDOOR-01、PERF-03、QUEST-01、NPC-01、GATHER-01、FISH-01 两轮、ART-02、PERF-02、PLAY-01、FARM-01 两轮。画风终验与交通方案待用户确认。
+
+## 2026-09-18 · SETTINGS-01 设置面板（显示/音量/键位重绑，ConfigFile 持久化）
+
+改动范围：新增 `core/game_settings.gd` 与 `tests/settings_checks.gd`；改动 `core/input_actions.gd`（settings 动作 F10/Start）、`hud.gd`（设置面板+重绑捕获 `capture_rebind`）、`main.gd`（启动应用设置、重绑路由、`--open-settings` 截图参数）。
+
+- **面板**：显示模式（窗口/全屏 OptionButton）、垂直同步 CheckButton、主音量 HSlider（AudioServer 主总线，为音效批次预留）、13 项键位重绑（点击按钮→"按新键…"→按键盘生效、Esc 取消；重绑只替换键盘事件保留手柄绑定）、恢复默认键位。木框羊皮纸风格与全 UI 统一。
+- **持久化**：ConfigFile `user://settings.cfg`；video/audio/keys 三节。**关键设计**：测试环境（BREEZETOWN_SAVE_ROOT 非空）不落盘且启动不应用键位——否则开发者改键后所有 headless 按键注入检查（E 进店等）会静默失配；`save_settings(force)` 供领域测试强制写入。
+- **排错记录**：`apply_keybind` 初版混入未完成的探索代码（`if ... or true: pass`）——写完即读一遍；`load-clamps-display` 断言初版没先把脏值写进文件（load 只读文件，改静态值再 load 不构成往返）。
+- **验证证据**：`work/art01/settings01-panel-1600.png`；settings 领域 13 项、indoor 场景 187 项（含 F10 开关、重绑 K 生效/恢复默认后 Tab 可用）；回归 11 套 + smoke 全 PASS，0 脚本错误。
+- **剩余范围**：设置面板的画质档位（阴影/抗锯齿）、键位重绑的手柄侧 UI、季节地表变化、音效资产。
 
 ## 2026-09-18 · POLISH-02 输入动作层与手柄支持（键盘行为零变化）
 

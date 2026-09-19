@@ -14,6 +14,7 @@ signal quest_turnin_requested(quest_id: String)  # QUEST-01：对话面板交付
 const GameState := preload("res://scripts/game_state.gd")
 const AnimalDB := preload("res://scripts/data/animal_db.gd")
 const ItemDB := preload("res://scripts/data/item_db.gd")
+const GameSettings := preload("res://scripts/core/game_settings.gd")
 const FishDB := preload("res://scripts/data/fish_db.gd")
 const ForageDB := preload("res://scripts/data/forage_db.gd")
 const QuestDB := preload("res://scripts/data/quest_db.gd")
@@ -42,6 +43,9 @@ var travel_open := false
 var inventory_open := false
 var dialogue_open := false  # NPC-01：对话面板
 var chest_open := false  # STORE-01：共享仓库面板
+var settings_open := false  # SETTINGS-01：设置面板
+var _rebind_action := ""  # 当前等待按键的重绑动作（空 = 未监听）
+var _rebind_button: Button
 var _map: Control
 
 var _coins_label: Label
@@ -121,6 +125,7 @@ func _ready() -> void:
 	_build_shop()
 	_build_dialogue()
 	_build_chest_panel()
+	_build_settings_panel()
 	_build_mine_status()
 	_build_travel_panel()
 	_fade = ColorRect.new()
@@ -976,6 +981,168 @@ func _warehouse_row_items() -> Array:
 	return rows
 
 
+## ---- SETTINGS-01：设置面板（显示/音量/键位重绑） ----
+
+var _settings_panel: PanelContainer
+var _settings_rows: VBoxContainer
+var _settings_scroll: ScrollContainer
+var _settings_display: OptionButton
+var _settings_vsync: CheckButton
+var _settings_volume: HSlider
+var _rebind_buttons := {}  # action -> Button
+
+
+func _build_settings_panel() -> void:
+	_settings_panel = _framed_panel()
+	_settings_panel.set_anchors_preset(Control.PRESET_CENTER)
+	_settings_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_settings_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_settings_panel.visible = false
+	add_child(_settings_panel)
+	var layout := VBoxContainer.new()
+	layout.add_theme_constant_override("separation", 8)
+	_settings_panel.add_child(layout)
+	layout.add_child(_label("设置", 24))
+	layout.add_child(_label("F10 或手柄 Start 打开 · Esc 关闭", 13, INK_SOFT))
+	layout.add_child(HSeparator.new())
+	layout.add_child(_label("显示", 19))
+	var display_row := HBoxContainer.new()
+	display_row.add_theme_constant_override("separation", 10)
+	display_row.add_child(_label("显示模式", 16))
+	_settings_display = OptionButton.new()
+	_settings_display.add_item("窗口")
+	_settings_display.add_item("全屏")
+	_settings_display.item_selected.connect(func(index: int):
+		GameSettings.display_mode = index
+		GameSettings.apply_display()
+		GameSettings.save_settings())
+	display_row.add_child(_settings_display)
+	layout.add_child(display_row)
+	var vsync_row := HBoxContainer.new()
+	vsync_row.add_theme_constant_override("separation", 10)
+	vsync_row.add_child(_label("垂直同步", 16))
+	_settings_vsync = CheckButton.new()
+	_settings_vsync.toggled.connect(func(pressed: bool):
+		GameSettings.vsync = pressed
+		GameSettings.apply_vsync()
+		GameSettings.save_settings())
+	vsync_row.add_child(_settings_vsync)
+	layout.add_child(vsync_row)
+	layout.add_child(HSeparator.new())
+	layout.add_child(_label("音量", 19))
+	var volume_row := HBoxContainer.new()
+	volume_row.add_theme_constant_override("separation", 10)
+	volume_row.add_child(_label("主音量", 16))
+	_settings_volume = HSlider.new()
+	_settings_volume.min_value = 0
+	_settings_volume.max_value = 100
+	_settings_volume.custom_minimum_size.x = 260.0
+	_settings_volume.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_settings_volume.value_changed.connect(func(value: float):
+		GameSettings.master_volume = int(value)
+		GameSettings.apply_volume())
+	_settings_volume.drag_ended.connect(func(_changed: bool): GameSettings.save_settings())
+	volume_row.add_child(_settings_volume)
+	layout.add_child(volume_row)
+	layout.add_child(HSeparator.new())
+	layout.add_child(_label("键位（点击后按新键 · Esc 取消）", 19))
+	_settings_rows = VBoxContainer.new()
+	_settings_rows.add_theme_constant_override("separation", 4)
+	_settings_scroll = ScrollContainer.new()
+	_settings_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_settings_scroll.custom_minimum_size.y = 240.0
+	_settings_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_settings_scroll.add_child(_settings_rows)
+	layout.add_child(_settings_scroll)
+	var reset := _button("恢复默认键位")
+	reset.pressed.connect(func():
+		GameSettings.reset_keybinds()
+		refresh_settings())
+	layout.add_child(reset)
+	layout.add_child(HSeparator.new())
+	var close := _button("关闭（Esc）")
+	close.pressed.connect(close_settings)
+	layout.add_child(close)
+	get_viewport().size_changed.connect(_layout_settings)
+	refresh_settings()
+
+
+func _layout_settings() -> void:
+	var available := get_viewport().get_visible_rect().size
+	var panel_width := minf(maxf(540.0, _settings_panel.get_combined_minimum_size().x), available.x - 48.0)
+	_settings_panel.size = Vector2(panel_width, minf(780.0, available.y - 64.0))
+	_settings_panel.position = (available - _settings_panel.size) * 0.5
+
+
+func open_settings() -> void:
+	settings_open = true
+	_settings_panel.visible = true
+	refresh_settings()
+	call_deferred("_layout_settings")
+	_focus_first_button.call_deferred(_settings_panel)
+	panels_changed.emit()
+
+
+func close_settings() -> void:
+	if not settings_open:
+		return
+	settings_open = false
+	_cancel_rebind()
+	_settings_panel.visible = false
+	panels_changed.emit()
+
+
+func refresh_settings() -> void:
+	if _settings_display == null:
+		return
+	_settings_display.selected = GameSettings.display_mode
+	_settings_vsync.button_pressed = GameSettings.vsync
+	_settings_volume.value = float(GameSettings.master_volume)
+	for child in _settings_rows.get_children():
+		child.queue_free()
+	for action: String in GameSettings.REBINDABLE:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 10)
+		var label := _label("%s（%s）" % [GameSettings.REBINDABLE[action], action], 15)
+		label.custom_minimum_size.x = 250.0
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(label)
+		var button := _button(GameSettings.key_label(action))
+		button.custom_minimum_size.x = 130.0
+		_rebind_buttons[action] = button
+		var bound_action: String = action
+		button.pressed.connect(func(): begin_rebind(bound_action))
+		row.add_child(button)
+		_settings_rows.add_child(row)
+
+
+func begin_rebind(action: String) -> void:
+	_cancel_rebind()
+	_rebind_action = action
+	var button: Button = _rebind_buttons.get(action)
+	if button != null:
+		button.text = "按新键…"
+
+
+func _cancel_rebind() -> void:
+	_rebind_action = ""
+	refresh_settings()
+
+
+func capture_rebind(event: InputEvent) -> bool:
+	## SETTINGS-01：重绑监听中吞掉输入，首个按键生效（Esc 取消）。
+	if _rebind_action == "":
+		return false
+	if event is InputEventKey and event.pressed and not event.echo:
+		var action := _rebind_action
+		_rebind_action = ""
+		if event.keycode != KEY_ESCAPE:
+			GameSettings.rebind(action, int(event.physical_keycode) if int(event.physical_keycode) != 0 else int(event.keycode))
+		refresh_settings()
+		return true
+	return true
+
+
 func _build_dialogue() -> void:
 	## NPC-01：底部中央对话框（木框+羊皮纸），支持闲聊文本与送礼列表切换。
 	_dialogue_panel = _framed_panel()
@@ -1367,6 +1534,7 @@ func dismiss_panels() -> void:
 	close_travel()
 	close_dialogue()
 	close_chest()
+	close_settings()
 	if map_open:
 		toggle_map()
 	if _inventory_panel.visible:
@@ -1376,7 +1544,7 @@ func dismiss_panels() -> void:
 
 
 func modal_open() -> bool:
-	return shop_open or map_open or travel_open or inventory_open or dialogue_open or chest_open
+	return shop_open or map_open or travel_open or inventory_open or dialogue_open or chest_open or settings_open
 
 
 func open_mine_travel(current_depth: int) -> void:

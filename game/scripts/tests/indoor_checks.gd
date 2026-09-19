@@ -3,6 +3,7 @@ extends SceneTree
 ## 实机画面验证加 --capture=路径 --capture-size=WxH（窗口模式）。
 
 const SaveManager := preload("res://scripts/core/save_manager.gd")
+const GameSettings := preload("res://scripts/core/game_settings.gd")
 const RecipeDB := preload("res://scripts/data/recipe_db.gd")
 const InteriorDB := preload("res://scripts/data/interior_db.gd")
 const GameState := preload("res://scripts/game_state.gd")
@@ -46,6 +47,7 @@ func _run() -> void:
 	await _store02_flow()
 	await _rain_water_flow()
 	await _joy_flow()
+	await _settings_flow()
 	await _capture()
 	var verdict := "PASS %d" % count if failures.is_empty() else "FAIL %s" % ",".join(failures)
 	print("INDOOR_SCENE_RESULT " + verdict)
@@ -473,3 +475,56 @@ func _joy_flow() -> void:
 	Input.flush_buffered_events()
 	await _until(func(): return game.interior_id == "" and not game._transitioning)
 	_check("joy-exits-cottage", game.interior_id == "" and game._outdoors.visible)
+
+
+func _settings_flow() -> void:
+	## SETTINGS-01：F10 开关设置面板；重绑 背包→K 生效；恢复默认后 Tab 可用。
+	var f10 := InputEventKey.new()
+	f10.keycode = KEY_F10
+	f10.physical_keycode = KEY_F10
+	f10.pressed = true
+	Input.parse_input_event(f10)
+	Input.flush_buffered_events()
+	await _frames(2)
+	_check("settings-opens", game.hud.settings_open and game.hud.modal_open())
+	var esc := InputEventKey.new()
+	esc.keycode = KEY_ESCAPE
+	esc.physical_keycode = KEY_ESCAPE
+	esc.pressed = true
+	Input.parse_input_event(esc)
+	Input.flush_buffered_events()
+	await _frames(2)
+	_check("settings-esc-closes", not game.hud.settings_open and not game.hud.modal_open())
+	# 重绑：背包 → K。
+	game.hud.begin_rebind("inventory")
+	var k_down := InputEventKey.new()
+	k_down.keycode = KEY_K
+	k_down.physical_keycode = KEY_K
+	k_down.pressed = true
+	Input.parse_input_event(k_down)
+	Input.flush_buffered_events()
+	_check("rebind-captured", int(GameSettings.keybinds.get("inventory", 0)) == KEY_K)
+	var k_press := InputEventKey.new()
+	k_press.keycode = KEY_K
+	k_press.physical_keycode = KEY_K
+	k_press.pressed = true
+	Input.parse_input_event(k_press)
+	Input.flush_buffered_events()
+	await _frames(2)
+	_check("rebound-key-opens-inventory", game.hud.inventory_open)
+	game.hud.toggle_inventory()
+	await _frames(1)
+	_check("rebound-key-closes-inventory", not game.hud.inventory_open)
+	# 恢复默认：Tab 可用，K 失效。
+	GameSettings.reset_keybinds()
+	var tab := InputEventKey.new()
+	tab.keycode = KEY_TAB
+	tab.physical_keycode = KEY_TAB
+	tab.pressed = true
+	Input.parse_input_event(tab)
+	Input.flush_buffered_events()
+	await _frames(2)
+	_check("default-tab-opens-inventory", game.hud.inventory_open)
+	game.hud.toggle_inventory()
+	await _frames(1)
+	_check("inventory-closed-final", not game.hud.inventory_open)

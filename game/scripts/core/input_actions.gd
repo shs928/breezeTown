@@ -21,6 +21,7 @@ static func register() -> void:
 	_bind("map", [KEY_M], JOY_BUTTON_DPAD_UP)
 	_bind("quick_save", [KEY_F5])
 	_bind("quick_load", [KEY_F9])
+	_bind("settings", [KEY_F10], JOY_BUTTON_START)
 	_bind("tool_prev", [], JOY_BUTTON_LEFT_SHOULDER)
 	_bind("tool_next", [], JOY_BUTTON_RIGHT_SHOULDER)
 	_bind("zoom_out", [], JOY_BUTTON_DPAD_LEFT)
